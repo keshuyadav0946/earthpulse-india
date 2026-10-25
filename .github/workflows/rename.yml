@@ -1,0 +1,17 @@
+name: Rename Landslide page
+on:
+  workflow_dispatch:
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rename uploaded Landslide page to index.html
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git mv landslide/india-landslide-disaster-website.html landslide/index.html
+          git commit -m "Rename uploaded Landslide page to index.html"
+          git push
