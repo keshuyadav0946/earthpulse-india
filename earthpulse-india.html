@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<link rel="icon" href="data:," />
+<title>EarthPulse India</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#050c13; --panel:#0b1826; --panel2:#0e2033;
+  --line:#1d3a4d; --ink:#ecf6f2; --muted:#9db8ad; --teal:#2fe6a7; --teal-dk:#0d3b2c;
+  --amber:#ffb454; --danger:#ff7a6b; --ok:#3fe08c;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Mukta","Noto Sans",system-ui,sans-serif; font-size:17px; line-height:1.55;
+  min-height:100vh; overflow-x:hidden;
+}
+#stars{position:fixed; inset:0; z-index:0; pointer-events:none}
+.stage{display:none; position:relative; z-index:1; min-height:100vh}
+.stage.active{display:flex; flex-direction:column; animation:stageIn .55s ease both}
+@keyframes stageIn{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+h1,h2,h3,.display{font-family:"Baloo 2","Noto Sans","Mukta",sans-serif}
+button{font-family:inherit; cursor:pointer}
+input,select{font-family:inherit; font-size:16px}
+:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+
+/* ---------- LANGUAGE BAR (top-right, all stages) ---------- */
+.lang-bar{
+  position:fixed; top:12px; right:12px; z-index:50;
+  display:flex; align-items:center; gap:8px;
+  background:rgba(11,24,38,.92); border:1px solid var(--line); border-radius:99px;
+  padding:6px 8px 6px 14px; backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+html[dir="rtl"] .lang-bar{right:auto; left:12px; padding:6px 14px 6px 8px}
+.lang-bar label{font-size:15px; font-weight:700; color:var(--muted); white-space:nowrap}
+.lang-bar select{
+  background:var(--panel2); color:var(--ink); border:1px solid var(--line);
+  border-radius:99px; padding:7px 10px; font-size:16px; font-weight:600; max-width:46vw;
+}
+
+/* ---------- STAGE 1 : SPLASH ---------- */
+#stage-splash{align-items:center; justify-content:center; text-align:center; padding:64px 18px 48px}
+.earth-wrap{position:relative; width:min(62vw,320px); aspect-ratio:1; margin:6px auto 8px}
+.earth{
+  position:absolute; inset:12%; border-radius:50%; overflow:hidden;
+  background:radial-gradient(circle at 32% 28%, #a5ecff 0%, #3fa9cf 30%, #1d6f9f 58%, #0a3a5c 82%, #062740 100%);
+  box-shadow:0 0 60px rgba(63,169,207,.45), 0 0 140px rgba(47,230,167,.18), inset -18px -14px 44px rgba(0,0,0,.55);
+  animation:earthFloat 6s ease-in-out infinite;
+}
+@keyframes earthFloat{0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}}
+.land{position:absolute; inset:-12%; animation:spin 46s linear infinite}
+.land i{position:absolute; border-radius:46% 54% 58% 42%/52% 44% 56% 48%; background:#3fae72; opacity:.85; filter:blur(1px)}
+.land i:nth-child(1){width:34%; height:24%; left:16%; top:20%}
+.land i:nth-child(2){width:26%; height:20%; left:56%; top:14%}
+.land i:nth-child(3){width:30%; height:26%; left:38%; top:52%}
+.land i:nth-child(4){width:18%; height:14%; left:70%; top:58%}
+.land i:nth-child(5){width:14%; height:11%; left:8%; top:62%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring{position:absolute; inset:0; border-radius:50%; border:2px solid rgba(47,230,167,.55); animation:ringPulse 3.2s ease-out infinite}
+.ring.r2{animation-delay:1.05s; border-color:rgba(63,185,216,.5)}
+.ring.r3{animation-delay:2.1s; border-color:rgba(255,180,84,.45)}
+@keyframes ringPulse{0%{transform:scale(.72); opacity:0} 25%{opacity:.9} 100%{transform:scale(1.22); opacity:0}}
+.ekg{width:min(88vw,560px); height:74px; margin:2px auto 0}
+.ekg .base{stroke:#123c33; stroke-width:3; fill:none}
+.ekg .beat{stroke:var(--teal); stroke-width:3.5; fill:none; stroke-linecap:round; stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px rgba(47,230,167,.85));
+  stroke-dasharray:100; stroke-dashoffset:100; animation:beat 3s linear infinite}
+@keyframes beat{0%{stroke-dashoffset:100} 55%{stroke-dashoffset:-100} 100%{stroke-dashoffset:-100}}
+.splash-title{margin:10px 0 0; line-height:.98; letter-spacing:.01em}
+.splash-title .l1{display:block; font-size:clamp(44px,11vw,96px); font-weight:800; color:var(--ink)}
+.splash-title .l1 span{display:inline-block; opacity:0; animation:letterIn .6s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes letterIn{from{opacity:0; transform:translateY(26px) scale(.7)} to{opacity:1; transform:none}}
+.splash-title .l2{display:block; font-size:clamp(30px,7.5vw,62px); font-weight:800; letter-spacing:.34em; margin-top:2px; color:var(--amber)}
+html[dir="rtl"] .splash-title .l2{letter-spacing:.1em}
+.tribar{display:flex; width:min(300px,64vw); height:7px; border-radius:99px; overflow:hidden; margin:16px auto 0}
+.tribar i{flex:1}.tribar i:nth-child(1){background:#ff9933}.tribar i:nth-child(2){background:#f4f4f4}.tribar i:nth-child(3){background:#2fae4e}
+.tagline{font-size:clamp(18px,4.4vw,23px); color:var(--ink); margin:18px auto 4px; max-width:620px; font-weight:600}
+.subline{color:var(--muted); font-size:16.5px; margin:0 auto; max-width:640px}
+.btn-enter{
+  margin-top:34px; border:none; border-radius:99px; padding:17px 58px;
+  font-family:"Baloo 2","Noto Sans",sans-serif; font-size:24px; font-weight:800; letter-spacing:.06em;
+  color:#04160f; background:var(--teal);
+  box-shadow:0 0 0 0 rgba(47,230,167,.55); animation:btnPulse 2s ease-out infinite;
+  transition:transform .15s ease;
+}
+.btn-enter:hover{transform:scale(1.05)}
+@keyframes btnPulse{0%{box-shadow:0 0 0 0 rgba(47,230,167,.5)} 100%{box-shadow:0 0 0 26px rgba(47,230,167,0)}}
+.splash-note{margin-top:20px; color:var(--muted); font-size:15.5px; max-width:560px}
+
+/* ---------- STAGE 2 : AUTH ---------- */
+#stage-auth{align-items:center; justify-content:center; padding:64px 16px 46px}
+.auth-card{
+  width:min(480px,100%); background:var(--panel); border:1px solid var(--line);
+  border-radius:22px; padding:28px 26px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.auth-head{text-align:center; margin-bottom:6px}
+.auth-head .mini-earth{font-size:40px; line-height:1}
+.auth-head h2{margin:6px 0 2px; font-size:29px}
+.auth-head p{margin:0; color:var(--muted); font-size:16px}
+.tabs{display:flex; gap:8px; margin:20px 0 18px}
+.tabs button{
+  flex:1; border:1px solid var(--line); background:var(--panel2); color:var(--muted);
+  border-radius:12px; padding:11px 4px; font-size:16px; font-weight:700;
+}
+.tabs button.on{background:var(--teal); color:#04160f; border-color:var(--teal)}
+.field{margin-bottom:14px}
+.field label{display:block; font-weight:600; font-size:16px; margin-bottom:5px}
+.field input,.field select{
+  width:100%; background:#081220; border:1px solid var(--line); color:var(--ink);
+  border-radius:12px; padding:12px 14px;
+}
+.field input::placeholder{color:#5f7a70}
+.field .hint{font-size:14.5px; color:var(--muted); margin-top:4px}
+.btn-main{
+  width:100%; border:none; border-radius:12px; padding:14px; margin-top:4px;
+  background:var(--teal); color:#04160f; font-family:"Baloo 2","Noto Sans",sans-serif;
+  font-size:20px; font-weight:800;
+}
+.btn-main:hover{filter:brightness(1.08)}
+.msg{border-radius:12px; padding:11px 14px; font-size:16px; margin:0 0 14px; display:none}
+.msg.err{display:block; background:#3a1611; border:1px solid #7a2d20; color:#ffc9c0}
+.msg.ok{display:block; background:#0d3325; border:1px solid #1d6b47; color:#b9f4d6}
+.linklike{background:none; border:none; color:var(--teal); font-size:16px; font-weight:700; padding:4px 0; text-decoration:underline}
+.auth-note{
+  margin-top:18px; padding:11px 14px; border-radius:12px; font-size:15px; color:var(--muted);
+  background:#081220; border:1px dashed var(--line);
+}
+.pane{display:none}.pane.on{display:block; animation:stageIn .35s ease both}
+.qbox{background:#081220; border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-weight:600; margin-bottom:14px}
+
+/* ---------- STAGE 3 : DASHBOARD ---------- */
+#stage-dash{padding:0 0 56px}
+.dash-inner{width:min(1180px,100%); margin:0 auto; padding:64px 18px 0}
+.dash-head{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.avatar{
+  width:60px; height:60px; border-radius:50%; flex:none; display:grid; place-items:center;
+  background:var(--teal-dk); border:2px solid var(--teal); color:var(--teal);
+  font-family:"Baloo 2","Noto Sans",sans-serif; font-size:27px; font-weight:800;
+}
+.dash-head h2{margin:0; font-size:clamp(27px,5.4vw,38px); line-height:1.1}
+.dash-head .who{color:var(--muted); font-size:16.5px; margin:2px 0 0}
+.btn-logout{
+  margin-inline-start:auto; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+  border-radius:99px; padding:11px 22px; font-size:16.5px; font-weight:700;
+}
+.btn-logout:hover{border-color:var(--danger); color:var(--danger)}
+.dash-intro{color:var(--muted); font-size:17.5px; max-width:760px; margin:16px 0 4px}
+.dash-intro b{color:var(--ink)}
+.grid{display:grid; grid-template-columns:1fr; gap:20px; margin-top:18px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1080px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.card{
+  display:block; text-decoration:none; color:var(--ink);
+  background:var(--panel); border:1px solid var(--line); border-top:5px solid var(--acc);
+  border-radius:var(--radius); padding:22px 22px 10px; position:relative;
+  transition:transform .18s ease, border-color .18s ease;
+}
+.card:hover{transform:translateY(-4px); border-color:var(--acc)}
+.card .big{font-size:52px; line-height:1}
+.card h3{margin:10px 0 4px; font-size:27px}
+.card .desc{color:var(--muted); font-size:16.5px; margin:0; min-height:52px}
+.card .open-line{margin-top:10px; font-weight:700; color:var(--acc); font-size:16.5px}
+.bot-zone{margin-top:8px; border-top:1px dashed var(--line); padding-top:6px}
+.bot-track{position:relative; height:86px}
+.bot{
+  position:absolute; bottom:2px; left:6px; width:52px; text-align:center;
+  animation:walk 8s ease-in-out infinite alternate;
+}
+@keyframes walk{from{left:6px} to{left:calc(100% - 58px)}}
+.bot-body{
+  width:48px; height:48px; margin:0 auto; border-radius:50%; display:grid; place-items:center;
+  font-size:25px; background:var(--panel2); border:2px solid var(--acc);
+  animation:bob .5s ease-in-out infinite alternate;
+}
+@keyframes bob{from{transform:translateY(0) rotate(-4deg)} to{transform:translateY(-5px) rotate(4deg)}}
+.bot-name{font-size:14.5px; font-weight:700; color:var(--acc); margin-top:2px}
+.bubble{
+  position:absolute; top:0; max-width:78%; background:#eefaf4; color:#0a2436;
+  border-radius:14px; padding:7px 12px; font-size:15px; font-weight:600; line-height:1.35;
+  opacity:0; transform:translateY(4px); transition:opacity .4s ease, transform .4s ease;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.bubble.show{opacity:1; transform:none}
+.bubble::after{content:""; position:absolute; bottom:-7px; left:26px; border:8px solid transparent; border-top-color:#eefaf4; border-bottom:0}
+html[dir="rtl"] .bubble::after{left:auto; right:26px}
+.dash-foot{margin-top:30px; color:var(--muted); font-size:15.5px; text-align:center}
+@media (prefers-reduced-motion: reduce){
+  .land,.ring,.ekg .beat,.btn-enter,.earth,.bot,.bot-body{animation:none !important}
+  .ekg .beat{stroke-dashoffset:0}
+  .splash-title .l1 span{opacity:1; animation:none}
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<!-- LANGUAGE SELECTOR — top-right on every stage -->
+<div class="lang-bar">
+  <label for="lang-select" id="lang-label">🌐 Language</label>
+  <select id="lang-select" aria-label="Language">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी (Hindi)</option>
+    <option value="bn">বাংলা (Bengali)</option>
+    <option value="te">తెలుగు (Telugu)</option>
+    <option value="mr">मराठी (Marathi)</option>
+    <option value="ta">தமிழ் (Tamil)</option>
+    <option value="ur">اردو (Urdu)</option>
+    <option value="gu">ગુજરાતી (Gujarati)</option>
+    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+    <option value="ml">മലയാളം (Malayalam)</option>
+    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    <option value="as">অসমীয়া (Assamese)</option>
+  </select>
+</div>
+
+<!-- ================= STAGE 1 : SPLASH ================= -->
+<section class="stage active" id="stage-splash" aria-label="Welcome">
+  <div class="earth-wrap" aria-hidden="true">
+    <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div class="earth"><div class="land"><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+  <svg class="ekg" viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true">
+    <path class="base" d="M0,52 L150,52 L166,52 L178,18 L194,86 L206,52 L300,52 L312,38 L322,52 L440,52 L452,52 L464,14 L482,90 L494,52 L600,52"/>
+    <path class="beat" pathLength="100" d="M0,52 L150,52 L166,52 L178,18 L194,86 L206,52 L300,52 L312,38 L322,52 L440,52 L452,52 L464,14 L482,90 L494,52 L600,52"/>
+  </svg>
+  <h1 class="splash-title">
+    <span class="l1" id="title-l1">EARTHPULSE</span>
+    <span class="l2">INDIA</span>
+  </h1>
+  <div class="tribar" aria-hidden="true"><i></i><i></i><i></i></div>
+  <p class="tagline" id="txt-tagline"></p>
+  <p class="subline" id="txt-subline"></p>
+  <button class="btn-enter" id="btn-enter" type="button"></button>
+  <p class="splash-note" id="txt-splash-note"></p>
+</section>
+
+<!-- ================= STAGE 2 : AUTH ================= -->
+<section class="stage" id="stage-auth" aria-label="Login">
+  <div class="auth-card">
+    <div class="auth-head">
+      <div class="mini-earth" aria-hidden="true">🌍💓</div>
+      <h2>EarthPulse India</h2>
+      <p id="txt-auth-sub"></p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" id="tab-login" class="on"></button>
+      <button type="button" id="tab-signup"></button>
+      <button type="button" id="tab-forgot"></button>
+    </div>
+
+    <!-- LOGIN -->
+    <form class="pane on" id="pane-login" autocomplete="off">
+      <p class="msg" id="login-msg"></p>
+      <div class="field">
+        <label for="li-user" id="lbl-li-user"></label>
+        <input id="li-user" type="text" placeholder="e.g. keshav_01" required />
+      </div>
+      <div class="field">
+        <label for="li-pass" id="lbl-li-pass"></label>
+        <input id="li-pass" type="password" required />
+      </div>
+      <button class="btn-main" type="submit" id="btn-login"></button>
+      <p style="margin:12px 0 0; font-size:16px"><span id="txt-forgot-q"></span> <button type="button" class="linklike" id="goto-forgot"></button></p>
+      <p style="margin:2px 0 0; font-size:16px"><span id="txt-new-q"></span> <button type="button" class="linklike" id="goto-signup"></button></p>
+    </form>
+
+    <!-- SIGN UP -->
+    <form class="pane" id="pane-signup" autocomplete="off">
+      <p class="msg" id="signup-msg"></p>
+      <div class="field">
+        <label for="su-name" id="lbl-su-name"></label>
+        <input id="su-name" type="text" placeholder="e.g. Keshav Yadav" required />
+      </div>
+      <div class="field">
+        <label for="su-user" id="lbl-su-user"></label>
+        <input id="su-user" type="text" placeholder="e.g. keshav_01" required />
+        <div class="hint" id="txt-su-hint"></div>
+      </div>
+      <div class="field">
+        <label for="su-pass" id="lbl-su-pass"></label>
+        <input id="su-pass" type="password" required />
+      </div>
+      <div class="field">
+        <label for="su-pass2" id="lbl-su-pass2"></label>
+        <input id="su-pass2" type="password" required />
+      </div>
+      <div class="field">
+        <label for="su-q" id="lbl-su-q"></label>
+        <select id="su-q"></select>
+      </div>
+      <div class="field">
+        <label for="su-a" id="lbl-su-a"></label>
+        <input id="su-a" type="text" required />
+      </div>
+      <button class="btn-main" type="submit" id="btn-signup"></button>
+    </form>
+
+    <!-- FORGOT PASSWORD -->
+    <form class="pane" id="pane-forgot" autocomplete="off">
+      <p class="msg" id="forgot-msg"></p>
+      <div id="fg-step1">
+        <div class="field">
+          <label for="fg-user" id="lbl-fg-user"></label>
+          <input id="fg-user" type="text" placeholder="e.g. keshav_01" />
+        </div>
+        <button class="btn-main" type="button" id="fg-next1"></button>
+      </div>
+      <div id="fg-step2" hidden>
+        <p style="margin:0 0 6px; font-size:16px" id="txt-fg-intro"></p>
+        <div class="qbox" id="fg-question"></div>
+        <div class="field">
+          <label for="fg-answer" id="lbl-fg-answer"></label>
+          <input id="fg-answer" type="text" />
+        </div>
+        <button class="btn-main" type="button" id="fg-next2"></button>
+      </div>
+      <div id="fg-step3" hidden>
+        <div class="field">
+          <label for="fg-newpass" id="lbl-fg-newpass"></label>
+          <input id="fg-newpass" type="password" />
+        </div>
+        <div class="field">
+          <label for="fg-newpass2" id="lbl-fg-newpass2"></label>
+          <input id="fg-newpass2" type="password" />
+        </div>
+        <button class="btn-main" type="button" id="fg-save"></button>
+      </div>
+    </form>
+
+    <div class="auth-note" id="txt-auth-note"></div>
+  </div>
+</section>
+
+<!-- ================= STAGE 3 : DASHBOARD ================= -->
+<section class="stage" id="stage-dash" aria-label="Dashboard">
+  <div class="dash-inner">
+    <div class="dash-head">
+      <div class="avatar" id="dash-avatar">?</div>
+      <div>
+        <h2 id="dash-welcome">Welcome! 👋</h2>
+        <p class="who" id="dash-who"></p>
+      </div>
+      <button class="btn-logout" id="btn-logout" type="button"></button>
+    </div>
+    <p class="dash-intro" id="txt-dash-intro"></p>
+    <div class="grid" id="site-grid"></div>
+    <p class="dash-foot" id="txt-dash-foot"></p>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   CONFIG — links of the five disaster websites (unchanged).
+   ============================================================ */
+var SITE_LINKS = {
+  fire:     "https://keshuyadav0946.github.io/earthpulse-india/fire/",
+  flood:    "https://keshuyadav0946.github.io/earthpulse-india/flood/",
+  landslide:"https://keshuyadav0946.github.io/earthpulse-india/landslide/",
+  coldwave: "https://keshuyadav0946.github.io/earthpulse-india/coldwave/",
+  cyclone:  "https://keshuyadav0946.github.io/earthpulse-india/cyclone/"
+};
+
+/* Security questions — canonical English values (stored with the account) */
+var SECQ_EN = [
+  "What was the name of your first school?",
+  "What is your pet's name?",
+  "In which city were you born?",
+  "What is your favourite food?",
+  "What is your best friend's name?"
+];
+
+/* ============================================================
+   TRANSLATIONS — default: English. {name} / {user} are filled in.
+   ============================================================ */
+var I18N = {
+en:{langLabel:"🌐 Language",tagline:"Every disaster in India — one place, one family 🌍💓",subline:"Fire · Flood · Landslide · Cold Wave · Cyclone — five websites, five AI companions, one home.",enter:"ENTER →",splashNote:"New here? Tap ENTER — create an account once, and you will be welcomed by name every time you return 🙏",authSub:"Sign in with your account — all five disaster websites are waiting for you.",tabLogin:"Login",tabSignup:"Sign Up",tabForgot:"Forgot?",username:"Username",password:"Password",loginBtn:"Log in →",forgotQ:"Forgot your password?",forgotLink:"Reset it here",newQ:"New here?",signupLink:"Create an account",fullName:"Full name",chooseUser:"Choose a username",userHint:"3–20 characters — letters, numbers or _ only. You will use this username to log in.",createPass:"Create a password",passPh:"At least 6 characters",passAgain:"Enter the password again",passAgainPh:"The same password, once more",secQLabel:"Security question (helps if you forget your password)",secALabel:"Your answer to that question",secAPh:"Remember this answer — with the exact spelling",signupBtn:"Create account →",authNote:"🔒 Please note: this account is saved <b>only in this browser, on this device</b> — there is no server. Your password is never stored as plain text (a salted hash is stored instead). The same account will not work on another phone or computer — you will need to create a new one there.",fgUser:"Enter your username",continueBtn:"Continue →",fgIntro:"Please answer your security question:",answer:"Answer",answerPh:"The answer you gave when creating the account",checkBtn:"Check my answer →",newPass:"Create a new password",newPassAgain:"Enter the new password again",savePassBtn:"Save new password →",welcome:"Welcome, {name}! 👋",who:"@{user} · Welcome to the EarthPulse family 🌍💓",logout:"Logout 🚪",dashIntro:"This is your <b>EarthPulse family</b> — all five disaster websites, each with its own AI companion moving beside it. Tap any box and <b>that disaster's full website opens in a new tab</b>.",dashFoot:"🌍💓 EarthPulse India — every disaster in India, one family. For real warnings, always treat official IMD / NDMA information as final.",openLine:"Open website →",secq:SECQ_EN,
+desc_fire:"Live fire conditions across India from NASA satellites, 110 major fire records and an area fire-checker.",desc_flood:"River water levels, 44 verified flood records and safety guidance — with Jal.",desc_landslide:"Landslide risk in hilly regions, 47 records and GSI risk zones — with Bhumi.",desc_coldwave:"Records of 34 severe cold-wave spells, IMD information and protection from the cold — with Him.",desc_cyclone:"40 cyclone records, track maps and landfall stories — with Vayu.",
+bot_fire:["I am Agni! Fire news reaches me first 🔥","Tap the box — the Fire website will open!"],bot_flood:["I am Jal! Flood waters are always in my sight 🌊","Tap here — the Flood website will tell you everything!"],bot_landslide:["I am Bhumi! I sense a hillside shift before anyone ⛰️","Tap here — the Landslide website will open!"],bot_coldwave:["I am Him! When the cold arrives, preparation is my job ❄️","Tap here — the Cold Wave website will open!"],bot_cyclone:["I am Vayu! When a storm comes, I speak first 🌀","Tap here — the Cyclone website will open!"],
+e_name:"Your name looks too short — please write your full name (at least 3 characters) 🙏",e_user:"Please choose a username of 3–20 characters using only letters, numbers or _ — for example keshav_01 👍",e_pass6:"Please make your password at least 6 characters long — keep it strong 🔒",e_passmatch:"The two passwords do not match — please check and enter them again 👀",e_secans:"Please also write your security answer — it is the only way back if you forget your password.",e_taken:"This username is already taken 😅 — please choose a different one.",e_noaccount:"No account found for this username 🤔 — check the spelling, or create an account first from Sign Up.",e_wrongpass:"Incorrect password 😅 — please try again. If you have forgotten it, use the 'Forgot?' tab above.",e_found:"Account found! Now please answer your security question 👇",e_wrongans:"That answer does not match 😅 — write the exact answer, with the same spelling, that you gave when creating the account.",e_correct:"Correct answer! 🎉 Now create your new password.",e_newpass6:"Please make the new password at least 6 characters long 🔒",e_newmatch:"The two new passwords do not match — please enter them again 👀"},
+hi:{langLabel:"🌐 भाषा",tagline:"भारत की हर आपदा — एक जगह, एक परिवार 🌍💓",subline:"आग · बाढ़ · भूस्खलन · शीत लहर · चक्रवात — पाँच वेबसाइट, पाँच AI साथी, एक घर।",enter:"प्रवेश करें →",splashNote:"पहली बार आए हैं? प्रवेश दबाएँ — एक बार खाता बनाएँ, फिर हर बार आपके नाम से स्वागत होगा 🙏",authSub:"अपने खाते से प्रवेश करें — पाँचों आपदा वेबसाइट आपका इंतज़ार कर रही हैं।",tabLogin:"लॉगिन",tabSignup:"साइन अप",tabForgot:"भूल गए?",username:"उपयोगकर्ता नाम",password:"पासवर्ड",loginBtn:"लॉगिन करें →",forgotQ:"पासवर्ड भूल गए?",forgotLink:"यहाँ से नया बनाएँ",newQ:"पहली बार आए हैं?",signupLink:"नया खाता बनाएँ",fullName:"पूरा नाम",chooseUser:"उपयोगकर्ता नाम चुनें",userHint:"3–20 अक्षर — केवल अक्षर, अंक या _ चलेगा। लॉगिन के लिए यही उपयोगकर्ता नाम काम आएगा।",createPass:"पासवर्ड बनाएँ",passPh:"कम से कम 6 अक्षर",passAgain:"पासवर्ड दोबारा डालें",passAgainPh:"वही पासवर्ड फिर से",secQLabel:"सुरक्षा प्रश्न (पासवर्ड भूलने पर काम आएगा)",secALabel:"उस प्रश्न का उत्तर",secAPh:"यह उत्तर याद रखें — सही वर्तनी के साथ",signupBtn:"खाता बनाएँ →",authNote:"🔒 कृपया ध्यान दें: यह खाता <b>केवल इसी ब्राउज़र में, इसी डिवाइस पर</b> सहेजा जाता है — कोई सर्वर नहीं है। आपका पासवर्ड कभी सादे अक्षरों में सहेजा नहीं जाता (नमक-मिला हैश बनता है)। दूसरे फ़ोन या कंप्यूटर पर यही खाता नहीं चलेगा — वहाँ नया बनाना होगा।",fgUser:"अपना उपयोगकर्ता नाम डालें",continueBtn:"आगे बढ़ें →",fgIntro:"कृपया अपने सुरक्षा प्रश्न का उत्तर दें:",answer:"उत्तर",answerPh:"खाता बनाते समय जो उत्तर दिया था",checkBtn:"उत्तर जाँचें →",newPass:"नया पासवर्ड बनाएँ",newPassAgain:"नया पासवर्ड दोबारा डालें",savePassBtn:"नया पासवर्ड सहेजें →",welcome:"स्वागत है, {name}! 👋",who:"@{user} · EarthPulse परिवार में आपका स्वागत है 🌍💓",logout:"लॉगआउट 🚪",dashIntro:"यह रहा आपका <b>EarthPulse परिवार</b> — पाँचों आपदा वेबसाइट, हर एक के साथ उसका अपना AI साथी घूम रहा है। जिस बॉक्स पर क्लिक करेंगे, <b>उसी आपदा की पूरी वेबसाइट नए टैब में</b> खुल जाएगी।",dashFoot:"🌍💓 EarthPulse India — भारत की हर आपदा, एक परिवार। असली चेतावनी के लिए हमेशा IMD / NDMA की आधिकारिक जानकारी को ही अंतिम मानें।",openLine:"वेबसाइट खोलें →",secq:["आपके पहले विद्यालय का नाम क्या था?","आपके पालतू जानवर का नाम क्या है?","आप किस शहर में पैदा हुए थे?","आपका पसंदीदा खाना कौन सा है?","आपके सबसे अच्छे दोस्त का नाम क्या है?"],
+desc_fire:"NASA उपग्रह से भारत की आग का ताज़ा हाल, 110 बड़े अग्नि अभिलेख और क्षेत्र अग्नि-जाँच सुविधा।",desc_flood:"नदियों का जलस्तर, बाढ़ के 44 सत्यापित अभिलेख और सुरक्षा के उपाय — जल के साथ।",desc_landslide:"पहाड़ी इलाकों में भूस्खलन का खतरा, 47 अभिलेख और GSI जोखिम क्षेत्र — भूमि के साथ।",desc_coldwave:"कड़ी ठंड के 34 दौरों का अभिलेख, IMD की जानकारी और ठंड से बचाव — हिम के साथ।",desc_cyclone:"समुद्री तूफ़ानों के 40 अभिलेख, मार्ग मानचित्र और तट-टकराव की कहानियाँ — वायु के साथ।",
+bot_fire:["मैं अग्नि हूँ! आग की खबर सबसे पहले मेरे पास 🔥","बॉक्स पर क्लिक करें — अग्नि वेबसाइट खुल जाएगी!"],bot_flood:["मैं जल हूँ! बाढ़ का पानी मेरी नज़र में है 🌊","क्लिक करें — बाढ़ वेबसाइट आपको सब बताएगी!"],bot_landslide:["मैं भूमि हूँ! पहाड़ कब खिसके, पहले मैं जानती हूँ ⛰️","क्लिक करें — भूस्खलन वेबसाइट खुल जाएगी!"],bot_coldwave:["मैं हिम हूँ! ठंड आए तो गरम तैयारी मेरी ज़िम्मेदारी ❄️","क्लिक करें — शीत लहर वेबसाइट खुल जाएगी!"],bot_cyclone:["मैं वायु हूँ! तूफ़ान आए, सबसे पहले मैं बोलूँ 🌀","क्लिक करें — चक्रवात वेबसाइट खुल जाएगी!"],
+e_name:"नाम बहुत छोटा लग रहा है — कृपया अपना पूरा नाम लिखें (कम से कम 3 अक्षर) 🙏",e_user:"कृपया 3–20 अक्षरों का उपयोगकर्ता नाम चुनें, केवल अक्षर, अंक या _ के साथ — जैसे keshav_01 👍",e_pass6:"कृपया पासवर्ड कम से कम 6 अक्षरों का बनाएँ — थोड़ा मज़बूत रखें 🔒",e_passmatch:"दोनों पासवर्ड एक जैसे नहीं हैं — दोबारा जाँच करके डालें 👀",e_secans:"सुरक्षा प्रश्न का उत्तर भी लिखें — पासवर्ड भूलने पर यही काम आएगा।",e_taken:"यह उपयोगकर्ता नाम पहले से लिया हुआ है 😅 — कृपया कोई दूसरा नाम चुनें।",e_noaccount:"इस उपयोगकर्ता नाम का कोई खाता नहीं मिला 🤔 — वर्तनी जाँचें, या पहले साइन अप से खाता बनाएँ।",e_wrongpass:"पासवर्ड गलत है 😅 — दोबारा प्रयास करें। भूल गए हों तो ऊपर 'भूल गए?' वाला टैब दबाएँ।",e_found:"खाता मिल गया! अब कृपया अपने सुरक्षा प्रश्न का उत्तर दें 👇",e_wrongans:"उत्तर मेल नहीं खा रहा 😅 — खाता बनाते समय जो उत्तर दिया था, वही वर्तनी से लिखें।",e_correct:"सही उत्तर! 🎉 अब अपना नया पासवर्ड बनाएँ।",e_newpass6:"कृपया नया पासवर्ड कम से कम 6 अक्षरों का रखें 🔒",e_newmatch:"दोनों नए पासवर्ड एक जैसे नहीं हैं — दोबारा डालें 👀"},
+bn:{langLabel:"🌐 ভাষা",tagline:"ভারতের প্রতিটি দুর্যোগ — এক জায়গায়, এক পরিবার 🌍💓",subline:"আগুন · বন্যা · ভূমিধস · শৈত্যপ্রবাহ · ঘূর্ণিঝড় — পাঁচটি ওয়েবসাইট, পাঁচজন AI সঙ্গী, এক ঠিকানা।",enter:"প্রবেশ করুন →",splashNote:"প্রথমবার এসেছেন? প্রবেশ চাপুন — একবার অ্যাকাউন্ট তৈরি করুন, তারপর প্রতিবার আপনার নামে স্বাগত জানানো হবে 🙏",authSub:"আপনার অ্যাকাউন্ট দিয়ে প্রবেশ করুন — পাঁচটি দুর্যোগ ওয়েবসাইটই আপনার জন্য অপেক্ষা করছে।",tabLogin:"লগইন",tabSignup:"সাইন আপ",tabForgot:"ভুলে গেছেন?",username:"ব্যবহারকারীর নাম",password:"পাসওয়ার্ড",loginBtn:"লগইন করুন →",forgotQ:"পাসওয়ার্ড ভুলে গেছেন?",forgotLink:"এখান থেকে নতুন তৈরি করুন",newQ:"প্রথমবার এসেছেন?",signupLink:"নতুন অ্যাকাউন্ট তৈরি করুন",fullName:"পুরো নাম",chooseUser:"ব্যবহারকারীর নাম বেছে নিন",userHint:"3–20 অক্ষর — শুধু অক্ষর, সংখ্যা বা _ চলবে। লগইনের জন্য এই নামটিই লাগবে।",createPass:"পাসওয়ার্ড তৈরি করুন",passPh:"কমপক্ষে 6 অক্ষর",passAgain:"পাসওয়ার্ড আবার লিখুন",passAgainPh:"একই পাসওয়ার্ড আবার",secQLabel:"নিরাপত্তা প্রশ্ন (পাসওয়ার্ড ভুলে গেলে কাজে লাগবে)",secALabel:"সেই প্রশ্নের উত্তর",secAPh:"উত্তরটি মনে রাখুন — সঠিক বানানসহ",signupBtn:"অ্যাকাউন্ট তৈরি করুন →",authNote:"🔒 অনুগ্রহ করে মনে রাখুন: এই অ্যাকাউন্টটি <b>শুধু এই ব্রাউজারেই, এই ডিভাইসেই</b> সংরক্ষিত থাকে — কোনো সার্ভার নেই। আপনার পাসওয়ার্ড কখনো সরাসরি সংরক্ষিত হয় না (লবণ-মেশানো হ্যাশ তৈরি হয়)। অন্য ফোন বা কম্পিউটারে এই অ্যাকাউন্ট চলবে না — সেখানে নতুন তৈরি করতে হবে।",fgUser:"আপনার ব্যবহারকারীর নাম লিখুন",continueBtn:"এগিয়ে যান →",fgIntro:"অনুগ্রহ করে আপনার নিরাপত্তা প্রশ্নের উত্তর দিন:",answer:"উত্তর",answerPh:"অ্যাকাউন্ট তৈরির সময় যে উত্তর দিয়েছিলেন",checkBtn:"উত্তর যাচাই করুন →",newPass:"নতুন পাসওয়ার্ড তৈরি করুন",newPassAgain:"নতুন পাসওয়ার্ড আবার লিখুন",savePassBtn:"নতুন পাসওয়ার্ড সংরক্ষণ করুন →",welcome:"স্বাগতম, {name}! 👋",who:"@{user} · EarthPulse পরিবারে আপনাকে স্বাগত 🌍💓",logout:"লগআউট 🚪",dashIntro:"এই হলো আপনার <b>EarthPulse পরিবার</b> — পাঁচটি দুর্যোগ ওয়েবসাইট, প্রতিটির পাশে তার নিজের AI সঙ্গী ঘুরছে। যেকোনো বাক্সে চাপ দিলেই <b>সেই দুর্যোগের পুরো ওয়েবসাইট নতুন ট্যাবে</b> খুলে যাবে।",dashFoot:"🌍💓 EarthPulse India — ভারতের প্রতিটি দুর্যোগ, এক পরিবার। আসল সতর্কবার্তার জন্য সবসময় IMD / NDMA-র সরকারি তথ্যকেই চূড়ান্ত মানুন।",openLine:"ওয়েবসাইট খুলুন →",secq:["আপনার প্রথম বিদ্যালয়ের নাম কী ছিল?","আপনার পোষা প্রাণীর নাম কী?","আপনি কোন শহরে জন্মেছিলেন?","আপনার প্রিয় খাবার কোনটি?","আপনার সবচেয়ে ভালো বন্ধুর নাম কী?"],
+desc_fire:"NASA উপগ্রহ থেকে ভারতের আগুনের তাজা অবস্থা, 110টি বড় অগ্নিকাণ্ডের রেকর্ড এবং এলাকা অগ্নি-পরীক্ষা।",desc_flood:"নদীর জলস্তর, বন্যার 44টি যাচাইকৃত রেকর্ড এবং নিরাপত্তা পরামর্শ — জলের সঙ্গে।",desc_landslide:"পাহাড়ি এলাকায় ভূমিধসের ঝুঁকি, 47টি রেকর্ড এবং GSI ঝুঁকি অঞ্চল — ভূমির সঙ্গে।",desc_coldwave:"প্রচণ্ড ঠান্ডার 34টি পর্বের রেকর্ড, IMD তথ্য এবং ঠান্ডা থেকে সুরক্ষা — হিমের সঙ্গে।",desc_cyclone:"ঘূর্ণিঝড়ের 40টি রেকর্ড, গতিপথের মানচিত্র এবং উপকূলে আঘাতের গল্প — বায়ুর সঙ্গে।",
+bot_fire:["আমি অগ্নি! আগুনের খবর সবার আগে আমার কাছে 🔥","বাক্সে চাপ দিন — অগ্নি ওয়েবসাইট খুলে যাবে!"],bot_flood:["আমি জল! বন্যার জল আমার নজরে 🌊","চাপ দিন — বন্যা ওয়েবসাইট সব জানাবে!"],bot_landslide:["আমি ভূমি! পাহাড় কখন সরবে, আগে আমি জানি ⛰️","চাপ দিন — ভূমিধস ওয়েবসাইট খুলে যাবে!"],bot_coldwave:["আমি হিম! ঠান্ডা এলে প্রস্তুতি আমার দায়িত্ব ❄️","চাপ দিন — শৈত্যপ্রবাহ ওয়েবসাইট খুলে যাবে!"],bot_cyclone:["আমি বায়ু! ঝড় এলে সবার আগে আমি বলি 🌀","চাপ দিন — ঘূর্ণিঝড় ওয়েবসাইট খুলে যাবে!"],
+e_name:"নামটি খুব ছোট মনে হচ্ছে — অনুগ্রহ করে পুরো নাম লিখুন (কমপক্ষে 3 অক্ষর) 🙏",e_user:"অনুগ্রহ করে 3–20 অক্ষরের ব্যবহারকারীর নাম বেছে নিন, শুধু অক্ষর, সংখ্যা বা _ দিয়ে — যেমন keshav_01 👍",e_pass6:"অনুগ্রহ করে পাসওয়ার্ড কমপক্ষে 6 অক্ষরের করুন — শক্ত রাখুন 🔒",e_passmatch:"দুটি পাসওয়ার্ড মিলছে না — যাচাই করে আবার লিখুন 👀",e_secans:"নিরাপত্তা প্রশ্নের উত্তরও লিখুন — পাসওয়ার্ড ভুলে গেলে এটাই কাজে লাগবে।",e_taken:"এই ব্যবহারকারীর নামটি আগেই নেওয়া হয়েছে 😅 — অনুগ্রহ করে অন্য নাম বেছে নিন।",e_noaccount:"এই নামে কোনো অ্যাকাউন্ট পাওয়া যায়নি 🤔 — বানান যাচাই করুন, অথবা আগে সাইন আপ থেকে অ্যাকাউন্ট তৈরি করুন।",e_wrongpass:"পাসওয়ার্ড ভুল 😅 — আবার চেষ্টা করুন। ভুলে গেলে উপরের 'ভুলে গেছেন?' ট্যাবটি চাপুন।",e_found:"অ্যাকাউন্ট পাওয়া গেছে! এখন আপনার নিরাপত্তা প্রশ্নের উত্তর দিন 👇",e_wrongans:"উত্তরটি মিলছে না 😅 — অ্যাকাউন্ট তৈরির সময় দেওয়া উত্তরটিই একই বানানে লিখুন।",e_correct:"সঠিক উত্তর! 🎉 এখন নতুন পাসওয়ার্ড তৈরি করুন।",e_newpass6:"নতুন পাসওয়ার্ড কমপক্ষে 6 অক্ষরের রাখুন 🔒",e_newmatch:"দুটি নতুন পাসওয়ার্ড মিলছে না — আবার লিখুন 👀"},
+te:{langLabel:"🌐 భాష",tagline:"భారతదేశంలోని ప్రతి విపత్తు — ఒకే చోట, ఒకే కుటుంబం 🌍💓",subline:"అగ్ని · వరద · కొండచరియలు · శీతల తరంగం · తుఫాను — ఐదు వెబ్‌సైట్లు, ఐదుగురు AI సహచరులు, ఒకే ఇల్లు.",enter:"ప్రవేశించండి →",splashNote:"కొత్తగా వచ్చారా? ప్రవేశించండి నొక్కండి — ఒకసారి ఖాతా సృష్టించండి, ఆపై ప్రతిసారీ మీ పేరుతో స్వాగతం లభిస్తుంది 🙏",authSub:"మీ ఖాతాతో ప్రవేశించండి — ఐదు విపత్తు వెబ్‌సైట్లు మీ కోసం వేచి ఉన్నాయి.",tabLogin:"లాగిన్",tabSignup:"సైన్ అప్",tabForgot:"మర్చిపోయారా?",username:"వినియోగదారు పేరు",password:"పాస్‌వర్డ్",loginBtn:"లాగిన్ చేయండి →",forgotQ:"పాస్‌వర్డ్ మర్చిపోయారా?",forgotLink:"ఇక్కడ నుండి కొత్తది సృష్టించండి",newQ:"కొత్తగా వచ్చారా?",signupLink:"కొత్త ఖాతా సృష్టించండి",fullName:"పూర్తి పేరు",chooseUser:"వినియోగదారు పేరు ఎంచుకోండి",userHint:"3–20 అక్షరాలు — అక్షరాలు, సంఖ్యలు లేదా _ మాత్రమే. లాగిన్ కోసం ఇదే పేరు ఉపయోగిస్తారు.",createPass:"పాస్‌వర్డ్ సృష్టించండి",passPh:"కనీసం 6 అక్షరాలు",passAgain:"పాస్‌వర్డ్ మళ్లీ నమోదు చేయండి",passAgainPh:"అదే పాస్‌వర్డ్ మరోసారి",secQLabel:"భద్రతా ప్రశ్న (పాస్‌వర్డ్ మర్చిపోతే ఉపయోగపడుతుంది)",secALabel:"ఆ ప్రశ్నకు మీ సమాధానం",secAPh:"ఈ సమాధానం గుర్తుంచుకోండి — సరైన స్పెల్లింగ్‌తో",signupBtn:"ఖాతా సృష్టించండి →",authNote:"🔒 గమనిక: ఈ ఖాతా <b>ఈ బ్రౌజర్‌లో, ఈ పరికరంలో మాత్రమే</b> నిల్వ చేయబడుతుంది — సర్వర్ లేదు. మీ పాస్‌వర్డ్ ఎప్పుడూ సాధారణ వచనంగా నిల్వ కాదు (ఉప్పు కలిపిన హ్యాష్ నిల్వ అవుతుంది). మరో ఫోన్ లేదా కంప్యూటర్‌లో ఇదే ఖాతా పనిచేయదు — అక్కడ కొత్తది సృష్టించాలి.",fgUser:"మీ వినియోగదారు పేరు నమోదు చేయండి",continueBtn:"కొనసాగండి →",fgIntro:"దయచేసి మీ భద్రతా ప్రశ్నకు సమాధానం ఇవ్వండి:",answer:"సమాధానం",answerPh:"ఖాతా సృష్టించినప్పుడు ఇచ్చిన సమాధానం",checkBtn:"నా సమాధానం తనిఖీ చేయండి →",newPass:"కొత్త పాస్‌వర్డ్ సృష్టించండి",newPassAgain:"కొత్త పాస్‌వర్డ్ మళ్లీ నమోదు చేయండి",savePassBtn:"కొత్త పాస్‌వర్డ్ నిల్వ చేయండి →",welcome:"స్వాగతం, {name}! 👋",who:"@{user} · EarthPulse కుటుంబంలోకి మీకు స్వాగతం 🌍💓",logout:"లాగౌట్ 🚪",dashIntro:"ఇది మీ <b>EarthPulse కుటుంబం</b> — ఐదు విపత్తు వెబ్‌సైట్లు, ప్రతిదాని పక్కన దాని స్వంత AI సహచరుడు తిరుగుతూ ఉంటాడు. ఏ బాక్స్‌నైనా నొక్కితే <b>ఆ విపత్తు పూర్తి వెబ్‌సైట్ కొత్త ట్యాబ్‌లో</b> తెరుచుకుంటుంది.",dashFoot:"🌍💓 EarthPulse India — భారతదేశంలోని ప్రతి విపత్తు, ఒకే కుటుంబం. నిజమైన హెచ్చరికల కోసం ఎల్లప్పుడూ IMD / NDMA అధికారిక సమాచారాన్నే తుది నిర్ణయంగా భావించండి.",openLine:"వెబ్‌సైట్ తెరవండి →",secq:["మీ మొదటి పాఠశాల పేరు ఏమిటి?","మీ పెంపుడు జంతువు పేరు ఏమిటి?","మీరు ఏ నగరంలో జన్మించారు?","మీకు ఇష్టమైన ఆహారం ఏమిటి?","మీ ప్రాణ స్నేహితుడి పేరు ఏమిటి?"],
+desc_fire:"NASA ఉపగ్రహాల నుండి భారతదేశ అగ్ని పరిస్థితి ప్రత్యక్షంగా, 110 ప్రధాన అగ్ని రికార్డులు మరియు ప్రాంత అగ్ని-తనిఖీ.",desc_flood:"నదుల నీటి మట్టాలు, 44 ధృవీకరించిన వరద రికార్డులు మరియు భద్రతా మార్గదర్శకత్వం — జల్‌తో.",desc_landslide:"కొండ ప్రాంతాల్లో కొండచరియల ప్రమాదం, 47 రికార్డులు మరియు GSI ప్రమాద మండలాలు — భూమితో.",desc_coldwave:"34 తీవ్ర శీతల పর্বాల రికార్డులు, IMD సమాచారం మరియు చలి నుండి రక్షణ — హిమ్‌తో.",desc_cyclone:"40 తుఫాను రికార్డులు, మార్గ పటాలు మరియు తీరప్రవేశ కథలు — వాయుతో.",
+bot_fire:["నేను అగ్ని! అగ్ని వార్తలు ముందు నాకే చేరుతాయి 🔥","బాక్స్ నొక్కండి — అగ్ని వెబ్‌సైట్ తెరుచుకుంటుంది!"],bot_flood:["నేను జల్! వరద నీరు ఎప్పుడూ నా దృష్టిలో 🌊","ఇక్కడ నొక్కండి — వరద వెబ్‌సైట్ అన్నీ చెబుతుంది!"],bot_landslide:["నేను భూమి! కొండ జారడాన్ని ఎవరికంటే ముందు నేను గ్రహిస్తాను ⛰️","ఇక్కడ నొక్కండి — కొండచరియల వెబ్‌సైట్ తెరుచుకుంటుంది!"],bot_coldwave:["నేను హిమ్! చలి వస్తే సిద్ధంగా ఉండటం నా బాధ్యత ❄️","ఇక్కడ నొక్కండి — శీతల తరంగం వెబ్‌సైట్ తెరుచుకుంటుంది!"],bot_cyclone:["నేను వాయు! తుఫాను వస్తే ముందు నేనే మాట్లాడతాను 🌀","ఇక్కడ నొక్కండి — తుఫాను వెబ్‌సైట్ తెరుచుకుంటుంది!"],
+e_name:"మీ పేరు చాలా చిన్నగా ఉంది — దయచేసి పూర్తి పేరు రాయండి (కనీసం 3 అక్షరాలు) 🙏",e_user:"దయచేసి 3–20 అక్షరాల వినియోగదారు పేరు ఎంచుకోండి, అక్షరాలు, సంఖ్యలు లేదా _ మాత్రమే — ఉదా. keshav_01 👍",e_pass6:"దయచేసి పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండేలా చేయండి — బలంగా ఉంచండి 🔒",e_passmatch:"రెండు పాస్‌వర్డ్‌లు సరిపోలలేదు — తనిఖీ చేసి మళ్లీ నమోదు చేయండి 👀",e_secans:"భద్రతా సమాధానం కూడా రాయండి — పాస్‌వర్డ్ మర్చిపోతే అదే మార్గం.",e_taken:"ఈ వినియోగదారు పేరు ఇప్పటికే తీసుకోబడింది 😅 — దయచేసి మరొకటి ఎంచుకోండి.",e_noaccount:"ఈ పేరుతో ఖాతా కనుగొనబడలేదు 🤔 — స్పెల్లింగ్ తనిఖీ చేయండి, లేదా ముందు సైన్ అప్ నుండి ఖాతా సృష్టించండి.",e_wrongpass:"పాస్‌వర్డ్ తప్పు 😅 — మళ్లీ ప్రయత్నించండి. మర్చిపోతే పైన ఉన్న 'మర్చిపోయారా?' ట్యాబ్ నొక్కండి.",e_found:"ఖాతా కనుగొనబడింది! ఇప్పుడు మీ భద్రతా ప్రశ్నకు సమాధానం ఇవ్వండి 👇",e_wrongans:"ఆ సమాధానం సరిపోలలేదు 😅 — ఖాతా సృష్టించినప్పుడు ఇచ్చిన సమాధానాన్నే అదే స్పెల్లింగ్‌తో రాయండి.",e_correct:"సరైన సమాధానం! 🎉 ఇప్పుడు కొత్త పాస్‌వర్డ్ సృష్టించండి.",e_newpass6:"కొత్త పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండేలా చేయండి 🔒",e_newmatch:"రెండు కొత్త పాస్‌వర్డ్‌లు సరిపోలలేదు — మళ్లీ నమోదు చేయండి 👀"},
+mr:{langLabel:"🌐 भाषा",tagline:"भारताची प्रत्येक आपत्ती — एकाच ठिकाणी, एकच परिवार 🌍💓",subline:"आग · पूर · भूस्खलन · थंडीची लाट · चक्रीवादळ — पाच वेबसाइट, पाच AI साथी, एकच घर.",enter:"प्रवेश करा →",splashNote:"पहिल्यांदा आलात? प्रवेश दाबा — एकदा खाते तयार करा, मग प्रत्येक वेळी तुमच्या नावाने स्वागत होईल 🙏",authSub:"तुमच्या खात्याने प्रवेश करा — पाचही आपत्ती वेबसाइट तुमची वाट पाहत आहेत.",tabLogin:"लॉगिन",tabSignup:"साइन अप",tabForgot:"विसरलात?",username:"वापरकर्तानाव",password:"पासवर्ड",loginBtn:"लॉगिन करा →",forgotQ:"पासवर्ड विसरलात?",forgotLink:"येथून नवीन तयार करा",newQ:"पहिल्यांदा आलात?",signupLink:"नवीन खाते तयार करा",fullName:"पूर्ण नाव",chooseUser:"वापरकर्तानाव निवडा",userHint:"3–20 अक्षरे — फक्त अक्षरे, अंक किंवा _. लॉगिनसाठी हेच नाव लागेल.",createPass:"पासवर्ड तयार करा",passPh:"किमान 6 अक्षरे",passAgain:"पासवर्ड पुन्हा टाका",passAgainPh:"तोच पासवर्ड पुन्हा",secQLabel:"सुरक्षा प्रश्न (पासवर्ड विसरल्यास उपयोगी)",secALabel:"त्या प्रश्नाचे तुमचे उत्तर",secAPh:"हे उत्तर लक्षात ठेवा — अचूक अक्षरलेखनासह",signupBtn:"खाते तयार करा →",authNote:"🔒 कृपया लक्षात ठेवा: हे खाते <b>फक्त याच ब्राउझरमध्ये, याच डिव्हाइसवर</b> जतन होते — सर्व्हर नाही. तुमचा पासवर्ड कधीही साध्या मजकुरात जतन होत नाही (मीठ-मिसळलेला हॅश जतन होतो). दुसऱ्या फोन किंवा संगणकावर हेच खाते चालणार नाही — तिथे नवीन तयार करावे लागेल.",fgUser:"तुमचे वापरकर्तानाव टाका",continueBtn:"पुढे जा →",fgIntro:"कृपया तुमच्या सुरक्षा प्रश्नाचे उत्तर द्या:",answer:"उत्तर",answerPh:"खाते तयार करताना दिलेले उत्तर",checkBtn:"माझे उत्तर तपासा →",newPass:"नवीन पासवर्ड तयार करा",newPassAgain:"नवीन पासवर्ड पुन्हा टाका",savePassBtn:"नवीन पासवर्ड जतन करा →",welcome:"स्वागत आहे, {name}! 👋",who:"@{user} · EarthPulse परिवारात तुमचे स्वागत आहे 🌍💓",logout:"लॉगआउट 🚪",dashIntro:"हा तुमचा <b>EarthPulse परिवार</b> आहे — पाचही आपत्ती वेबसाइट, प्रत्येकीच्या बाजूला तिचा स्वतःचा AI साथी फिरत आहे. कोणत्याही बॉक्सवर दाबा आणि <b>त्या आपत्तीची संपूर्ण वेबसाइट नवीन टॅबमध्ये</b> उघडेल.",dashFoot:"🌍💓 EarthPulse India — भारताची प्रत्येक आपत्ती, एकच परिवार. खऱ्या इशाऱ्यांसाठी नेहमी IMD / NDMA ची अधिकृत माहितीच अंतिम माना.",openLine:"वेबसाइट उघडा →",secq:["तुमच्या पहिल्या शाळेचे नाव काय होते?","तुमच्या पाळीव प्राण्याचे नाव काय आहे?","तुमचा जन्म कोणत्या शहरात झाला?","तुमचा आवडता पदार्थ कोणता आहे?","तुमच्या जिवलग मित्राचे नाव काय आहे?"],
+desc_fire:"NASA उपग्रहांवरून भारतातील आगीची थेट स्थिती, 110 मोठे अग्नि अभिलेख आणि परिसर अग्नि-तपासणी.",desc_flood:"नद्यांच्या पाणीपातळ्या, पुराचे 44 पडताळलेले अभिलेख आणि सुरक्षा मार्गदर्शन — जलसोबत.",desc_landslide:"डोंगराळ भागात भूस्खलनाचा धोका, 47 अभिलेख आणि GSI धोका क्षेत्रे — भूमीसोबत.",desc_coldwave:"तीव्र थंडीच्या 34 लाटांचे अभिलेख, IMD माहिती आणि थंडीपासून संरक्षण — हिमसोबत.",desc_cyclone:"चक्रीवादळांचे 40 अभिलेख, मार्ग नकाशे आणि किनारपट्टीच्या कथा — वायूसोबत.",
+bot_fire:["मी अग्नी! आगीची बातमी आधी माझ्याकडे 🔥","बॉक्सवर दाबा — अग्नी वेबसाइट उघडेल!"],bot_flood:["मी जल! पुराचे पाणी नेहमी माझ्या नजरेत 🌊","येथे दाबा — पूर वेबसाइट सर्व सांगेल!"],bot_landslide:["मी भूमी! डोंगर कधी सरकेल, आधी मी ओळखते ⛰️","येथे दाबा — भूस्खलन वेबसाइट उघडेल!"],bot_coldwave:["मी हिम! थंडी आली की तयारी माझी जबाबदारी ❄️","येथे दाबा — थंडीची लाट वेबसाइट उघडेल!"],bot_cyclone:["मी वायू! वादळ आले की आधी मी बोलतो 🌀","येथे दाबा — चक्रीवादळ वेबसाइट उघडेल!"],
+e_name:"तुमचे नाव खूप लहान वाटते — कृपया पूर्ण नाव लिहा (किमान 3 अक्षरे) 🙏",e_user:"कृपया 3–20 अक्षरांचे वापरकर्तानाव निवडा, फक्त अक्षरे, अंक किंवा _ सह — उदा. keshav_01 👍",e_pass6:"कृपया पासवर्ड किमान 6 अक्षरांचा ठेवा — मजबूत ठेवा 🔒",e_passmatch:"दोन्ही पासवर्ड जुळत नाहीत — तपासून पुन्हा टाका 👀",e_secans:"सुरक्षा उत्तरही लिहा — पासवर्ड विसरल्यास हाच मार्ग आहे.",e_taken:"हे वापरकर्तानाव आधीच घेतले आहे 😅 — कृपया दुसरे निवडा.",e_noaccount:"या नावाचे खाते सापडले नाही 🤔 — अक्षरलेखन तपासा, किंवा आधी साइन अपमधून खाते तयार करा.",e_wrongpass:"पासवर्ड चुकीचा आहे 😅 — पुन्हा प्रयत्न करा. विसरला असाल तर वरील 'विसरलात?' टॅब दाबा.",e_found:"खाते सापडले! आता तुमच्या सुरक्षा प्रश्नाचे उत्तर द्या 👇",e_wrongans:"ते उत्तर जुळत नाही 😅 — खाते तयार करताना दिलेले उत्तरच त्याच अक्षरलेखनाने लिहा.",e_correct:"बरोबर उत्तर! 🎉 आता नवीन पासवर्ड तयार करा.",e_newpass6:"नवीन पासवर्ड किमान 6 अक्षरांचा ठेवा 🔒",e_newmatch:"दोन्ही नवीन पासवर्ड जुळत नाहीत — पुन्हा टाका 👀"},
+ta:{langLabel:"🌐 மொழி",tagline:"இந்தியாவின் ஒவ்வொரு பேரிடரும் — ஒரே இடத்தில், ஒரே குடும்பம் 🌍💓",subline:"தீ · வெள்ளம் · நிலச்சரிவு · குளிர் அலை · சூறாவளி — ஐந்து இணையதளங்கள், ஐந்து AI துணைவர்கள், ஒரே வீடு.",enter:"உள்ளே செல்லவும் →",splashNote:"புதிதாக வருகிறீர்களா? உள்ளே செல்லவும் அழுத்தவும் — ஒருமுறை கணக்கை உருவாக்கவும், பின் ஒவ்வொரு முறையும் உங்கள் பெயரால் வரவேற்கப்படுவீர்கள் 🙏",authSub:"உங்கள் கணக்குடன் உள்நுழையவும் — ஐந்து பேரிடர் இணையதளங்களும் உங்களுக்காகக் காத்திருக்கின்றன.",tabLogin:"உள்நுழைவு",tabSignup:"பதிவு செய்க",tabForgot:"மறந்துவிட்டதா?",username:"பயனர் பெயர்",password:"கடவுச்சொல்",loginBtn:"உள்நுழையவும் →",forgotQ:"கடவுச்சொல்லை மறந்துவிட்டீர்களா?",forgotLink:"இங்கிருந்து மீட்டமைக்கவும்",newQ:"புதிதாக வருகிறீர்களா?",signupLink:"கணக்கை உருவாக்கவும்",fullName:"முழுப் பெயர்",chooseUser:"பயனர் பெயரைத் தேர்ந்தெடுக்கவும்",userHint:"3–20 எழுத்துகள் — எழுத்துகள், எண்கள் அல்லது _ மட்டும். உள்நுழைவுக்கு இதே பெயரைப் பயன்படுத்துவீர்கள்.",createPass:"கடவுச்சொல்லை உருவாக்கவும்",passPh:"குறைந்தது 6 எழுத்துகள்",passAgain:"கடவுச்சொல்லை மீண்டும் உள்ளிடவும்",passAgainPh:"அதே கடவுச்சொல் மீண்டும்",secQLabel:"பாதுகாப்புக் கேள்வி (கடவுச்சொல்லை மறந்தால் உதவும்)",secALabel:"அந்தக் கேள்விக்கான உங்கள் பதில்",secAPh:"இந்தப் பதிலை நினைவில் வைக்கவும் — சரியான எழுத்துப்பிழையுடன்",signupBtn:"கணக்கை உருவாக்கவும் →",authNote:"🔒 குறிப்பு: இந்தக் கணக்கு <b>இந்த உலாவியில், இந்த சாதனத்தில் மட்டுமே</b> சேமிக்கப்படும் — சேவையகம் இல்லை. உங்கள் கடவுச்சொல் ஒருபோதும் வெற்று உரையாகச் சேமிக்கப்படாது (உப்பு கலந்த ஹாஷ் சேமிக்கப்படும்). வேறு தொலைபேசி அல்லது கணினியில் இதே கணக்கு வேலை செய்யாது — அங்கு புதிதாக உருவாக்க வேண்டும்.",fgUser:"உங்கள் பயனர் பெயரை உள்ளிடவும்",continueBtn:"தொடரவும் →",fgIntro:"உங்கள் பாதுகாப்புக் கேள்விக்குப் பதிலளிக்கவும்:",answer:"பதில்",answerPh:"கணக்கை உருவாக்கும்போது கொடுத்த பதில்",checkBtn:"என் பதிலைச் சரிபார்க்கவும் →",newPass:"புதிய கடவுச்சொல்லை உருவாக்கவும்",newPassAgain:"புதிய கடவுச்சொல்லை மீண்டும் உள்ளிடவும்",savePassBtn:"புதிய கடவுச்சொல்லைச் சேமிக்கவும் →",welcome:"வரவேற்கிறோம், {name}! 👋",who:"@{user} · EarthPulse குடும்பத்திற்கு உங்களை வரவேற்கிறோம் 🌍💓",logout:"வெளியேறு 🚪",dashIntro:"இது உங்கள் <b>EarthPulse குடும்பம்</b> — ஐந்து பேரிடர் இணையதளங்கள், ஒவ்வொன்றின் அருகிலும் அதன் சொந்த AI துணைவர் நகர்ந்துகொண்டிருக்கிறார். எந்தப் பெட்டியையும் தட்டினால் <b>அந்தப் பேரிடரின் முழு இணையதளம் புதிய தாவலில்</b> திறக்கும்.",dashFoot:"🌍💓 EarthPulse India — இந்தியாவின் ஒவ்வொரு பேரிடரும், ஒரே குடும்பம். உண்மையான எச்சரிக்கைகளுக்கு எப்போதும் IMD / NDMA அதிகாரப்பூர்வ தகவலையே இறுதியாகக் கருதவும்.",openLine:"இணையதளத்தைத் திறக்கவும் →",secq:["உங்கள் முதல் பள்ளியின் பெயர் என்ன?","உங்கள் செல்லப் பிராணியின் பெயர் என்ன?","நீங்கள் எந்த நகரத்தில் பிறந்தீர்கள்?","உங்களுக்குப் பிடித்த உணவு எது?","உங்கள் நெருங்கிய நண்பரின் பெயர் என்ன?"],
+desc_fire:"NASA செயற்கைக்கோள்களிலிருந்து இந்தியாவின் நேரடி தீ நிலைமை, 110 முக்கிய தீ பதிவுகள் மற்றும் பகுதி தீ-சோதனை.",desc_flood:"ஆற்று நீர்மட்டங்கள், 44 சரிபார்க்கப்பட்ட வெள்ளப் பதிவுகள் மற்றும் பாதுகாப்பு வழிகாட்டுதல் — ஜலுடன்.",desc_landslide:"மலைப் பகுதிகளில் நிலச்சரிவு அபாயம், 47 பதிவுகள் மற்றும் GSI அபாய மண்டலங்கள் — பூமியுடன்.",desc_coldwave:"34 கடும் குளிர் அலை பதிவுகள், IMD தகவல் மற்றும் குளிரிலிருந்து பாதுகாப்பு — ஹிமுடன்.",desc_cyclone:"40 சூறாவளிப் பதிவுகள், பாதை வரைபடங்கள் மற்றும் கரையைத் தாக்கும் கதைகள் — வாயுவுடன்.",
+bot_fire:["நான் அக்னி! தீ செய்தி முதலில் என்னிடம் 🔥","பெட்டியைத் தட்டவும் — தீ இணையதளம் திறக்கும்!"],bot_flood:["நான் ஜல்! வெள்ள நீர் எப்போதும் என் பார்வையில் 🌊","இங்கே தட்டவும் — வெள்ள இணையதளம் எல்லாம் சொல்லும்!"],bot_landslide:["நான் பூமி! மலை சரிவதை முதலில் நான் உணர்வேன் ⛰️","இங்கே தட்டவும் — நிலச்சரிவு இணையதளம் திறக்கும்!"],bot_coldwave:["நான் ஹிம்! குளிர் வந்தால் தயார்நிலை என் பொறுப்பு ❄️","இங்கே தட்டவும் — குளிர் அலை இணையதளம் திறக்கும்!"],bot_cyclone:["நான் வாயு! புயல் வந்தால் முதலில் நான் பேசுவேன் 🌀","இங்கே தட்டவும் — சூறாவளி இணையதளம் திறக்கும்!"],
+e_name:"உங்கள் பெயர் மிகக் குறுகியதாக உள்ளது — முழுப் பெயரை எழுதவும் (குறைந்தது 3 எழுத்துகள்) 🙏",e_user:"3–20 எழுத்துகள் கொண்ட பயனர் பெயரைத் தேர்ந்தெடுக்கவும், எழுத்துகள், எண்கள் அல்லது _ மட்டும் — எ.கா. keshav_01 👍",e_pass6:"கடவுச்சொல்லைக் குறைந்தது 6 எழுத்துகளாக ஆக்கவும் — வலுவாக வைக்கவும் 🔒",e_passmatch:"இரண்டு கடவுச்சொற்களும் பொருந்தவில்லை — சரிபார்த்து மீண்டும் உள்ளிடவும் 👀",e_secans:"பாதுகாப்புப் பதிலையும் எழுதவும் — கடவுச்சொல்லை மறந்தால் அதுவே ஒரே வழி.",e_taken:"இந்தப் பயனர் பெயர் ஏற்கனவே எடுக்கப்பட்டுள்ளது 😅 — வேறொன்றைத் தேர்ந்தெடுக்கவும்.",e_noaccount:"இந்தப் பெயரில் கணக்கு எதுவும் இல்லை 🤔 — எழுத்துப்பிழையைச் சரிபார்க்கவும், அல்லது முதலில் பதிவிலிருந்து கணக்கை உருவாக்கவும்.",e_wrongpass:"தவறான கடவுச்சொல் 😅 — மீண்டும் முயற்சிக்கவும். மறந்திருந்தால் மேலே உள்ள 'மறந்துவிட்டதா?' தாவலை அழுத்தவும்.",e_found:"கணக்கு கிடைத்தது! இப்போது உங்கள் பாதுகாப்புக் கேள்விக்குப் பதிலளிக்கவும் 👇",e_wrongans:"அந்தப் பதில் பொருந்தவில்லை 😅 — கணக்கை உருவாக்கும்போது கொடுத்த பதிலையே அதே எழுத்துப்பிழையுடன் எழுதவும்.",e_correct:"சரியான பதில்! 🎉 இப்போது புதிய கடவுச்சொல்லை உருவாக்கவும்.",e_newpass6:"புதிய கடவுச்சொல்லைக் குறைந்தது 6 எழுத்துகளாக ஆக்கவும் 🔒",e_newmatch:"இரண்டு புதிய கடவுச்சொற்களும் பொருந்தவில்லை — மீண்டும் உள்ளிடவும் 👀"},
+ur:{langLabel:"🌐 زبان",tagline:"بھارت کی ہر آفت — ایک جگہ، ایک خاندان 🌍💓",subline:"آگ · سیلاب · لینڈ سلائیڈ · سرد لہر · سمندری طوفان — پانچ ویب سائٹس، پانچ AI ساتھی، ایک گھر۔",enter:"داخل ہوں →",splashNote:"پہلی بار آئے ہیں؟ داخل ہوں دبائیں — ایک بار اکاؤنٹ بنائیں، پھر ہر بار آپ کے نام سے خوش آمدید ہوگا 🙏",authSub:"اپنے اکاؤنٹ سے داخل ہوں — پانچوں آفات کی ویب سائٹس آپ کا انتظار کر رہی ہیں۔",tabLogin:"لاگ ان",tabSignup:"سائن اپ",tabForgot:"بھول گئے؟",username:"صارف نام",password:"پاس ورڈ",loginBtn:"لاگ ان کریں →",forgotQ:"پاس ورڈ بھول گئے؟",forgotLink:"یہاں سے نیا بنائیں",newQ:"پہلی بار آئے ہیں؟",signupLink:"نیا اکاؤنٹ بنائیں",fullName:"پورا نام",chooseUser:"صارف نام منتخب کریں",userHint:"3 سے 20 حروف — صرف حروف، اعداد یا _۔ لاگ ان کے لیے یہی نام استعمال ہوگا۔",createPass:"پاس ورڈ بنائیں",passPh:"کم از کم 6 حروف",passAgain:"پاس ورڈ دوبارہ درج کریں",passAgainPh:"وہی پاس ورڈ ایک بار پھر",secQLabel:"حفاظتی سوال (پاس ورڈ بھولنے پر کام آئے گا)",secALabel:"اس سوال کا آپ کا جواب",secAPh:"یہ جواب یاد رکھیں — درست ہجے کے ساتھ",signupBtn:"اکاؤنٹ بنائیں →",authNote:"🔒 براہ کرم نوٹ کریں: یہ اکاؤنٹ <b>صرف اسی براؤزر میں، اسی آلے پر</b> محفوظ ہوتا ہے — کوئی سرور نہیں ہے۔ آپ کا پاس ورڈ کبھی سادہ متن میں محفوظ نہیں ہوتا (نمک ملا ہیش محفوظ ہوتا ہے)۔ دوسرے فون یا کمپیوٹر پر یہی اکاؤنٹ نہیں چلے گا — وہاں نیا بنانا ہوگا۔",fgUser:"اپنا صارف نام درج کریں",continueBtn:"آگے بڑھیں →",fgIntro:"براہ کرم اپنے حفاظتی سوال کا جواب دیں:",answer:"جواب",answerPh:"اکاؤنٹ بناتے وقت دیا گیا جواب",checkBtn:"میرا جواب جانچیں →",newPass:"نیا پاس ورڈ بنائیں",newPassAgain:"نیا پاس ورڈ دوبارہ درج کریں",savePassBtn:"نیا پاس ورڈ محفوظ کریں →",welcome:"خوش آمدید، {name}! 👋",who:"@{user} · EarthPulse خاندان میں آپ کا خیرمقدم ہے 🌍💓",logout:"لاگ آؤٹ 🚪",dashIntro:"یہ آپ کا <b>EarthPulse خاندان</b> ہے — پانچوں آفات کی ویب سائٹس، ہر ایک کے ساتھ اس کا اپنا AI ساتھی گھوم رہا ہے۔ کسی بھی خانے پر دبائیں اور <b>اس آفت کی مکمل ویب سائٹ نئے ٹیب میں</b> کھل جائے گی۔",dashFoot:"🌍💓 EarthPulse India — بھارت کی ہر آفت، ایک خاندان۔ اصل وارننگ کے لیے ہمیشہ IMD / NDMA کی سرکاری معلومات کو ہی حتمی مانیں۔",openLine:"ویب سائٹ کھولیں →",secq:["آپ کے پہلے اسکول کا نام کیا تھا؟","آپ کے پالتو جانور کا نام کیا ہے؟","آپ کس شہر میں پیدا ہوئے تھے؟","آپ کا پسندیدہ کھانا کون سا ہے؟","آپ کے سب سے اچھے دوست کا نام کیا ہے؟"],
+desc_fire:"NASA سٹیلائٹ سے بھارت کی آگ کی براہ راست صورتحال، 110 بڑے آگ ریکارڈ اور علاقائی آگ جانچ۔",desc_flood:"دریاؤں کی پانی کی سطح، سیلاب کے 44 تصدیق شدہ ریکارڈ اور حفاظتی رہنمائی — جل کے ساتھ۔",desc_landslide:"پہاڑی علاقوں میں لینڈ سلائیڈ کا خطرہ، 47 ریکارڈ اور GSI خطرہ زون — بھومی کے ساتھ۔",desc_coldwave:"شدید سردی کے 34 ادوار کا ریکارڈ، IMD معلومات اور سردی سے تحفظ — ہم کے ساتھ۔",desc_cyclone:"سمندری طوفانوں کے 40 ریکارڈ، راستہ نقشے اور ساحل سے ٹکرانے کی کہانیاں — وایو کے ساتھ۔",
+bot_fire:["میں اگنی ہوں! آگ کی خبر سب سے پہلے میرے پاس 🔥","خانے پر دبائیں — آگ کی ویب سائٹ کھل جائے گی!"],bot_flood:["میں جل ہوں! سیلاب کا پانی میری نظر میں ہے 🌊","یہاں دبائیں — سیلاب کی ویب سائٹ سب بتائے گی!"],bot_landslide:["میں بھومی ہوں! پہاڑ کب کھسکے، پہلے میں جانتی ہوں ⛰️","یہاں دبائیں — لینڈ سلائیڈ ویب سائٹ کھل جائے گی!"],bot_coldwave:["میں ہم ہوں! سردی آئے تو تیاری میری ذمہ داری ❄️","یہاں دبائیں — سرد لہر ویب سائٹ کھل جائے گی!"],bot_cyclone:["میں وایو ہوں! طوفان آئے تو سب سے پہلے میں بولوں 🌀","یہاں دبائیں — سمندری طوفان ویب سائٹ کھل جائے گی!"],
+e_name:"آپ کا نام بہت چھوٹا لگ رہا ہے — براہ کرم پورا نام لکھیں (کم از کم 3 حروف) 🙏",e_user:"براہ کرم 3 سے 20 حروف کا صارف نام منتخب کریں، صرف حروف، اعداد یا _ کے ساتھ — جیسے keshav_01 👍",e_pass6:"براہ کرم پاس ورڈ کم از کم 6 حروف کا بنائیں — اسے مضبوط رکھیں 🔒",e_passmatch:"دونوں پاس ورڈ ایک جیسے نہیں ہیں — جانچ کر دوبارہ درج کریں 👀",e_secans:"حفاظتی جواب بھی لکھیں — پاس ورڈ بھولنے پر یہی کام آئے گا۔",e_taken:"یہ صارف نام پہلے سے لیا جا چکا ہے 😅 — براہ کرم کوئی دوسرا منتخب کریں۔",e_noaccount:"اس صارف نام کا کوئی اکاؤنٹ نہیں ملا 🤔 — ہجے جانچیں، یا پہلے سائن اپ سے اکاؤنٹ بنائیں۔",e_wrongpass:"پاس ورڈ غلط ہے 😅 — دوبارہ کوشش کریں۔ بھول گئے ہوں تو اوپر 'بھول گئے؟' والا ٹیب دبائیں۔",e_found:"اکاؤنٹ مل گیا! اب براہ کرم اپنے حفاظتی سوال کا جواب دیں 👇",e_wrongans:"جواب مماثل نہیں ہوا 😅 — اکاؤنٹ بناتے وقت جو جواب دیا تھا، وہی ہجے سے لکھیں۔",e_correct:"درست جواب! 🎉 اب اپنا نیا پاس ورڈ بنائیں۔",e_newpass6:"براہ کرم نیا پاس ورڈ کم از کم 6 حروف کا رکھیں 🔒",e_newmatch:"دونوں نئے پاس ورڈ ایک جیسے نہیں ہیں — دوبارہ درج کریں 👀"},
+gu:{langLabel:"🌐 ભાષા",tagline:"ભારતની દરેક આપત્તિ — એક જ જગ્યાએ, એક જ પરિવાર 🌍💓",subline:"આગ · પૂર · ભૂસ્ખલન · ઠંડીની લહેર · ચક્રવાત — પાંચ વેબસાઇટ, પાંચ AI સાથી, એક ઘર.",enter:"પ્રવેશ કરો →",splashNote:"પહેલી વાર આવ્યા છો? પ્રવેશ દબાવો — એકવાર ખાતું બનાવો, પછી દરેક વખતે તમારા નામથી સ્વાગત થશે 🙏",authSub:"તમારા ખાતાથી પ્રવેશ કરો — પાંચેય આપત્તિ વેબસાઇટ તમારી રાહ જોઈ રહી છે.",tabLogin:"લૉગિન",tabSignup:"સાઇન અપ",tabForgot:"ભૂલી ગયા?",username:"વપરાશકર્તા નામ",password:"પાસવર્ડ",loginBtn:"લૉગિન કરો →",forgotQ:"પાસવર્ડ ભૂલી ગયા?",forgotLink:"અહીંથી નવો બનાવો",newQ:"પહેલી વાર આવ્યા છો?",signupLink:"નવું ખાતું બનાવો",fullName:"પૂરું નામ",chooseUser:"વપરાશકર્તા નામ પસંદ કરો",userHint:"3–20 અક્ષરો — માત્ર અક્ષરો, આંકડા કે _. લૉગિન માટે આ જ નામ કામ આવશે.",createPass:"પાસવર્ડ બનાવો",passPh:"ઓછામાં ઓછા 6 અક્ષરો",passAgain:"પાસવર્ડ ફરી નાખો",passAgainPh:"એ જ પાસવર્ડ ફરી",secQLabel:"સુરક્ષા પ્રશ્ન (પાસવર્ડ ભૂલી જાઓ તો કામ આવશે)",secALabel:"એ પ્રશ્નનો તમારો જવાબ",secAPh:"આ જવાબ યાદ રાખો — સાચી જોડણી સાથે",signupBtn:"ખાતું બનાવો →",authNote:"🔒 મહેરબાની કરીને નોંધો: આ ખાતું <b>ફક્ત આ જ બ્રાઉઝરમાં, આ જ ઉપકરણ પર</b> સચવાય છે — કોઈ સર્વર નથી. તમારો પાસવર્ડ ક્યારેય સાદા લખાણમાં સચવાતો નથી (મીઠું-ભેળવેલો હેશ સચવાય છે). બીજા ફોન કે કમ્પ્યુટર પર આ જ ખાતું ચાલશે નહીં — ત્યાં નવું બનાવવું પડશે.",fgUser:"તમારું વપરાશકર્તા નામ નાખો",continueBtn:"આગળ વધો →",fgIntro:"મહેરબાની કરીને તમારા સુરક્ષા પ્રશ્નનો જવાબ આપો:",answer:"જવાબ",answerPh:"ખાતું બનાવતી વખતે આપેલો જવાબ",checkBtn:"મારો જવાબ ચકાસો →",newPass:"નવો પાસવર્ડ બનાવો",newPassAgain:"નવો પાસવર્ડ ફરી નાખો",savePassBtn:"નવો પાસવર્ડ સાચવો →",welcome:"સ્વાગત છે, {name}! 👋",who:"@{user} · EarthPulse પરિવારમાં તમારું સ્વાગત છે 🌍💓",logout:"લૉગઆઉટ 🚪",dashIntro:"આ તમારો <b>EarthPulse પરિવાર</b> છે — પાંચેય આપત્તિ વેબસાઇટ, દરેકની સાથે તેનો પોતાનો AI સાથી ફરે છે. કોઈપણ બૉક્સ પર દબાવો અને <b>એ આપત્તિની આખી વેબસાઇટ નવા ટૅબમાં</b> ખૂલી જશે.",dashFoot:"🌍💓 EarthPulse India — ભારતની દરેક આપત્તિ, એક પરિવાર. સાચી ચેતવણી માટે હંમેશા IMD / NDMA ની સત્તાવાર માહિતીને જ અંતિમ માનો.",openLine:"વેબસાઇટ ખોલો →",secq:["તમારી પહેલી શાળાનું નામ શું હતું?","તમારા પાલતુ પ્રાણીનું નામ શું છે?","તમારો જન્મ કયા શહેરમાં થયો હતો?","તમારો મનપસંદ ખોરાક કયો છે?","તમારા સૌથી સારા મિત્રનું નામ શું છે?"],
+desc_fire:"NASA ઉપગ્રહથી ભારતની આગની જીવંત સ્થિતિ, 110 મોટા અગ્નિ રેકોર્ડ અને વિસ્તાર અગ્નિ-તપાસ.",desc_flood:"નદીઓનું પાણી સ્તર, પૂરના 44 ચકાસાયેલા રેકોર્ડ અને સુરક્ષા માર્ગદર્શન — જલ સાથે.",desc_landslide:"પહાડી વિસ્તારોમાં ભૂસ્ખલનનું જોખમ, 47 રેકોર્ડ અને GSI જોખમ ક્ષેત્રો — ભૂમિ સાથે.",desc_coldwave:"તીવ્ર ઠંડીના 34 ગાળાના રેકોર્ડ, IMD માહિતી અને ઠંડીથી બચાવ — હિમ સાથે.",desc_cyclone:"ચક્રવાતના 40 રેકોર્ડ, માર્ગ નકશા અને કિનારે અથડામણની વાર્તાઓ — વાયુ સાથે.",
+bot_fire:["હું અગ્નિ છું! આગના સમાચાર સૌથી પહેલા મારી પાસે 🔥","બૉક્સ પર દબાવો — અગ્નિ વેબસાઇટ ખૂલી જશે!"],bot_flood:["હું જલ છું! પૂરનું પાણી મારી નજરમાં છે 🌊","અહીં દબાવો — પૂર વેબસાઇટ બધું જણાવશે!"],bot_landslide:["હું ભૂમિ છું! પહાડ ક્યારે ખસકે, પહેલા હું જાણું છું ⛰️","અહીં દબાવો — ભૂસ્ખલન વેબસાઇટ ખૂલી જશે!"],bot_coldwave:["હું હિમ છું! ઠંડી આવે તો તૈયારી મારી જવાબદારી ❄️","અહીં દબાવો — ઠંડીની લહેર વેબસાઇટ ખૂલી જશે!"],bot_cyclone:["હું વાયુ છું! તોફાન આવે, સૌથી પહેલા હું બોલું 🌀","અહીં દબાવો — ચક્રવાત વેબસાઇટ ખૂલી જશે!"],
+e_name:"તમારું નામ ખૂબ ટૂંકું લાગે છે — મહેરબાની કરીને પૂરું નામ લખો (ઓછામાં ઓછા 3 અક્ષરો) 🙏",e_user:"મહેરબાની કરીને 3–20 અક્ષરોનું વપરાશકર્તા નામ પસંદ કરો, માત્ર અક્ષરો, આંકડા કે _ સાથે — જેમ કે keshav_01 👍",e_pass6:"મહેરબાની કરીને પાસવર્ડ ઓછામાં ઓછા 6 અક્ષરોનો રાખો — મજબૂત રાખો 🔒",e_passmatch:"બંને પાસવર્ડ સરખા નથી — ચકાસીને ફરી નાખો 👀",e_secans:"સુરક્ષા જવાબ પણ લખો — પાસવર્ડ ભૂલી જાઓ તો એ જ કામ આવશે.",e_taken:"આ વપરાશકર્તા નામ પહેલેથી લેવાઈ ગયું છે 😅 — મહેરબાની કરીને બીજું પસંદ કરો.",e_noaccount:"આ નામનું કોઈ ખાતું મળ્યું નથી 🤔 — જોડણી ચકાસો, અથવા પહેલા સાઇન અપથી ખાતું બનાવો.",e_wrongpass:"પાસવર્ડ ખોટો છે 😅 — ફરી પ્રયાસ કરો. ભૂલી ગયા હો તો ઉપરનો 'ભૂલી ગયા?' ટૅબ દબાવો.",e_found:"ખાતું મળી ગયું! હવે તમારા સુરક્ષા પ્રશ્નનો જવાબ આપો 👇",e_wrongans:"જવાબ મળતો નથી 😅 — ખાતું બનાવતી વખતે આપેલો જવાબ જ એ જ જોડણીથી લખો.",e_correct:"સાચો જવાબ! 🎉 હવે તમારો નવો પાસવર્ડ બનાવો.",e_newpass6:"નવો પાસવર્ડ ઓછામાં ઓછા 6 અક્ષરોનો રાખો 🔒",e_newmatch:"બંને નવા પાસવર્ડ સરખા નથી — ફરી નાખો 👀"},
+kn:{langLabel:"🌐 ಭಾಷೆ",tagline:"ಭಾರತದ ಪ್ರತಿಯೊಂದು ವಿಪತ್ತು — ಒಂದೇ ಸ್ಥಳ, ಒಂದೇ ಕುಟುಂಬ 🌍💓",subline:"ಬೆಂಕಿ · ಪ್ರವಾಹ · ಭೂಕುಸಿತ · ಶೀತ ಅಲೆ · ಚಂಡಮಾರುತ — ಐದು ವೆಬ್‌ಸೈಟ್‌ಗಳು, ಐದು AI ಸಹಚರರು, ಒಂದೇ ಮನೆ.",enter:"ಪ್ರವೇಶಿಸಿ →",splashNote:"ಹೊಸದಾಗಿ ಬಂದಿದ್ದೀರಾ? ಪ್ರವೇಶಿಸಿ ಒತ್ತಿರಿ — ಒಮ್ಮೆ ಖಾತೆ ರಚಿಸಿ, ನಂತರ ಪ್ರತಿ ಬಾರಿ ನಿಮ್ಮ ಹೆಸರಿನಿಂದ ಸ್ವಾಗತ ಸಿಗುತ್ತದೆ 🙏",authSub:"ನಿಮ್ಮ ಖಾತೆಯಿಂದ ಪ್ರವೇಶಿಸಿ — ಐದೂ ವಿಪತ್ತು ವೆಬ್‌ಸೈಟ್‌ಗಳು ನಿಮಗಾಗಿ ಕಾಯುತ್ತಿವೆ.",tabLogin:"ಲಾಗಿನ್",tabSignup:"ಸೈನ್ ಅಪ್",tabForgot:"ಮರೆತಿರಾ?",username:"ಬಳಕೆದಾರ ಹೆಸರು",password:"ಪಾಸ್‌ವರ್ಡ್",loginBtn:"ಲಾಗಿನ್ ಮಾಡಿ →",forgotQ:"ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?",forgotLink:"ಇಲ್ಲಿಂದ ಹೊಸದು ರಚಿಸಿ",newQ:"ಹೊಸದಾಗಿ ಬಂದಿದ್ದೀರಾ?",signupLink:"ಹೊಸ ಖಾತೆ ರಚಿಸಿ",fullName:"ಪೂರ್ಣ ಹೆಸರು",chooseUser:"ಬಳಕೆದಾರ ಹೆಸರು ಆಯ್ಕೆಮಾಡಿ",userHint:"3–20 ಅಕ್ಷರಗಳು — ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು ಅಥವಾ _ ಮಾತ್ರ. ಲಾಗಿನ್‌ಗೆ ಇದೇ ಹೆಸರು ಬೇಕು.",createPass:"ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ",passPh:"ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳು",passAgain:"ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತೆ ನಮೂದಿಸಿ",passAgainPh:"ಅದೇ ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತೊಮ್ಮೆ",secQLabel:"ಭದ್ರತಾ ಪ್ರಶ್ನೆ (ಪಾಸ್‌ವರ್ಡ್ ಮರೆತರೆ ಉಪಯೋಗ)",secALabel:"ಆ ಪ್ರಶ್ನೆಗೆ ನಿಮ್ಮ ಉತ್ತರ",secAPh:"ಈ ಉತ್ತರ ನೆನಪಿಡಿ — ಸರಿಯಾದ ಕಾಗುಣಿತದೊಂದಿಗೆ",signupBtn:"ಖಾತೆ ರಚಿಸಿ →",authNote:"🔒 ದಯವಿಟ್ಟು ಗಮನಿಸಿ: ಈ ಖಾತೆ <b>ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ, ಈ ಸಾಧನದಲ್ಲಿ ಮಾತ್ರ</b> ಉಳಿಸಲ್ಪಡುತ್ತದೆ — ಸರ್ವರ್ ಇಲ್ಲ. ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಎಂದಿಗೂ ಸರಳ ಪಠ್ಯದಲ್ಲಿ ಉಳಿಯುವುದಿಲ್ಲ (ಉಪ್ಪು ಬೆರೆಸಿದ ಹ್ಯಾಶ್ ಉಳಿಯುತ್ತದೆ). ಬೇರೆ ಫೋನ್ ಅಥವಾ ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಇದೇ ಖಾತೆ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ — ಅಲ್ಲಿ ಹೊಸದು ರಚಿಸಬೇಕು.",fgUser:"ನಿಮ್ಮ ಬಳಕೆದಾರ ಹೆಸರು ನಮೂದಿಸಿ",continueBtn:"ಮುಂದುವರಿಯಿರಿ →",fgIntro:"ದಯವಿಟ್ಟು ನಿಮ್ಮ ಭದ್ರತಾ ಪ್ರಶ್ನೆಗೆ ಉತ್ತರಿಸಿ:",answer:"ಉತ್ತರ",answerPh:"ಖಾತೆ ರಚಿಸುವಾಗ ನೀಡಿದ ಉತ್ತರ",checkBtn:"ನನ್ನ ಉತ್ತರ ಪರಿಶೀಲಿಸಿ →",newPass:"ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ",newPassAgain:"ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತೆ ನಮೂದಿಸಿ",savePassBtn:"ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಉಳಿಸಿ →",welcome:"ಸ್ವಾಗತ, {name}! 👋",who:"@{user} · EarthPulse ಕುಟುಂಬಕ್ಕೆ ನಿಮ್ಮನ್ನು ಸ್ವಾಗತಿಸುತ್ತೇವೆ 🌍💓",logout:"ಲಾಗೌಟ್ 🚪",dashIntro:"ಇದು ನಿಮ್ಮ <b>EarthPulse ಕುಟುಂಬ</b> — ಐದೂ ವಿಪತ್ತು ವೆಬ್‌ಸೈಟ್‌ಗಳು, ಪ್ರತಿಯೊಂದರ ಪಕ್ಕದಲ್ಲಿ ಅದರ ಸ್ವಂತ AI ಸಹಚರ ಚಲಿಸುತ್ತಿರುತ್ತಾನೆ. ಯಾವುದೇ ಪೆಟ್ಟಿಗೆಯನ್ನು ಒತ್ತಿದರೆ <b>ಆ ವಿಪತ್ತಿನ ಪೂರ್ಣ ವೆಬ್‌ಸೈಟ್ ಹೊಸ ಟ್ಯಾಬ್‌ನಲ್ಲಿ</b> ತೆರೆಯುತ್ತದೆ.",dashFoot:"🌍💓 EarthPulse India — ಭಾರತದ ಪ್ರತಿ ವಿಪತ್ತು, ಒಂದೇ ಕುಟುಂಬ. ನಿಜವಾದ ಎಚ್ಚರಿಕೆಗಳಿಗಾಗಿ ಯಾವಾಗಲೂ IMD / NDMA ಅಧಿಕೃತ ಮಾಹಿತಿಯನ್ನೇ ಅಂತಿಮವೆಂದು ಪರಿಗಣಿಸಿ.",openLine:"ವೆಬ್‌ಸೈಟ್ ತೆರೆಯಿರಿ →",secq:["ನಿಮ್ಮ ಮೊದಲ ಶಾಲೆಯ ಹೆಸರು ಏನು?","ನಿಮ್ಮ ಸಾಕುಪ್ರಾಣಿಯ ಹೆಸರು ಏನು?","ನೀವು ಯಾವ ನಗರದಲ್ಲಿ ಜನಿಸಿದಿರಿ?","ನಿಮ್ಮ ನೆಚ್ಚಿನ ಆಹಾರ ಯಾವುದು?","ನಿಮ್ಮ ಆತ್ಮೀಯ ಸ್ನೇಹಿತನ ಹೆಸರು ಏನು?"],
+desc_fire:"NASA ಉಪಗ್ರಹಗಳಿಂದ ಭಾರತದ ನೇರ ಅಗ್ನಿ ಪರಿಸ್ಥಿತಿ, 110 ಪ್ರಮುಖ ಅಗ್ನಿ ದಾಖಲೆಗಳು ಮತ್ತು ಪ್ರದೇಶ ಅಗ್ನಿ-ಪರಿಶೀಲನೆ.",desc_flood:"ನದಿಗಳ ನೀರಿನ ಮಟ್ಟಗಳು, 44 ಪರಿಶೀಲಿತ ಪ್ರವಾಹ ದಾಖಲೆಗಳು ಮತ್ತು ಸುರಕ್ಷತಾ ಮಾರ್ಗದರ್ಶನ — ಜಲ್ ಜೊತೆ.",desc_landslide:"ಬೆಟ್ಟ ಪ್ರದೇಶಗಳಲ್ಲಿ ಭೂಕುಸಿತದ ಅಪಾಯ, 47 ದಾಖಲೆಗಳು ಮತ್ತು GSI ಅಪಾಯ ವಲಯಗಳು — ಭೂಮಿ ಜೊತೆ.",desc_coldwave:"34 ತೀವ್ರ ಶೀತ ಅಲೆಗಳ ದಾಖಲೆಗಳು, IMD ಮಾಹಿತಿ ಮತ್ತು ಚಳಿಯಿಂದ ರಕ್ಷಣೆ — ಹಿಮ್ ಜೊತೆ.",desc_cyclone:"40 ಚಂಡಮಾರುತ ದಾಖಲೆಗಳು, ಪಥ ನಕ್ಷೆಗಳು ಮತ್ತು ತೀರ ತಾಕುವ ಕಥೆಗಳು — ವಾಯು ಜೊತೆ.",
+bot_fire:["ನಾನು ಅಗ್ನಿ! ಬೆಂಕಿಯ ಸುದ್ದಿ ಮೊದಲು ನನಗೆ 🔥","ಪೆಟ್ಟಿಗೆ ಒತ್ತಿರಿ — ಅಗ್ನಿ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],bot_flood:["ನಾನು ಜಲ್! ಪ್ರವಾಹದ ನೀರು ಯಾವಾಗಲೂ ನನ್ನ ದೃಷ್ಟಿಯಲ್ಲಿ 🌊","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಪ್ರವಾಹ ವೆಬ್‌ಸೈಟ್ ಎಲ್ಲ ಹೇಳುತ್ತದೆ!"],bot_landslide:["ನಾನು ಭೂಮಿ! ಬೆಟ್ಟ ಜಾರುವುದನ್ನು ಮೊದಲು ನಾನು ಗ್ರಹಿಸುತ್ತೇನೆ ⛰️","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಭೂಕುಸಿತ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],bot_coldwave:["ನಾನು ಹಿಮ್! ಚಳಿ ಬಂದರೆ ಸಿದ್ಧತೆ ನನ್ನ ಜವಾಬ್ದಾರಿ ❄️","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಶೀತ ಅಲೆ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],bot_cyclone:["ನಾನು ವಾಯು! ಚಂಡಮಾರುತ ಬಂದರೆ ಮೊದಲು ನಾನು ಮಾತನಾಡುತ್ತೇನೆ 🌀","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಚಂಡಮಾರುತ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],
+e_name:"ನಿಮ್ಮ ಹೆಸರು ತುಂಬ ಚಿಕ್ಕದಾಗಿದೆ — ದಯವಿಟ್ಟು ಪೂರ್ಣ ಹೆಸರು ಬರೆಯಿರಿ (ಕನಿಷ್ಠ 3 ಅಕ್ಷರಗಳು) 🙏",e_user:"ದಯವಿಟ್ಟು 3–20 ಅಕ್ಷರಗಳ ಬಳಕೆದಾರ ಹೆಸರು ಆಯ್ಕೆಮಾಡಿ, ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು ಅಥವಾ _ ಮಾತ್ರ — ಉದಾ. keshav_01 👍",e_pass6:"ದಯವಿಟ್ಟು ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳಾಗಿಸಿ — ಬಲವಾಗಿ ಇರಿಸಿ 🔒",e_passmatch:"ಎರಡೂ ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ — ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ನಮೂದಿಸಿ 👀",e_secans:"ಭದ್ರತಾ ಉತ್ತರವನ್ನೂ ಬರೆಯಿರಿ — ಪಾಸ್‌ವರ್ಡ್ ಮರೆತರೆ ಅದೇ ಏಕೈಕ ಮಾರ್ಗ.",e_taken:"ಈ ಬಳಕೆದಾರ ಹೆಸರು ಈಗಾಗಲೇ ತೆಗೆದುಕೊಳ್ಳಲಾಗಿದೆ 😅 — ದಯವಿಟ್ಟು ಬೇರೊಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ.",e_noaccount:"ಈ ಹೆಸರಿನ ಖಾತೆ ಸಿಗಲಿಲ್ಲ 🤔 — ಕಾಗುಣಿತ ಪರಿಶೀಲಿಸಿ, ಅಥವಾ ಮೊದಲು ಸೈನ್ ಅಪ್‌ನಿಂದ ಖಾತೆ ರಚಿಸಿ.",e_wrongpass:"ತಪ್ಪು ಪಾಸ್‌ವರ್ಡ್ 😅 — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ಮರೆತಿದ್ದರೆ ಮೇಲಿನ 'ಮರೆತಿರಾ?' ಟ್ಯಾಬ್ ಒತ್ತಿರಿ.",e_found:"ಖಾತೆ ಸಿಕ್ಕಿತು! ಈಗ ನಿಮ್ಮ ಭದ್ರತಾ ಪ್ರಶ್ನೆಗೆ ಉತ್ತರಿಸಿ 👇",e_wrongans:"ಆ ಉತ್ತರ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ 😅 — ಖಾತೆ ರಚಿಸುವಾಗ ನೀಡಿದ ಉತ್ತರವನ್ನೇ ಅದೇ ಕಾಗುಣಿತದಲ್ಲಿ ಬರೆಯಿರಿ.",e_correct:"ಸರಿಯಾದ ಉತ್ತರ! 🎉 ಈಗ ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ.",e_newpass6:"ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳಾಗಿಸಿ 🔒",e_newmatch:"ಎರಡೂ ಹೊಸ ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ — ಮತ್ತೆ ನಮೂದಿಸಿ 👀"},
+ml:{langLabel:"🌐 ഭാഷ",tagline:"ഇന്ത്യയിലെ ഓരോ ദുരന്തവും — ഒരിടത്ത്, ഒരു കുടുംബം 🌍💓",subline:"തീ · വെള്ളപ്പൊക്കം · മണ്ണിടിച്ചിൽ · ശൈത്യ തരംഗം · ചുഴലിക്കാറ്റ് — അഞ്ച് വെബ്‌സൈറ്റുകൾ, അഞ്ച് AI കൂട്ടുകാർ, ഒരു വീട്.",enter:"പ്രവേശിക്കുക →",splashNote:"ആദ്യമായാണോ വരുന്നത്? പ്രവേശിക്കുക അമർത്തുക — ഒരിക്കൽ അക്കൗണ്ട് ഉണ്ടാക്കുക, പിന്നെ ഓരോ തവണയും നിങ്ങളുടെ പേരിൽ സ്വാഗതം ലഭിക്കും 🙏",authSub:"നിങ്ങളുടെ അക്കൗണ്ട് ഉപയോഗിച്ച് പ്രവേശിക്കുക — അഞ്ച് ദുരന്ത വെബ്‌സൈറ്റുകളും നിങ്ങളെ കാത്തിരിക്കുന്നു.",tabLogin:"ലോഗിൻ",tabSignup:"സൈൻ അപ്പ്",tabForgot:"മറന്നോ?",username:"ഉപയോക്തൃനാമം",password:"പാസ്‌വേഡ്",loginBtn:"ലോഗിൻ ചെയ്യുക →",forgotQ:"പാസ്‌വേഡ് മറന്നോ?",forgotLink:"ഇവിടെ നിന്ന് പുതിയത് ഉണ്ടാക്കുക",newQ:"ആദ്യമായാണോ?",signupLink:"പുതിയ അക്കൗണ്ട് ഉണ്ടാക്കുക",fullName:"മുഴുവൻ പേര്",chooseUser:"ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക",userHint:"3–20 അക്ഷരങ്ങൾ — അക്ഷരങ്ങൾ, അക്കങ്ങൾ അല്ലെങ്കിൽ _ മാത്രം. ലോഗിന് ഇതേ പേര് ഉപയോഗിക്കും.",createPass:"പാസ്‌വേഡ് ഉണ്ടാക്കുക",passPh:"കുറഞ്ഞത് 6 അക്ഷരങ്ങൾ",passAgain:"പാസ്‌വേഡ് വീണ്ടും നൽകുക",passAgainPh:"അതേ പാസ്‌വേഡ് വീണ്ടും",secQLabel:"സുരക്ഷാ ചോദ്യം (പാസ്‌വേഡ് മറന്നാൽ ഉപകരിക്കും)",secALabel:"ആ ചോദ്യത്തിനുള്ള നിങ്ങളുടെ ഉത്തരം",secAPh:"ഈ ഉത്തരം ഓർക്കുക — ശരിയായ അക്ഷരവിന്യാസത്തോടെ",signupBtn:"അക്കൗണ്ട് ഉണ്ടാക്കുക →",authNote:"🔒 ദയവായി ശ്രദ്ധിക്കുക: ഈ അക്കൗണ്ട് <b>ഈ ബ്രൗസറിൽ, ഈ ഉപകരണത്തിൽ മാത്രം</b> സൂക്ഷിക്കുന്നു — സെർവർ ഇല്ല. നിങ്ങളുടെ പാസ്‌വേഡ് ഒരിക്കലും സാധാരണ വാചകത്തിൽ സൂക്ഷിക്കില്ല (ഉപ്പ് ചേർത്ത ഹാഷ് സൂക്ഷിക്കുന്നു). മറ്റൊരു ഫോണിലോ കമ്പ്യൂട്ടറിലോ ഇതേ അക്കൗണ്ട് പ്രവർത്തിക്കില്ല — അവിടെ പുതിയത് ഉണ്ടാക്കണം.",fgUser:"നിങ്ങളുടെ ഉപയോക്തൃനാമം നൽകുക",continueBtn:"തുടരുക →",fgIntro:"ദയവായി നിങ്ങളുടെ സുരക്ഷാ ചോദ്യത്തിന് ഉത്തരം നൽകുക:",answer:"ഉത്തരം",answerPh:"അക്കൗണ്ട് ഉണ്ടാക്കുമ്പോൾ നൽകിയ ഉത്തരം",checkBtn:"എന്റെ ഉത്തരം പരിശോധിക്കുക →",newPass:"പുതിയ പാസ്‌വേഡ് ഉണ്ടാക്കുക",newPassAgain:"പുതിയ പാസ്‌വേഡ് വീണ്ടും നൽകുക",savePassBtn:"പുതിയ പാസ്‌വേഡ് സൂക്ഷിക്കുക →",welcome:"സ്വാഗതം, {name}! 👋",who:"@{user} · EarthPulse കുടുംബത്തിലേക്ക് സ്വാഗതം 🌍💓",logout:"ലോഗൗട്ട് 🚪",dashIntro:"ഇതാണ് നിങ്ങളുടെ <b>EarthPulse കുടുംബം</b> — അഞ്ച് ദുരന്ത വെബ്‌സൈറ്റുകൾ, ഓരോന്നിന്റെയും അടുത്ത് അതിന്റെ സ്വന്തം AI കൂട്ടുകാരൻ ചുറ്റിനടക്കുന്നു. ഏത് പെട്ടിയിലും അമർത്തിയാൽ <b>ആ ദുരന്തത്തിന്റെ മുഴുവൻ വെബ്‌സൈറ്റ് പുതിയ ടാബിൽ</b> തുറക്കും.",dashFoot:"🌍💓 EarthPulse India — ഇന്ത്യയിലെ ഓരോ ദുരന്തവും, ഒരു കുടുംബം. യഥാർത്ഥ മുന്നറിയിപ്പുകൾക്ക് എപ്പോഴും IMD / NDMA ഔദ്യോഗിക വിവരങ്ങൾ അന്തിമമായി കരുതുക.",openLine:"വെബ്‌സൈറ്റ് തുറക്കുക →",secq:["നിങ്ങളുടെ ആദ്യ സ്കൂളിന്റെ പേര് എന്തായിരുന്നു?","നിങ്ങളുടെ വളർത്തുമൃഗത്തിന്റെ പേര് എന്താണ്?","നിങ്ങൾ ഏത് നഗരത്തിലാണ് ജനിച്ചത്?","നിങ്ങളുടെ പ്രിയപ്പെട്ട ഭക്ഷണം ഏതാണ്?","നിങ്ങളുടെ ഏറ്റവും അടുത്ത സുഹൃത്തിന്റെ പേര് എന്താണ്?"],
+desc_fire:"NASA ഉപഗ്രഹങ്ങളിൽ നിന്ന് ഇന്ത്യയിലെ തത്സമയ അഗ്നി സ്ഥിതി, 110 പ്രധാന അഗ്നി രേഖകൾ, പ്രദേശ അഗ്നി-പരിശോധന.",desc_flood:"നദീജലനിരപ്പ്, 44 സ്ഥിരീകരിച്ച വെള്ളപ്പൊക്ക രേഖകൾ, സുരക്ഷാ മാർഗനിർദേശം — ജലിനൊപ്പം.",desc_landslide:"മലയോര പ്രദേശങ്ങളിലെ മണ്ണിടിച്ചിൽ അപകടം, 47 രേഖകൾ, GSI അപകട മേഖലകൾ — ഭൂമിയോടൊപ്പം.",desc_coldwave:"34 കഠിന ശൈത്യ തരംഗങ്ങളുടെ രേഖകൾ, IMD വിവരങ്ങൾ, തണുപ്പിൽ നിന്നുള്ള സംരക്ഷണം — ഹിമ്മിനൊപ്പം.",desc_cyclone:"40 ചുഴലിക്കാറ്റ് രേഖകൾ, പാതാ ഭൂപടങ്ങൾ, തീരത്ത് എത്തുന്ന കഥകൾ — വായുവിനൊപ്പം.",
+bot_fire:["ഞാൻ അഗ്നി! തീയുടെ വാർത്ത ആദ്യം എന്റെയടുത്ത് 🔥","പെട്ടിയിൽ അമർത്തുക — അഗ്നി വെബ്‌സൈറ്റ് തുറക്കും!"],bot_flood:["ഞാൻ ജൽ! വെള്ളപ്പൊക്ക ജലം എപ്പോഴും എന്റെ ശ്രദ്ധയിൽ 🌊","ഇവിടെ അമർത്തുക — വെള്ളപ്പൊക്ക വെബ്‌സൈറ്റ് എല്ലാം പറയും!"],bot_landslide:["ഞാൻ ഭൂമി! മല ഇടിയുന്നത് ആദ്യം ഞാൻ അറിയും ⛰️","ഇവിടെ അമർത്തുക — മണ്ണിടിച്ചിൽ വെബ്‌സൈറ്റ് തുറക്കും!"],bot_coldwave:["ഞാൻ ഹിം! തണുപ്പ് വന്നാൽ തയ്യാറെടുപ്പ് എന്റെ ഉത്തരവാദിത്തം ❄️","ഇവിടെ അമർത്തുക — ശൈത്യ തരംഗ വെബ്‌സൈറ്റ് തുറക്കും!"],bot_cyclone:["ഞാൻ വായു! കൊടുങ്കാറ്റ് വന്നാൽ ആദ്യം ഞാൻ സംസാരിക്കും 🌀","ഇവിടെ അമർത്തുക — ചുഴലിക്കാറ്റ് വെബ്‌സൈറ്റ് തുറക്കും!"],
+e_name:"നിങ്ങളുടെ പേര് വളരെ ചെറുതായി തോന്നുന്നു — മുഴുവൻ പേര് എഴുതുക (കുറഞ്ഞത് 3 അക്ഷരങ്ങൾ) 🙏",e_user:"3–20 അക്ഷരങ്ങളുള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക, അക്ഷരങ്ങൾ, അക്കങ്ങൾ അല്ലെങ്കിൽ _ മാത്രം — ഉദാ. keshav_01 👍",e_pass6:"പാസ്‌വേഡ് കുറഞ്ഞത് 6 അക്ഷരങ്ങളാക്കുക — ശക്തമായി സൂക്ഷിക്കുക 🔒",e_passmatch:"രണ്ട് പാസ്‌വേഡുകളും പൊരുത്തപ്പെടുന്നില്ല — പരിശോധിച്ച് വീണ്ടും നൽകുക 👀",e_secans:"സുരക്ഷാ ഉത്തരവും എഴുതുക — പാസ്‌വേഡ് മറന്നാൽ അതാണ് ഏക വഴി.",e_taken:"ഈ ഉപയോക്തൃനാമം ഇതിനകം എടുത്തിട്ടുണ്ട് 😅 — വേറൊന്ന് തിരഞ്ഞെടുക്കുക.",e_noaccount:"ഈ പേരിൽ അക്കൗണ്ട് കണ്ടെത്തിയില്ല 🤔 — അക്ഷരവിന്യാസം പരിശോധിക്കുക, അല്ലെങ്കിൽ ആദ്യം സൈൻ അപ്പിൽ നിന്ന് അക്കൗണ്ട് ഉണ്ടാക്കുക.",e_wrongpass:"തെറ്റായ പാസ്‌വേഡ് 😅 — വീണ്ടും ശ്രമിക്കുക. മറന്നെങ്കിൽ മുകളിലെ 'മറന്നോ?' ടാബ് അമർത്തുക.",e_found:"അക്കൗണ്ട് കണ്ടെത്തി! ഇനി നിങ്ങളുടെ സുരക്ഷാ ചോദ്യത്തിന് ഉത്തരം നൽകുക 👇",e_wrongans:"ആ ഉത്തരം പൊരുത്തപ്പെടുന്നില്ല 😅 — അക്കൗണ്ട് ഉണ്ടാക്കുമ്പോൾ നൽകിയ ഉത്തരം തന്നെ അതേ അക്ഷരവിന്യാസത്തിൽ എഴുതുക.",e_correct:"ശരിയായ ഉത്തരം! 🎉 ഇനി പുതിയ പാസ്‌വേഡ് ഉണ്ടാക്കുക.",e_newpass6:"പുതിയ പാസ്‌വേഡ് കുറഞ്ഞത് 6 അക്ഷരങ്ങളാക്കുക 🔒",e_newmatch:"രണ്ട് പുതിയ പാസ്‌വേഡുകളും പൊരുത്തപ്പെടുന്നില്ല — വീണ്ടും നൽകുക 👀"},
+pa:{langLabel:"🌐 ਭਾਸ਼ਾ",tagline:"ਭਾਰਤ ਦੀ ਹਰ ਆਫ਼ਤ — ਇੱਕ ਥਾਂ, ਇੱਕ ਪਰਿਵਾਰ 🌍💓",subline:"ਅੱਗ · ਹੜ੍ਹ · ਭੂ-ਖਿਸਕਣ · ਠੰਢ ਦੀ ਲਹਿਰ · ਚੱਕਰਵਾਤ — ਪੰਜ ਵੈੱਬਸਾਈਟਾਂ, ਪੰਜ AI ਸਾਥੀ, ਇੱਕ ਘਰ।",enter:"ਦਾਖ਼ਲ ਹੋਵੋ →",splashNote:"ਪਹਿਲੀ ਵਾਰ ਆਏ ਹੋ? ਦਾਖ਼ਲ ਦਬਾਓ — ਇੱਕ ਵਾਰ ਖਾਤਾ ਬਣਾਓ, ਫਿਰ ਹਰ ਵਾਰ ਤੁਹਾਡੇ ਨਾਂ ਨਾਲ ਸਵਾਗਤ ਹੋਵੇਗਾ 🙏",authSub:"ਆਪਣੇ ਖਾਤੇ ਨਾਲ ਦਾਖ਼ਲ ਹੋਵੋ — ਪੰਜੋਂ ਆਫ਼ਤ ਵੈੱਬਸਾਈਟਾਂ ਤੁਹਾਡਾ ਇੰਤਜ਼ਾਰ ਕਰ ਰਹੀਆਂ ਹਨ।",tabLogin:"ਲੌਗਿਨ",tabSignup:"ਸਾਈਨ ਅੱਪ",tabForgot:"ਭੁੱਲ ਗਏ?",username:"ਵਰਤੋਂਕਾਰ ਨਾਂ",password:"ਪਾਸਵਰਡ",loginBtn:"ਲੌਗਿਨ ਕਰੋ →",forgotQ:"ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ?",forgotLink:"ਇੱਥੋਂ ਨਵਾਂ ਬਣਾਓ",newQ:"ਪਹਿਲੀ ਵਾਰ ਆਏ ਹੋ?",signupLink:"ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ",fullName:"ਪੂਰਾ ਨਾਂ",chooseUser:"ਵਰਤੋਂਕਾਰ ਨਾਂ ਚੁਣੋ",userHint:"3–20 ਅੱਖਰ — ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਜਾਂ _। ਲੌਗਿਨ ਲਈ ਇਹੀ ਨਾਂ ਕੰਮ ਆਵੇਗਾ।",createPass:"ਪਾਸਵਰਡ ਬਣਾਓ",passPh:"ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰ",passAgain:"ਪਾਸਵਰਡ ਦੁਬਾਰਾ ਪਾਓ",passAgainPh:"ਉਹੀ ਪਾਸਵਰਡ ਫਿਰ",secQLabel:"ਸੁਰੱਖਿਆ ਸਵਾਲ (ਪਾਸਵਰਡ ਭੁੱਲਣ 'ਤੇ ਕੰਮ ਆਵੇਗਾ)",secALabel:"ਉਸ ਸਵਾਲ ਦਾ ਤੁਹਾਡਾ ਜਵਾਬ",secAPh:"ਇਹ ਜਵਾਬ ਯਾਦ ਰੱਖੋ — ਸਹੀ ਸ਼ਬਦ-ਜੋੜ ਨਾਲ",signupBtn:"ਖਾਤਾ ਬਣਾਓ →",authNote:"🔒 ਕਿਰਪਾ ਕਰਕੇ ਧਿਆਨ ਦਿਓ: ਇਹ ਖਾਤਾ <b>ਸਿਰਫ਼ ਇਸੇ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ, ਇਸੇ ਡਿਵਾਈਸ 'ਤੇ</b> ਸਾਂਭਿਆ ਜਾਂਦਾ ਹੈ — ਕੋਈ ਸਰਵਰ ਨਹੀਂ। ਤੁਹਾਡਾ ਪਾਸਵਰਡ ਕਦੇ ਸਾਦੇ ਅੱਖਰਾਂ ਵਿੱਚ ਨਹੀਂ ਸਾਂਭਿਆ ਜਾਂਦਾ (ਲੂਣ-ਮਿਲਿਆ ਹੈਸ਼ ਬਣਦਾ ਹੈ)। ਦੂਜੇ ਫ਼ੋਨ ਜਾਂ ਕੰਪਿਊਟਰ 'ਤੇ ਇਹੀ ਖਾਤਾ ਨਹੀਂ ਚੱਲੇਗਾ — ਉੱਥੇ ਨਵਾਂ ਬਣਾਉਣਾ ਪਵੇਗਾ।",fgUser:"ਆਪਣਾ ਵਰਤੋਂਕਾਰ ਨਾਂ ਪਾਓ",continueBtn:"ਅੱਗੇ ਵਧੋ →",fgIntro:"ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਸੁਰੱਖਿਆ ਸਵਾਲ ਦਾ ਜਵਾਬ ਦਿਓ:",answer:"ਜਵਾਬ",answerPh:"ਖਾਤਾ ਬਣਾਉਂਦੇ ਸਮੇਂ ਦਿੱਤਾ ਜਵਾਬ",checkBtn:"ਮੇਰਾ ਜਵਾਬ ਜਾਂਚੋ →",newPass:"ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ",newPassAgain:"ਨਵਾਂ ਪਾਸਵਰਡ ਦੁਬਾਰਾ ਪਾਓ",savePassBtn:"ਨਵਾਂ ਪਾਸਵਰਡ ਸਾਂਭੋ →",welcome:"ਸਵਾਗਤ ਹੈ, {name}! 👋",who:"@{user} · EarthPulse ਪਰਿਵਾਰ ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ 🌍💓",logout:"ਲੌਗਆਉਟ 🚪",dashIntro:"ਇਹ ਤੁਹਾਡਾ <b>EarthPulse ਪਰਿਵਾਰ</b> ਹੈ — ਪੰਜੋਂ ਆਫ਼ਤ ਵੈੱਬਸਾਈਟਾਂ, ਹਰ ਇੱਕ ਦੇ ਨਾਲ ਉਸਦਾ ਆਪਣਾ AI ਸਾਥੀ ਘੁੰਮ ਰਿਹਾ ਹੈ। ਜਿਸ ਬਕਸੇ 'ਤੇ ਦਬਾਓਗੇ, <b>ਉਸ ਆਫ਼ਤ ਦੀ ਪੂਰੀ ਵੈੱਬਸਾਈਟ ਨਵੀਂ ਟੈਬ ਵਿੱਚ</b> ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ।",dashFoot:"🌍💓 EarthPulse India — ਭਾਰਤ ਦੀ ਹਰ ਆਫ਼ਤ, ਇੱਕ ਪਰਿਵਾਰ। ਅਸਲੀ ਚੇਤਾਵਨੀ ਲਈ ਹਮੇਸ਼ਾ IMD / NDMA ਦੀ ਸਰਕਾਰੀ ਜਾਣਕਾਰੀ ਨੂੰ ਹੀ ਅੰਤਿਮ ਮੰਨੋ।",openLine:"ਵੈੱਬਸਾਈਟ ਖੋਲ੍ਹੋ →",secq:["ਤੁਹਾਡੇ ਪਹਿਲੇ ਸਕੂਲ ਦਾ ਨਾਂ ਕੀ ਸੀ?","ਤੁਹਾਡੇ ਪਾਲਤੂ ਜਾਨਵਰ ਦਾ ਨਾਂ ਕੀ ਹੈ?","ਤੁਹਾਡਾ ਜਨਮ ਕਿਸ ਸ਼ਹਿਰ ਵਿੱਚ ਹੋਇਆ ਸੀ?","ਤੁਹਾਡਾ ਪਸੰਦੀਦਾ ਖਾਣਾ ਕਿਹੜਾ ਹੈ?","ਤੁਹਾਡੇ ਸਭ ਤੋਂ ਚੰਗੇ ਦੋਸਤ ਦਾ ਨਾਂ ਕੀ ਹੈ?"],
+desc_fire:"NASA ਸੈਟੇਲਾਈਟ ਤੋਂ ਭਾਰਤ ਦੀ ਅੱਗ ਦੀ ਲਾਈਵ ਹਾਲਤ, 110 ਵੱਡੇ ਅੱਗ ਰਿਕਾਰਡ ਅਤੇ ਖੇਤਰ ਅੱਗ-ਜਾਂਚ।",desc_flood:"ਨਦੀਆਂ ਦਾ ਪਾਣੀ ਪੱਧਰ, ਹੜ੍ਹ ਦੇ 44 ਤਸਦੀਕਸ਼ੁਦਾ ਰਿਕਾਰਡ ਅਤੇ ਸੁਰੱਖਿਆ ਦੇ ਉਪਾਅ — ਜਲ ਦੇ ਨਾਲ।",desc_landslide:"ਪਹਾੜੀ ਇਲਾਕਿਆਂ ਵਿੱਚ ਭੂ-ਖਿਸਕਣ ਦਾ ਖ਼ਤਰਾ, 47 ਰਿਕਾਰਡ ਅਤੇ GSI ਜੋਖਮ ਖੇਤਰ — ਭੂਮੀ ਦੇ ਨਾਲ।",desc_coldwave:"ਸਖ਼ਤ ਠੰਢ ਦੇ 34 ਦੌਰਾਂ ਦਾ ਰਿਕਾਰਡ, IMD ਜਾਣਕਾਰੀ ਅਤੇ ਠੰਢ ਤੋਂ ਬਚਾਅ — ਹਿਮ ਦੇ ਨਾਲ।",desc_cyclone:"ਚੱਕਰਵਾਤਾਂ ਦੇ 40 ਰਿਕਾਰਡ, ਰਸਤਾ ਨਕਸ਼ੇ ਅਤੇ ਕਿਨਾਰੇ ਟਕਰਾਉਣ ਦੀਆਂ ਕਹਾਣੀਆਂ — ਵਾਯੂ ਦੇ ਨਾਲ।",
+bot_fire:["ਮੈਂ ਅਗਨੀ ਹਾਂ! ਅੱਗ ਦੀ ਖ਼ਬਰ ਸਭ ਤੋਂ ਪਹਿਲਾਂ ਮੇਰੇ ਕੋਲ 🔥","ਬਕਸੇ 'ਤੇ ਦਬਾਓ — ਅੱਗ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],bot_flood:["ਮੈਂ ਜਲ ਹਾਂ! ਹੜ੍ਹ ਦਾ ਪਾਣੀ ਮੇਰੀ ਨਜ਼ਰ ਵਿੱਚ ਹੈ 🌊","ਇੱਥੇ ਦਬਾਓ — ਹੜ੍ਹ ਵੈੱਬਸਾਈਟ ਸਭ ਦੱਸੇਗੀ!"],bot_landslide:["ਮੈਂ ਭੂਮੀ ਹਾਂ! ਪਹਾੜ ਕਦੋਂ ਖਿਸਕੇ, ਪਹਿਲਾਂ ਮੈਂ ਜਾਣਦੀ ਹਾਂ ⛰️","ਇੱਥੇ ਦਬਾਓ — ਭੂ-ਖਿਸਕਣ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],bot_coldwave:["ਮੈਂ ਹਿਮ ਹਾਂ! ਠੰਢ ਆਵੇ ਤਾਂ ਤਿਆਰੀ ਮੇਰੀ ਜ਼ਿੰਮੇਦਾਰੀ ❄️","ਇੱਥੇ ਦਬਾਓ — ਠੰਢ ਦੀ ਲਹਿਰ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],bot_cyclone:["ਮੈਂ ਵਾਯੂ ਹਾਂ! ਤੂਫ਼ਾਨ ਆਵੇ, ਸਭ ਤੋਂ ਪਹਿਲਾਂ ਮੈਂ ਬੋਲਾਂ 🌀","ਇੱਥੇ ਦਬਾਓ — ਚੱਕਰਵਾਤ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],
+e_name:"ਤੁਹਾਡਾ ਨਾਂ ਬਹੁਤ ਛੋਟਾ ਲੱਗ ਰਿਹਾ ਹੈ — ਕਿਰਪਾ ਕਰਕੇ ਪੂਰਾ ਨਾਂ ਲਿਖੋ (ਘੱਟੋ-ਘੱਟ 3 ਅੱਖਰ) 🙏",e_user:"ਕਿਰਪਾ ਕਰਕੇ 3–20 ਅੱਖਰਾਂ ਦਾ ਵਰਤੋਂਕਾਰ ਨਾਂ ਚੁਣੋ, ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਜਾਂ _ ਨਾਲ — ਜਿਵੇਂ keshav_01 👍",e_pass6:"ਕਿਰਪਾ ਕਰਕੇ ਪਾਸਵਰਡ ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰਾਂ ਦਾ ਬਣਾਓ — ਮਜ਼ਬੂਤ ਰੱਖੋ 🔒",e_passmatch:"ਦੋਵੇਂ ਪਾਸਵਰਡ ਇੱਕੋ ਜਿਹੇ ਨਹੀਂ ਹਨ — ਜਾਂਚ ਕੇ ਦੁਬਾਰਾ ਪਾਓ 👀",e_secans:"ਸੁਰੱਖਿਆ ਜਵਾਬ ਵੀ ਲਿਖੋ — ਪਾਸਵਰਡ ਭੁੱਲਣ 'ਤੇ ਇਹੀ ਕੰਮ ਆਵੇਗਾ।",e_taken:"ਇਹ ਵਰਤੋਂਕਾਰ ਨਾਂ ਪਹਿਲਾਂ ਹੀ ਲਿਆ ਜਾ ਚੁੱਕਾ ਹੈ 😅 — ਕਿਰਪਾ ਕਰਕੇ ਕੋਈ ਹੋਰ ਚੁਣੋ।",e_noaccount:"ਇਸ ਨਾਂ ਦਾ ਕੋਈ ਖਾਤਾ ਨਹੀਂ ਮਿਲਿਆ 🤔 — ਸ਼ਬਦ-ਜੋੜ ਜਾਂਚੋ, ਜਾਂ ਪਹਿਲਾਂ ਸਾਈਨ ਅੱਪ ਤੋਂ ਖਾਤਾ ਬਣਾਓ।",e_wrongpass:"ਪਾਸਵਰਡ ਗਲਤ ਹੈ 😅 — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ। ਭੁੱਲ ਗਏ ਹੋ ਤਾਂ ਉੱਪਰਲਾ 'ਭੁੱਲ ਗਏ?' ਟੈਬ ਦਬਾਓ।",e_found:"ਖਾਤਾ ਮਿਲ ਗਿਆ! ਹੁਣ ਆਪਣੇ ਸੁਰੱਖਿਆ ਸਵਾਲ ਦਾ ਜਵਾਬ ਦਿਓ 👇",e_wrongans:"ਜਵਾਬ ਮੇਲ ਨਹੀਂ ਖਾ ਰਿਹਾ 😅 — ਖਾਤਾ ਬਣਾਉਂਦੇ ਸਮੇਂ ਦਿੱਤਾ ਜਵਾਬ ਹੀ ਉਸੇ ਸ਼ਬਦ-ਜੋੜ ਨਾਲ ਲਿਖੋ।",e_correct:"ਸਹੀ ਜਵਾਬ! 🎉 ਹੁਣ ਆਪਣਾ ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ।",e_newpass6:"ਨਵਾਂ ਪਾਸਵਰਡ ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰਾਂ ਦਾ ਰੱਖੋ 🔒",e_newmatch:"ਦੋਵੇਂ ਨਵੇਂ ਪਾਸਵਰਡ ਇੱਕੋ ਜਿਹੇ ਨਹੀਂ ਹਨ — ਦੁਬਾਰਾ ਪਾਓ 👀"},
+or:{langLabel:"🌐 ଭାଷା",tagline:"ଭାରତର ପ୍ରତ୍ୟେକ ବିପର୍ଯ୍ୟୟ — ଗୋଟିଏ ସ୍ଥାନ, ଗୋଟିଏ ପରିବାର 🌍💓",subline:"ଅଗ୍ନି · ବନ୍ୟା · ଭୂସ୍ଖଳନ · ଶୀତ ଲହରୀ · ଘୂର୍ଣ୍ଣିବାତ୍ୟା — ପାଞ୍ଚ ୱେବସାଇଟ, ପାଞ୍ଚ AI ସାଥୀ, ଗୋଟିଏ ଘର।",enter:"ପ୍ରବେଶ କରନ୍ତୁ →",splashNote:"ପ୍ରଥମ ଥର ଆସିଛନ୍ତି? ପ୍ରବେଶ ଦବାନ୍ତୁ — ଥରେ ଖାତା ତିଆରି କରନ୍ତୁ, ତା’ପରେ ପ୍ରତିଥର ଆପଣଙ୍କ ନାମରେ ସ୍ୱାଗତ ହେବ 🙏",authSub:"ଆପଣଙ୍କ ଖାତା ସହିତ ପ୍ରବେଶ କରନ୍ତୁ — ପାଞ୍ଚ ବିପର୍ଯ୍ୟୟ ୱେବସାଇଟ ଆପଣଙ୍କୁ ଅପେକ୍ଷା କରିଛି।",tabLogin:"ଲଗଇନ",tabSignup:"ସାଇନ ଅପ",tabForgot:"ଭୁଲିଗଲେ?",username:"ବ୍ୟବହାରକାରୀ ନାମ",password:"ପାସୱାର୍ଡ",loginBtn:"ଲଗଇନ କରନ୍ତୁ →",forgotQ:"ପାସୱାର୍ଡ ଭୁଲିଗଲେ?",forgotLink:"ଏଠାରୁ ନୂଆ ତିଆରି କରନ୍ତୁ",newQ:"ପ୍ରଥମ ଥର ଆସିଛନ୍ତି?",signupLink:"ନୂଆ ଖାତା ତିଆରି କରନ୍ତୁ",fullName:"ପୂରା ନାମ",chooseUser:"ବ୍ୟବହାରକାରୀ ନାମ ବାଛନ୍ତୁ",userHint:"3–20 ଅକ୍ଷର — କେବଳ ଅକ୍ଷର, ସଂଖ୍ୟା କିମ୍ବା _। ଲଗଇନ ପାଇଁ ଏହି ନାମ ଲାଗିବ।",createPass:"ପାସୱାର୍ଡ ତିଆରି କରନ୍ତୁ",passPh:"କମରୁ କମ 6 ଅକ୍ଷର",passAgain:"ପାସୱାର୍ଡ ପୁଣି ଦିଅନ୍ତୁ",passAgainPh:"ସେହି ପାସୱାର୍ଡ ପୁଣି ଥରେ",secQLabel:"ସୁରକ୍ଷା ପ୍ରଶ୍ନ (ପାସୱାର୍ଡ ଭୁଲିଲେ କାମରେ ଆସିବ)",secALabel:"ସେହି ପ୍ରଶ୍ନର ଆପଣଙ୍କ ଉତ୍ତର",secAPh:"ଏହି ଉତ୍ତର ମନେ ରଖନ୍ତୁ — ସଠିକ ବନାନ ସହିତ",signupBtn:"ଖାତା ତିଆରି କରନ୍ତୁ →",authNote:"🔒 ଦୟାକରି ମନେ ରଖନ୍ତୁ: ଏହି ଖାତା <b>କେବଳ ଏହି ବ୍ରାଉଜରରେ, ଏହି ଡିଭାଇସରେ</b> ସଂରକ୍ଷିତ ହୁଏ — କୌଣସି ସର୍ଭର ନାହିଁ। ଆପଣଙ୍କ ପାସୱାର୍ଡ କେବେ ସାଧାରଣ ଲେଖାରେ ସଂରକ୍ଷିତ ହୁଏ ନାହିଁ (ଲୁଣ-ମିଶା ହାସ ସଂରକ୍ଷିତ ହୁଏ)। ଅନ୍ୟ ଫୋନ କିମ୍ବା କମ୍ପ୍ୟୁଟରରେ ଏହି ଖାତା ଚାଲିବ ନାହିଁ — ସେଠାରେ ନୂଆ ତିଆରି କରିବାକୁ ପଡିବ।",fgUser:"ଆପଣଙ୍କ ବ୍ୟବହାରକାରୀ ନାମ ଦିଅନ୍ତୁ",continueBtn:"ଆଗକୁ ବଢନ୍ତୁ →",fgIntro:"ଦୟାକରି ଆପଣଙ୍କ ସୁରକ୍ଷା ପ୍ରଶ୍ନର ଉତ୍ତର ଦିଅନ୍ତୁ:",answer:"ଉତ୍ତର",answerPh:"ଖାତା ତିଆରି ବେଳେ ଦେଇଥିବା ଉତ୍ତର",checkBtn:"ମୋ ଉତ୍ତର ଯାଞ୍ଚ କରନ୍ତୁ →",newPass:"ନୂଆ ପାସୱାର୍ଡ ତିଆରି କରନ୍ତୁ",newPassAgain:"ନୂଆ ପାସୱାର୍ଡ ପୁଣି ଦିଅନ୍ତୁ",savePassBtn:"ନୂଆ ପାସୱାର୍ଡ ସଂରକ୍ଷଣ କରନ୍ତୁ →",welcome:"ସ୍ୱାଗତ, {name}! 👋",who:"@{user} · EarthPulse ପରିବାରକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ 🌍💓",logout:"ଲଗଆଉଟ 🚪",dashIntro:"ଏହା ଆପଣଙ୍କ <b>EarthPulse ପରିବାର</b> — ପାଞ୍ଚ ବିପର୍ଯ୍ୟୟ ୱେବସାଇଟ, ପ୍ରତ୍ୟେକ ପାଖରେ ତା’ର ନିଜ AI ସାଥୀ ଘୂରି ବୁଲୁଛି। ଯେକୌଣସି ବାକ୍ସ ଉପରେ ଦବାଇଲେ <b>ସେହି ବିପର୍ଯ୍ୟୟର ପୂରା ୱେବସାଇଟ ନୂଆ ଟ୍ୟାବରେ</b> ଖୋଲିବ।",dashFoot:"🌍💓 EarthPulse India — ଭାରତର ପ୍ରତ୍ୟେକ ବିପର୍ଯ୍ୟୟ, ଗୋଟିଏ ପରିବାର। ପ୍ରକୃତ ଚେତାବନୀ ପାଇଁ ସର୍ବଦା IMD / NDMA ର ସରକାରୀ ସୂଚନାକୁ ହିଁ ଶେଷ ମାନନ୍ତୁ।",openLine:"ୱେବସାଇଟ ଖୋଲନ୍ତୁ →",secq:["ଆପଣଙ୍କ ପ୍ରଥମ ବିଦ୍ୟାଳୟର ନାମ କ’ଣ ଥିଲା?","ଆପଣଙ୍କ ପୋଷା ପ୍ରାଣୀର ନାମ କ’ଣ?","ଆପଣ କେଉଁ ସହରରେ ଜନ୍ମ ହୋଇଥିଲେ?","ଆପଣଙ୍କ ପ୍ରିୟ ଖାଦ୍ୟ କ’ଣ?","ଆପଣଙ୍କ ସବୁଠାରୁ ଭଲ ବନ୍ଧୁଙ୍କ ନାମ କ’ଣ?"],
+desc_fire:"NASA ଉପଗ୍ରହରୁ ଭାରତର ଅଗ୍ନି ସ୍ଥିତି ସିଧା, 110 ବଡ଼ ଅଗ୍ନି ରେକର୍ଡ ଏବଂ ଅଞ୍ଚଳ ଅଗ୍ନି-ଯାଞ୍ଚ।",desc_flood:"ନଦୀ ଜଳସ୍ତର, ବନ୍ୟାର 44 ଯାଞ୍ଚ ହୋଇଥିବା ରେକର୍ଡ ଏବଂ ସୁରକ୍ଷା ମାର୍ଗଦର୍ଶନ — ଜଳ ସହିତ।",desc_landslide:"ପାହାଡ଼ ଅଞ୍ଚଳରେ ଭୂସ୍ଖଳନ ବିପଦ, 47 ରେକର୍ଡ ଏବଂ GSI ବିପଦ ଅଞ୍ଚଳ — ଭୂମି ସହିତ।",desc_coldwave:"34 ପ୍ରବଳ ଶୀତ ଲହରୀର ରେକର୍ଡ, IMD ସୂଚନା ଏବଂ ଥଣ୍ଡାରୁ ସୁରକ୍ଷା — ହିମ ସହିତ।",desc_cyclone:"ଘୂର୍ଣ୍ଣିବାତ୍ୟାର 40 ରେକର୍ଡ, ଗତିପଥ ମାନଚିତ୍ର ଏବଂ କୂଳ ଛୁଇଁବା କାହାଣୀ — ବାୟୁ ସହିତ।",
+bot_fire:["ମୁଁ ଅଗ୍ନି! ଅଗ୍ନି ଖବର ସବୁଠାରୁ ଆଗ ମୋ ପାଖକୁ 🔥","ବାକ୍ସ ଉପରେ ଦବାନ୍ତୁ — ଅଗ୍ନି ୱେବସାଇଟ ଖୋଲିବ!"],bot_flood:["ମୁଁ ଜଳ! ବନ୍ୟା ପାଣି ମୋ ନଜରରେ ଅଛି 🌊","ଏଠାରେ ଦବାନ୍ତୁ — ବନ୍ୟା ୱେବସାଇଟ ସବୁ କହିବ!"],bot_landslide:["ମୁଁ ଭୂମି! ପାହାଡ଼ କେବେ ଖସିବ, ଆଗ ମୁଁ ଜାଣେ ⛰️","ଏଠାରେ ଦବାନ୍ତୁ — ଭୂସ୍ଖଳନ ୱେବସାଇଟ ଖୋଲିବ!"],bot_coldwave:["ମୁଁ ହିମ! ଥଣ୍ଡା ଆସିଲେ ପ୍ରସ୍ତୁତି ମୋ ଦାୟିତ୍ୱ ❄️","ଏଠାରେ ଦବାନ୍ତୁ — ଶୀତ ଲହରୀ ୱେବସାଇଟ ଖୋଲିବ!"],bot_cyclone:["ମୁଁ ବାୟୁ! ଝଡ଼ ଆସିଲେ ସବୁଠାରୁ ଆଗ ମୁଁ କହେ 🌀","ଏଠାରେ ଦବାନ୍ତୁ — ଘୂର୍ଣ୍ଣିବାତ୍ୟା ୱେବସାଇଟ ଖୋଲିବ!"],
+e_name:"ଆପଣଙ୍କ ନାମ ବହୁତ ଛୋଟ ଲାଗୁଛି — ଦୟାକରି ପୂରା ନାମ ଲେଖନ୍ତୁ (କମରୁ କମ 3 ଅକ୍ଷର) 🙏",e_user:"ଦୟାକରି 3–20 ଅକ୍ଷରର ବ୍ୟବହାରକାରୀ ନାମ ବାଛନ୍ତୁ, କେବଳ ଅକ୍ଷର, ସଂଖ୍ୟା କିମ୍ବା _ ସହିତ — ଯେପରି keshav_01 👍",e_pass6:"ଦୟାକରି ପାସୱାର୍ଡ କମରୁ କମ 6 ଅକ୍ଷରର ରଖନ୍ତୁ — ଶକ୍ତିଶାଳୀ ରଖନ୍ତୁ 🔒",e_passmatch:"ଦୁଇଟି ପାସୱାର୍ଡ ମେଳ ଖାଉନାହିଁ — ଯାଞ୍ଚ କରି ପୁଣି ଦିଅନ୍ତୁ 👀",e_secans:"ସୁରକ୍ଷା ଉତ୍ତର ମଧ୍ୟ ଲେଖନ୍ତୁ — ପାସୱାର୍ଡ ଭୁଲିଲେ ଏହା ହିଁ କାମରେ ଆସିବ।",e_taken:"ଏହି ବ୍ୟବହାରକାରୀ ନାମ ପୂର୍ବରୁ ନିଆଯାଇଛି 😅 — ଦୟାକରି ଅନ୍ୟଟିଏ ବାଛନ୍ତୁ।",e_noaccount:"ଏହି ନାମରେ କୌଣସି ଖାତା ମିଳିଲା ନାହିଁ 🤔 — ବନାନ ଯାଞ୍ଚ କରନ୍ତୁ, କିମ୍ବା ପ୍ରଥମେ ସାଇନ ଅପରୁ ଖାତା ତିଆରି କରନ୍ତୁ।",e_wrongpass:"ପାସୱାର୍ଡ ଭୁଲ ଅଛି 😅 — ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ। ଭୁଲିଥିଲେ ଉପର 'ଭୁଲିଗଲେ?' ଟ୍ୟାବ ଦବାନ୍ତୁ।",e_found:"ଖାତା ମିଳିଲା! ବର୍ତ୍ତମାନ ଆପଣଙ୍କ ସୁରକ୍ଷା ପ୍ରଶ୍ନର ଉତ୍ତର ଦିଅନ୍ତୁ 👇",e_wrongans:"ଉତ୍ତର ମେଳ ଖାଉନାହିଁ 😅 — ଖାତା ତିଆରି ବେଳେ ଦେଇଥିବା ଉତ୍ତର ସେହି ବନାନରେ ଲେଖନ୍ତୁ।",e_correct:"ସଠିକ ଉତ୍ତର! 🎉 ବର୍ତ୍ତମାନ ଆପଣଙ୍କ ନୂଆ ପାସୱାର୍ଡ ତିଆରି କରନ୍ତୁ।",e_newpass6:"ନୂଆ ପାସୱାର୍ଡ କମରୁ କମ 6 ଅକ୍ଷରର ରଖନ୍ତୁ 🔒",e_newmatch:"ଦୁଇଟି ନୂଆ ପାସୱାର୍ଡ ମେଳ ଖାଉନାହିଁ — ପୁଣି ଦିଅନ୍ତୁ 👀"},
+as:{langLabel:"🌐 ভাষা",tagline:"ভাৰতৰ প্ৰতিটো দুৰ্যোগ — একে ঠাইত, একে পৰিয়াল 🌍💓",subline:"জুই · বান · ভূমিস্খলন · শীতল ঢৌ · ঘূৰ্ণীবতাহ — পাঁচটা ৱেবছাইট, পাঁচজন AI সংগী, এটা ঘৰ।",enter:"প্ৰৱেশ কৰক →",splashNote:"প্ৰথমবাৰ আহিছে? প্ৰৱেশ টিপক — এবাৰ একাউণ্ট বনাওক, তাৰ পিছত প্ৰতিবাৰ আপোনাৰ নামেৰে স্বাগতম জনোৱা হ’ব 🙏",authSub:"আপোনাৰ একাউণ্টেৰে প্ৰৱেশ কৰক — পাঁচোখন দুৰ্যোগ ৱেবছাইটে আপোনালৈ অপেক্ষা কৰি আছে।",tabLogin:"লগইন",tabSignup:"ছাইন আপ",tabForgot:"পাহৰিলে?",username:"ব্যৱহাৰকাৰীৰ নাম",password:"পাছৱৰ্ড",loginBtn:"লগইন কৰক →",forgotQ:"পাছৱৰ্ড পাহৰিলে?",forgotLink:"ইয়াৰ পৰা নতুন বনাওক",newQ:"প্ৰথমবাৰ আহিছে?",signupLink:"নতুন একাউণ্ট বনাওক",fullName:"সম্পূৰ্ণ নাম",chooseUser:"ব্যৱহাৰকাৰীৰ নাম বাছক",userHint:"3–20 আখৰ — কেৱল আখৰ, সংখ্যা বা _। লগইনৰ বাবে এই নামটোৱেই লাগিব।",createPass:"পাছৱৰ্ড বনাওক",passPh:"কমেও 6 আখৰ",passAgain:"পাছৱৰ্ড আকৌ লিখক",passAgainPh:"একেটা পাছৱৰ্ড আকৌ",secQLabel:"নিৰাপত্তা প্ৰশ্ন (পাছৱৰ্ড পাহৰিলে কামত আহিব)",secALabel:"সেই প্ৰশ্নৰ আপোনাৰ উত্তৰ",secAPh:"এই উত্তৰটো মনত ৰাখক — শুদ্ধ বানানেৰে",signupBtn:"একাউণ্ট বনাওক →",authNote:"🔒 অনুগ্ৰহ কৰি মন কৰক: এই একাউণ্টটো <b>কেৱল এই ব্ৰাউজাৰত, এই ডিভাইচতহে</b> সংৰক্ষিত থাকে — কোনো ছাৰ্ভাৰ নাই। আপোনাৰ পাছৱৰ্ড কেতিয়াও সাধাৰণ লিখনিত সংৰক্ষিত নহয় (নিমখ-মিহলি হেছ সংৰক্ষিত হয়)। আন ফোন বা কম্পিউটাৰত এই একাউণ্টটো নচলিব — তাত নতুন বনাব লাগিব।",fgUser:"আপোনাৰ ব্যৱহাৰকাৰীৰ নাম লিখক",continueBtn:"আগবাঢ়ক →",fgIntro:"অনুগ্ৰহ কৰি আপোনাৰ নিৰাপত্তা প্ৰশ্নৰ উত্তৰ দিয়ক:",answer:"উত্তৰ",answerPh:"একাউণ্ট বনাওঁতে দিয়া উত্তৰটো",checkBtn:"মোৰ উত্তৰ পৰীক্ষা কৰক →",newPass:"নতুন পাছৱৰ্ড বনাওক",newPassAgain:"নতুন পাছৱৰ্ড আকৌ লিখক",savePassBtn:"নতুন পাছৱৰ্ড সংৰক্ষণ কৰক →",welcome:"স্বাগতম, {name}! 👋",who:"@{user} · EarthPulse পৰিয়াললৈ আপোনাক স্বাগতম 🌍💓",logout:"লগআউট 🚪",dashIntro:"এয়া আপোনাৰ <b>EarthPulse পৰিয়াল</b> — পাঁচোখন দুৰ্যোগ ৱেবছাইট, প্ৰতিখনৰ কাষতে তাৰ নিজৰ AI সংগী ঘূৰি ফুৰিছে। যিকোনো বাকচত টিপিলেই <b>সেই দুৰ্যোগৰ সম্পূৰ্ণ ৱেবছাইট নতুন টেবত</b> খুলিব।",dashFoot:"🌍💓 EarthPulse India — ভাৰতৰ প্ৰতিটো দুৰ্যোগ, একে পৰিয়াল। প্ৰকৃত সতৰ্কবাণীৰ বাবে সদায় IMD / NDMA ৰ চৰকাৰী তথ্যকে চূড়ান্ত বুলি মানক।",openLine:"ৱেবছাইট খোলক →",secq:["আপোনাৰ প্ৰথম বিদ্যালয়ৰ নাম কি আছিল?","আপোনাৰ পোহনীয়া জন্তুৰ নাম কি?","আপুনি কোন চহৰত জন্ম হৈছিল?","আপোনাৰ প্ৰিয় খাদ্য কোনটো?","আপোনাৰ আটাইতকৈ ভাল বন্ধুৰ নাম কি?"],
+desc_fire:"NASA উপগ্ৰহৰ পৰা ভাৰতৰ জুইৰ তাজা অৱস্থা, 110টা ডাঙৰ অগ্নিকাণ্ডৰ ৰেকৰ্ড আৰু অঞ্চল অগ্নি-পৰীক্ষা।",desc_flood:"নদীৰ পানীৰ স্তৰ, বানৰ 44টা পৰীক্ষিত ৰেকৰ্ড আৰু নিৰাপত্তা পৰামৰ্শ — জলৰ সৈতে।",desc_landslide:"পাহাৰীয়া অঞ্চলত ভূমিস্খলনৰ বিপদ, 47টা ৰেকৰ্ড আৰু GSI বিপদ অঞ্চল — ভূমিৰ সৈতে।",desc_coldwave:"প্ৰচণ্ড ঠাণ্ডাৰ 34টা পৰ্যায়ৰ ৰেকৰ্ড, IMD তথ্য আৰু ঠাণ্ডাৰ পৰা সুৰক্ষা — হিমৰ সৈতে।",desc_cyclone:"ঘূৰ্ণীবতাহৰ 40টা ৰেকৰ্ড, গতিপথৰ মানচিত্ৰ আৰু উপকূলত আঘাতৰ কাহিনী — বায়ুৰ সৈতে।",
+bot_fire:["মই অগ্নি! জুইৰ খবৰ সকলোতকৈ আগতে মোৰ ওচৰত 🔥","বাকচত টিপক — অগ্নি ৱেবছাইট খুলিব!"],bot_flood:["মই জল! বানৰ পানী মোৰ নজৰত 🌊","ইয়াত টিপক — বান ৱেবছাইটে সকলো জনাব!"],bot_landslide:["মই ভূমি! পাহাৰ কেতিয়া খহিব, আগতে মই জানো ⛰️","ইয়াত টিপক — ভূমিস্খলন ৱেবছাইট খুলিব!"],bot_coldwave:["মই হিম! ঠাণ্ডা আহিলে প্ৰস্তুতি মোৰ দায়িত্ব ❄️","ইয়াত টিপক — শীতল ঢৌ ৱেবছাইট খুলিব!"],bot_cyclone:["মই বায়ু! ধুমুহা আহিলে সকলোতকৈ আগতে মই কওঁ 🌀","ইয়াত টিপক — ঘূৰ্ণীবতাহ ৱেবছাইট খুলিব!"],
+e_name:"আপোনাৰ নামটো বহুত চুটি যেন লাগিছে — অনুগ্ৰহ কৰি সম্পূৰ্ণ নাম লিখক (কমেও 3 আখৰ) 🙏",e_user:"অনুগ্ৰহ কৰি 3–20 আখৰৰ ব্যৱহাৰকাৰীৰ নাম বাছক, কেৱল আখৰ, সংখ্যা বা _ ৰে — যেনে keshav_01 👍",e_pass6:"অনুগ্ৰহ কৰি পাছৱৰ্ড কমেও 6 আখৰৰ কৰক — শক্তিশালী ৰাখক 🔒",e_passmatch:"দুয়োটা পাছৱৰ্ড মিলা নাই — পৰীক্ষা কৰি আকৌ লিখক 👀",e_secans:"নিৰাপত্তা উত্তৰটোও লিখক — পাছৱৰ্ড পাহৰিলে সেইটোৱেই কামত আহিব।",e_taken:"এই ব্যৱহাৰকাৰীৰ নামটো ইতিমধ্যে লোৱা হৈছে 😅 — অনুগ্ৰহ কৰি আন এটা বাছক।",e_noaccount:"এই নামত কোনো একাউণ্ট পোৱা নগ’ল 🤔 — বানান পৰীক্ষা কৰক, বা প্ৰথমে ছাইন আপৰ পৰা একাউণ্ট বনাওক।",e_wrongpass:"পাছৱৰ্ড ভুল 😅 — আকৌ চেষ্টা কৰক। পাহৰিলে ওপৰৰ 'পাহৰিলে?' টেবটো টিপক।",e_found:"একাউণ্ট পোৱা গ’ল! এতিয়া আপোনাৰ নিৰাপত্তা প্ৰশ্নৰ উত্তৰ দিয়ক 👇",e_wrongans:"উত্তৰটো মিলা নাই 😅 — একাউণ্ট বনাওঁতে দিয়া উত্তৰটো একে বানানেৰে লিখক।",e_correct:"শুদ্ধ উত্তৰ! 🎉 এতিয়া নতুন পাছৱৰ্ড বনাওক।",e_newpass6:"নতুন পাছৱৰ্ড কমেও 6 আখৰৰ ৰাখক 🔒",e_newmatch:"দুয়োটা নতুন পাছৱৰ্ড মিলা নাই — আকৌ লিখক 👀"}
+};
+
+/* Card titles keep their short native subtitle as a name (per spec) */
+var SITES = [
+  { key:"fire", emoji:"🔥", title:"Fire — Aag", bot:"Agni", botEmoji:"🔥", acc:"#ff7a45" },
+  { key:"flood", emoji:"🌊", title:"Flood — Baadh", bot:"Jal", botEmoji:"💧", acc:"#3fb9d8" },
+  { key:"landslide", emoji:"⛰️", title:"Landslide — Bhuskhalan", bot:"Bhumi", botEmoji:"🌱", acc:"#d29a5b" },
+  { key:"coldwave", emoji:"❄️", title:"Cold Wave — Sheet Lehar", bot:"Him", botEmoji:"⛄", acc:"#9fd8e8" },
+  { key:"cyclone", emoji:"🌀", title:"Cyclone — Chakrawaat", bot:"Vayu", botEmoji:"🌪️", acc:"#9a86f0" }
+];
+
+/* ---------- tiny helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function showStage(id){
+  var stages = document.querySelectorAll(".stage");
+  for (var i=0;i<stages.length;i++) stages[i].classList.remove("active");
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function setMsg(el, text, ok){
+  el.textContent = text;
+  el.className = "msg " + (ok ? "ok" : "err");
+  el.style.display = "block";
+}
+function clearMsg(el){ el.textContent=""; el.className="msg"; el.style.display="none"; }
+
+/* ---------- storage (localStorage, in-memory fallback) ---------- */
+var memStore = {};
+var store = {
+  get: function(k){ try { return window.localStorage.getItem(k); } catch(e){ return (k in memStore) ? memStore[k] : null; } },
+  set: function(k,v){ try { window.localStorage.setItem(k,v); } catch(e){ memStore[k]=v; } },
+  del: function(k){ try { window.localStorage.removeItem(k); } catch(e){ delete memStore[k]; } }
+};
+var USERS_KEY = "earthpulse_users_v1";
+var SESSION_KEY = "earthpulse_session_v1";
+var LANG_KEY = "earthpulse_lang_v1";
+function loadUsers(){ try { return JSON.parse(store.get(USERS_KEY) || "{}"); } catch(e){ return {}; } }
+function saveUsers(u){ store.set(USERS_KEY, JSON.stringify(u)); }
+
+/* ---------- language system ---------- */
+var LANGS = ["en","hi","bn","te","mr","ta","ur","gu","kn","ml","pa","or","as"];
+var currentLang = store.get(LANG_KEY) || "en";
+if (LANGS.indexOf(currentLang) < 0) currentLang = "en";
+var currentUser = null;
+function t(key){
+  var d = I18N[currentLang] || I18N.en;
+  return (d[key] !== undefined) ? d[key] : I18N.en[key];
+}
+function secqIndex(canonical){
+  for (var i=0;i<SECQ_EN.length;i++) if (SECQ_EN[i] === canonical) return i;
+  return -1;
+}
+function secqDisplay(canonical){
+  var idx = secqIndex(canonical);
+  if (idx < 0) return canonical;
+  var arr = t("secq");
+  return (arr && arr[idx]) ? arr[idx] : canonical;
+}
+function fillSecqOptions(){
+  var sel = $("su-q"), prev = sel.value;
+  var arr = t("secq") || SECQ_EN;
+  sel.innerHTML = "";
+  for (var i=0;i<SECQ_EN.length;i++){
+    var o = document.createElement("option");
+    o.value = SECQ_EN[i];
+    o.textContent = arr[i] || SECQ_EN[i];
+    sel.appendChild(o);
+  }
+  if (prev && secqIndex(prev) >= 0) sel.value = prev;
+}
+function applyLanguage(){
+  var d = I18N[currentLang] || I18N.en;
+  document.documentElement.lang = currentLang === "or" ? "or" : currentLang;
+  document.documentElement.dir = (currentLang === "ur") ? "rtl" : "ltr";
+  $("lang-select").value = currentLang;
+  $("lang-label").textContent = d.langLabel;
+  $("lang-select").setAttribute("aria-label", d.langLabel.replace("🌐 ",""));
+  $("txt-tagline").textContent = d.tagline;
+  $("txt-subline").textContent = d.subline;
+  $("btn-enter").textContent = d.enter;
+  $("txt-splash-note").textContent = d.splashNote;
+  $("txt-auth-sub").textContent = d.authSub;
+  $("tab-login").textContent = d.tabLogin;
+  $("tab-signup").textContent = d.tabSignup;
+  $("tab-forgot").textContent = d.tabForgot;
+  $("lbl-li-user").textContent = d.username;
+  $("lbl-li-pass").textContent = d.password;
+  $("li-pass").placeholder = (currentLang === "en") ? "Enter your password" : d.passPh;
+  $("btn-login").textContent = d.loginBtn;
+  $("txt-forgot-q").textContent = d.forgotQ;
+  $("goto-forgot").textContent = d.forgotLink;
+  $("txt-new-q").textContent = d.newQ;
+  $("goto-signup").textContent = d.signupLink;
+  $("lbl-su-name").textContent = d.fullName;
+  $("lbl-su-user").textContent = d.chooseUser;
+  $("txt-su-hint").textContent = d.userHint;
+  $("lbl-su-pass").textContent = d.createPass;
+  $("su-pass").placeholder = d.passPh;
+  $("lbl-su-pass2").textContent = d.passAgain;
+  $("su-pass2").placeholder = d.passAgainPh;
+  $("lbl-su-q").textContent = d.secQLabel;
+  $("lbl-su-a").textContent = d.secALabel;
+  $("su-a").placeholder = d.secAPh;
+  $("btn-signup").textContent = d.signupBtn;
+  $("txt-auth-note").innerHTML = d.authNote;
+  $("lbl-fg-user").textContent = d.fgUser;
+  $("fg-next1").textContent = d.continueBtn;
+  $("txt-fg-intro").textContent = d.fgIntro;
+  $("lbl-fg-answer").textContent = d.answer;
+  $("fg-answer").placeholder = d.answerPh;
+  $("fg-next2").textContent = d.checkBtn;
+  $("lbl-fg-newpass").textContent = d.newPass;
+  $("fg-newpass").placeholder = d.passPh;
+  $("lbl-fg-newpass2").textContent = d.newPassAgain;
+  $("fg-newpass2").placeholder = d.passAgainPh;
+  $("fg-save").textContent = d.savePassBtn;
+  $("btn-logout").textContent = d.logout;
+  $("txt-dash-intro").innerHTML = d.dashIntro;
+  $("txt-dash-foot").textContent = d.dashFoot;
+  fillSecqOptions();
+  /* forgot step: re-translate the shown security question */
+  if (forgotUser){
+    var users = loadUsers(), u = users[forgotUser];
+    if (u) $("fg-question").textContent = secqDisplay(u.secQ);
+  }
+  /* dashboard texts depend on the signed-in user */
+  if (currentUser) updateDashHead(currentUser);
+  /* rebuild cards so descriptions + bubble lines use the new language */
+  var grid = $("site-grid");
+  if (grid.getAttribute("data-built") === "1"){
+    grid.removeAttribute("data-built");
+    grid.innerHTML = "";
+    buildCards();
+  }
+}
+$("lang-select").addEventListener("change", function(){
+  var v = this.value;
+  if (LANGS.indexOf(v) < 0) v = "en";
+  currentLang = v;
+  store.set(LANG_KEY, v);
+  applyLanguage();
+});
+
+/* ---------- salted hash (password never stored as plain text) ---------- */
+function makeSalt(){
+  var s = "";
+  var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  for (var i=0;i<16;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+  return s + Date.now().toString(36);
+}
+function sha256Hex(str){
+  if (window.crypto && crypto.subtle && crypto.subtle.digest){
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function(buf){
+      var bytes = new Uint8Array(buf), hex = "";
+      for (var i=0;i<bytes.length;i++) hex += ("0"+bytes[i].toString(16)).slice(-2);
+      return hex;
+    });
+  }
+  var h1 = 0x811c9dc5, h2 = 0x01000193;
+  for (var j=0;j<str.length;j++){ h1 = Math.imul(h1 ^ str.charCodeAt(j), 0x01000193); h2 = Math.imul(h2 + str.charCodeAt(j), 0x85ebca6b); }
+  return Promise.resolve(("0000000"+(h1>>>0).toString(16)).slice(-8) + ("0000000"+(h2>>>0).toString(16)).slice(-8));
+}
+function hashWithSalt(secret, salt){ return sha256Hex(salt + "::" + secret); }
+function normAnswer(a){ return (a || "").trim().toLowerCase().replace(/\s+/g," "); }
+function normUser(u){ return (u || "").trim().toLowerCase(); }
+
+/* ---------- splash title letters ---------- */
+(function(){
+  var l1 = $("title-l1"), text = l1.textContent, out = "";
+  for (var i=0;i<text.length;i++) out += '<span style="animation-delay:' + (i*0.07) + 's">' + text.charAt(i) + '</span>';
+  l1.innerHTML = out;
+})();
+
+/* ---------- starfield / particles ---------- */
+(function(){
+  var cv = $("stars"), ctx = cv.getContext("2d"), W, H, dots = [], raf = null;
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize(){
+    W = cv.width = window.innerWidth; H = cv.height = window.innerHeight;
+    dots = [];
+    var n = Math.min(110, Math.floor(W*H/16000));
+    for (var i=0;i<n;i++) dots.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.7+0.4, s:Math.random()*0.25+0.05, tw:Math.random()*Math.PI*2 });
+  }
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for (var i=0;i<dots.length;i++){
+      var d = dots[i]; d.y -= d.s; d.tw += 0.02;
+      if (d.y < -4){ d.y = H+4; d.x = Math.random()*W; }
+      ctx.globalAlpha = 0.35 + 0.45*Math.abs(Math.sin(d.tw));
+      ctx.fillStyle = "#bfe9dc";
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+  if (!reduced) frame(); else {
+    for (var i=0;i<dots.length;i++){ ctx.fillStyle="#bfe9dc"; ctx.beginPath(); ctx.arc(dots[i].x, dots[i].y, dots[i].r, 0, Math.PI*2); ctx.fill(); }
+  }
+})();
+
+/* ---------- stage flow ---------- */
+$("btn-enter").addEventListener("click", function(){ showStage("stage-auth"); });
+
+/* ---------- auth tabs ---------- */
+var forgotUser = null;
+function showPane(name){
+  var panes = { login:$("pane-login"), signup:$("pane-signup"), forgot:$("pane-forgot") };
+  var tabs = { login:$("tab-login"), signup:$("tab-signup"), forgot:$("tab-forgot") };
+  for (var k in panes){ panes[k].classList.toggle("on", k===name); tabs[k].classList.toggle("on", k===name); }
+  if (name === "forgot") resetForgot();
+}
+$("tab-login").addEventListener("click", function(){ showPane("login"); });
+$("tab-signup").addEventListener("click", function(){ showPane("signup"); });
+$("tab-forgot").addEventListener("click", function(){ showPane("forgot"); });
+$("goto-forgot").addEventListener("click", function(){ showPane("forgot"); });
+$("goto-signup").addEventListener("click", function(){ showPane("signup"); });
+
+/* ---------- SIGN UP ---------- */
+$("pane-signup").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var msg = $("signup-msg"); clearMsg(msg);
+  var name = $("su-name").value.trim();
+  var user = $("su-user").value.trim();
+  var pass = $("su-pass").value, pass2 = $("su-pass2").value;
+  var q = $("su-q").value, a = $("su-a").value;
+  if (name.length < 3) return setMsg(msg, t("e_name"));
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(user)) return setMsg(msg, t("e_user"));
+  if (pass.length < 6) return setMsg(msg, t("e_pass6"));
+  if (pass !== pass2) return setMsg(msg, t("e_passmatch"));
+  if (a.trim().length < 2) return setMsg(msg, t("e_secans"));
+  var users = loadUsers(), key = normUser(user);
+  if (users[key]) return setMsg(msg, t("e_taken"));
+  var salt = makeSalt();
+  Promise.all([hashWithSalt(pass, salt), hashWithSalt(normAnswer(a), salt)]).then(function(h){
+    users[key] = { name:name, username:user, salt:salt, passHash:h[0], secQ:q, secAHash:h[1], created:Date.now() };
+    saveUsers(users);
+    store.set(SESSION_KEY, key);
+    openDashboard(users[key]);
+  });
+});
+
+/* ---------- LOGIN ---------- */
+$("pane-login").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var msg = $("login-msg"); clearMsg(msg);
+  var key = normUser($("li-user").value);
+  var pass = $("li-pass").value;
+  var users = loadUsers(), u = users[key];
+  if (!u) return setMsg(msg, t("e_noaccount"));
+  hashWithSalt(pass, u.salt).then(function(h){
+    if (h !== u.passHash) return setMsg(msg, t("e_wrongpass"));
+    store.set(SESSION_KEY, key);
+    openDashboard(u);
+  });
+});
+
+/* ---------- FORGOT PASSWORD ---------- */
+function resetForgot(){
+  forgotUser = null;
+  $("fg-step1").hidden = false; $("fg-step2").hidden = true; $("fg-step3").hidden = true;
+  clearMsg($("forgot-msg"));
+}
+$("fg-next1").addEventListener("click", function(){
+  var msg = $("forgot-msg"); clearMsg(msg);
+  var key = normUser($("fg-user").value);
+  var users = loadUsers(), u = users[key];
+  if (!u) return setMsg(msg, t("e_noaccount"));
+  forgotUser = key;
+  $("fg-question").textContent = secqDisplay(u.secQ);
+  $("fg-step1").hidden = true; $("fg-step2").hidden = false;
+  setMsg(msg, t("e_found"), true);
+});
+$("fg-next2").addEventListener("click", function(){
+  var msg = $("forgot-msg"); clearMsg(msg);
+  if (!forgotUser) return;
+  var users = loadUsers(), u = users[forgotUser];
+  hashWithSalt(normAnswer($("fg-answer").value), u.salt).then(function(h){
+    if (h !== u.secAHash) return setMsg(msg, t("e_wrongans"));
+    $("fg-step2").hidden = true; $("fg-step3").hidden = false;
+    setMsg(msg, t("e_correct"), true);
+  });
+});
+$("fg-save").addEventListener("click", function(){
+  var msg = $("forgot-msg"); clearMsg(msg);
+  if (!forgotUser) return;
+  var p1 = $("fg-newpass").value, p2 = $("fg-newpass2").value;
+  if (p1.length < 6) return setMsg(msg, t("e_newpass6"));
+  if (p1 !== p2) return setMsg(msg, t("e_newmatch"));
+  var users = loadUsers(), u = users[forgotUser];
+  var salt = makeSalt();
+  Promise.all([hashWithSalt(p1, salt), hashWithSalt(normAnswer($("fg-answer").value), salt)]).then(function(h){
+    u.salt = salt; u.passHash = h[0]; u.secAHash = h[1];
+    users[forgotUser] = u; saveUsers(users);
+    store.set(SESSION_KEY, forgotUser);
+    openDashboard(u);
+  });
+});
+
+/* ---------- DASHBOARD ---------- */
+var bubbleTimers = [];
+function updateDashHead(u){
+  $("dash-welcome").textContent = t("welcome").replace("{name}", u.name);
+  $("dash-who").textContent = t("who").replace("{user}", u.username);
+  $("dash-avatar").textContent = (u.name.trim().charAt(0) || "?").toUpperCase();
+}
+function openDashboard(u){
+  currentUser = u;
+  updateDashHead(u);
+  buildCards();
+  showStage("stage-dash");
+}
+function buildCards(){
+  var grid = $("site-grid");
+  if (grid.getAttribute("data-built") === "1") { startBubbles(); return; }
+  grid.setAttribute("data-built","1");
+  var html = "";
+  for (var i=0;i<SITES.length;i++){
+    var s = SITES[i];
+    html += '<a class="card" style="--acc:' + s.acc + '" href="' + SITE_LINKS[s.key] + '" target="_blank" rel="noopener">'
+      + '<div class="big" aria-hidden="true">' + s.emoji + '</div>'
+      + '<h3>' + s.title + '</h3>'
+      + '<p class="desc">' + t("desc_" + s.key) + '</p>'
+      + '<div class="open-line">' + t("openLine") + '</div>'
+      + '<div class="bot-zone"><div class="bot-track">'
+      + '<div class="bubble" id="bubble-' + s.key + '"></div>'
+      + '<div class="bot" style="animation-duration:' + (6.5 + i*0.9) + 's; animation-delay:-' + (i*1.7) + 's">'
+      + '<div class="bot-body">' + s.botEmoji + '</div><div class="bot-name">' + s.bot + '</div>'
+      + '</div></div></div></a>';
+  }
+  grid.innerHTML = html;
+  startBubbles();
+}
+function startBubbles(){
+  for (var x=0;x<bubbleTimers.length;x++) clearInterval(bubbleTimers[x]);
+  bubbleTimers = [];
+  SITES.forEach(function(s, idx){
+    var b = $("bubble-" + s.key);
+    if (!b) return;
+    var li = 0;
+    function cycle(){
+      var lines = t("bot_" + s.key) || [];
+      b.textContent = lines[li % lines.length]; li++;
+      b.classList.add("show");
+      setTimeout(function(){ b.classList.remove("show"); }, 3600);
+    }
+    setTimeout(cycle, 900 + idx*1400);
+    bubbleTimers.push(setInterval(cycle, 8200));
+  });
+}
+$("btn-logout").addEventListener("click", function(){
+  store.del(SESSION_KEY);
+  currentUser = null;
+  $("li-pass").value = "";
+  showPane("login");
+  showStage("stage-auth");
+});
+
+/* ---------- first paint: language (default English), then session ---------- */
+applyLanguage();
+(function(){
+  var key = store.get(SESSION_KEY);
+  if (key){
+    var users = loadUsers();
+    if (users[key]) openDashboard(users[key]);
+  }
+})();
+</script>
+</body>
+</html>
