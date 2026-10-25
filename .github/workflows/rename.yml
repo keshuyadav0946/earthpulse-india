@@ -1,0 +1,21 @@
+name: Rename fire file
+on:
+  workflow_dispatch:
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rename uploaded fire file
+        run: |
+          mv fire/india-fire-disaster-website.html fire/index.html
+          ls -lh fire/
+      - name: Commit and push rename
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fire/
+          git commit -m "Rename fire file to index.html" || echo "Nothing to commit"
+          git push
