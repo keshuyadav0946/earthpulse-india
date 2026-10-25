@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#0b1826" />
+<link rel="apple-touch-icon" href="icon-512.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="icon" href="data:," />
+<title>EarthPulse India</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#050c13; --panel:#0b1826; --panel2:#0e2033;
+  --line:#1d3a4d; --ink:#ecf6f2; --muted:#9db8ad; --teal:#2fe6a7; --teal-dk:#0d3b2c;
+  --amber:#ffb454; --danger:#ff7a6b; --ok:#3fe08c;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Mukta","Noto Sans",system-ui,sans-serif; font-size:17px; line-height:1.55;
+  min-height:100vh; overflow-x:hidden;
+}
+#stars{position:fixed; inset:0; z-index:0; pointer-events:none}
+.stage{display:none; position:relative; z-index:1; min-height:100vh}
+.stage.active{display:flex; flex-direction:column; animation:stageIn .55s ease both}
+@keyframes stageIn{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+h1,h2,h3,.display{font-family:"Baloo 2","Noto Sans","Mukta",sans-serif}
+button{font-family:inherit; cursor:pointer}
+input,select{font-family:inherit; font-size:16px}
+:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+
+/* ---------- LANGUAGE BAR (top-right, all stages) ---------- */
+.lang-bar{
+  position:fixed; top:12px; right:12px; z-index:50;
+  display:flex; align-items:center; gap:8px;
+  background:rgba(11,24,38,.92); border:1px solid var(--line); border-radius:99px;
+  padding:6px 8px 6px 14px; backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+html[dir="rtl"] .lang-bar{right:auto; left:12px; padding:6px 14px 6px 8px}
+.lang-bar label{font-size:15px; font-weight:700; color:var(--muted); white-space:nowrap}
+.lang-bar select{
+  background:var(--panel2); color:var(--ink); border:1px solid var(--line);
+  border-radius:99px; padding:7px 10px; font-size:16px; font-weight:600; max-width:46vw;
+}
+
+/* ---------- STAGE 1 : SPLASH ---------- */
+#stage-splash{align-items:center; justify-content:center; text-align:center; padding:64px 18px 48px}
+.earth-wrap{position:relative; width:min(62vw,320px); aspect-ratio:1; margin:6px auto 8px}
+.earth{
+  position:absolute; inset:12%; border-radius:50%; overflow:hidden;
+  background:radial-gradient(circle at 32% 28%, #a5ecff 0%, #3fa9cf 30%, #1d6f9f 58%, #0a3a5c 82%, #062740 100%);
+  box-shadow:0 0 60px rgba(63,169,207,.45), 0 0 140px rgba(47,230,167,.18), inset -18px -14px 44px rgba(0,0,0,.55);
+  animation:earthFloat 6s ease-in-out infinite;
+}
+@keyframes earthFloat{0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}}
+.land{position:absolute; inset:-12%; animation:spin 46s linear infinite}
+.land i{position:absolute; border-radius:46% 54% 58% 42%/52% 44% 56% 48%; background:#3fae72; opacity:.85; filter:blur(1px)}
+.land i:nth-child(1){width:34%; height:24%; left:16%; top:20%}
+.land i:nth-child(2){width:26%; height:20%; left:56%; top:14%}
+.land i:nth-child(3){width:30%; height:26%; left:38%; top:52%}
+.land i:nth-child(4){width:18%; height:14%; left:70%; top:58%}
+.land i:nth-child(5){width:14%; height:11%; left:8%; top:62%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring{position:absolute; inset:0; border-radius:50%; border:2px solid rgba(47,230,167,.55); animation:ringPulse 3.2s ease-out infinite}
+.ring.r2{animation-delay:1.05s; border-color:rgba(63,185,216,.5)}
+.ring.r3{animation-delay:2.1s; border-color:rgba(255,180,84,.45)}
+@keyframes ringPulse{0%{transform:scale(.72); opacity:0} 25%{opacity:.9} 100%{transform:scale(1.22); opacity:0}}
+.ekg{width:min(88vw,560px); height:74px; margin:2px auto 0}
+.ekg .base{stroke:#123c33; stroke-width:3; fill:none}
+.ekg .beat{stroke:var(--teal); stroke-width:3.5; fill:none; stroke-linecap:round; stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px rgba(47,230,167,.85));
+  stroke-dasharray:100; stroke-dashoffset:100; animation:beat 3s linear infinite}
+@keyframes beat{0%{stroke-dashoffset:100} 55%{stroke-dashoffset:-100} 100%{stroke-dashoffset:-100}}
+.splash-title{margin:10px 0 0; line-height:.98; letter-spacing:.01em}
+.splash-title .l1{display:block; font-size:clamp(44px,11vw,96px); font-weight:800; color:var(--ink)}
+.splash-title .l1 span{display:inline-block; opacity:0; animation:letterIn .6s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes letterIn{from{opacity:0; transform:translateY(26px) scale(.7)} to{opacity:1; transform:none}}
+.splash-title .l2{display:block; font-size:clamp(30px,7.5vw,62px); font-weight:800; letter-spacing:.34em; margin-top:2px; color:var(--amber)}
+html[dir="rtl"] .splash-title .l2{letter-spacing:.1em}
+.tribar{display:flex; width:min(300px,64vw); height:7px; border-radius:99px; overflow:hidden; margin:16px auto 0}
+.tribar i{flex:1}.tribar i:nth-child(1){background:#ff9933}.tribar i:nth-child(2){background:#f4f4f4}.tribar i:nth-child(3){background:#2fae4e}
+.tagline{font-size:clamp(18px,4.4vw,23px); color:var(--ink); margin:18px auto 4px; max-width:620px; font-weight:600}
+.subline{color:var(--muted); font-size:16.5px; margin:0 auto; max-width:640px}
+.btn-enter{
+  margin-top:34px; border:none; border-radius:99px; padding:17px 58px;
+  font-family:"Baloo 2","Noto Sans",sans-serif; font-size:24px; font-weight:800; letter-spacing:.06em;
+  color:#04160f; background:var(--teal);
+  box-shadow:0 0 0 0 rgba(47,230,167,.55); animation:btnPulse 2s ease-out infinite;
+  transition:transform .15s ease;
+}
+.btn-enter:hover{transform:scale(1.05)}
+@keyframes btnPulse{0%{box-shadow:0 0 0 0 rgba(47,230,167,.5)} 100%{box-shadow:0 0 0 26px rgba(47,230,167,0)}}
+.splash-note{margin-top:20px; color:var(--muted); font-size:15.5px; max-width:560px}
+
+/* ---------- STAGE 2 : AUTH ---------- */
+#stage-auth{align-items:center; justify-content:center; padding:64px 16px 46px}
+.auth-card{
+  width:min(480px,100%); background:var(--panel); border:1px solid var(--line);
+  border-radius:22px; padding:28px 26px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.auth-head{text-align:center; margin-bottom:6px}
+.auth-head .mini-earth{font-size:40px; line-height:1}
+.auth-head h2{margin:6px 0 2px; font-size:29px}
+.auth-head p{margin:0; color:var(--muted); font-size:16px}
+.tabs{display:flex; gap:8px; margin:20px 0 18px}
+.tabs button{
+  flex:1; border:1px solid var(--line); background:var(--panel2); color:var(--muted);
+  border-radius:12px; padding:11px 4px; font-size:16px; font-weight:700;
+}
+.tabs button.on{background:var(--teal); color:#04160f; border-color:var(--teal)}
+.field{margin-bottom:14px}
+.field label{display:block; font-weight:600; font-size:16px; margin-bottom:5px}
+.field input,.field select{
+  width:100%; background:#081220; border:1px solid var(--line); color:var(--ink);
+  border-radius:12px; padding:12px 14px;
+}
+.field input::placeholder{color:#5f7a70}
+.field .hint{font-size:14.5px; color:var(--muted); margin-top:4px}
+.btn-main{
+  width:100%; border:none; border-radius:12px; padding:14px; margin-top:4px;
+  background:var(--teal); color:#04160f; font-family:"Baloo 2","Noto Sans",sans-serif;
+  font-size:20px; font-weight:800;
+}
+.btn-main:hover{filter:brightness(1.08)}
+.msg{border-radius:12px; padding:11px 14px; font-size:16px; margin:0 0 14px; display:none}
+.msg.err{display:block; background:#3a1611; border:1px solid #7a2d20; color:#ffc9c0}
+.msg.ok{display:block; background:#0d3325; border:1px solid #1d6b47; color:#b9f4d6}
+.linklike{background:none; border:none; color:var(--teal); font-size:16px; font-weight:700; padding:4px 0; text-decoration:underline}
+.auth-note{
+  margin-top:18px; padding:11px 14px; border-radius:12px; font-size:15px; color:var(--muted);
+  background:#081220; border:1px dashed var(--line);
+}
+.pane{display:none}.pane.on{display:block; animation:stageIn .35s ease both}
+
+/* ---------- STAGE 3 : DASHBOARD ---------- */
+#stage-dash{padding:0 0 56px}
+.dash-inner{width:min(1180px,100%); margin:0 auto; padding:64px 18px 0}
+.dash-head{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.avatar{
+  width:60px; height:60px; border-radius:50%; flex:none; display:grid; place-items:center;
+  background:var(--teal-dk); border:2px solid var(--teal); color:var(--teal);
+  font-family:"Baloo 2","Noto Sans",sans-serif; font-size:27px; font-weight:800;
+}
+.dash-head h2{margin:0; font-size:clamp(27px,5.4vw,38px); line-height:1.1}
+.dash-head .who{color:var(--muted); font-size:16.5px; margin:2px 0 0}
+.btn-logout{
+  margin-inline-start:auto; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+  border-radius:99px; padding:11px 22px; font-size:16.5px; font-weight:700;
+}
+.btn-logout:hover{border-color:var(--danger); color:var(--danger)}
+.dash-intro{color:var(--muted); font-size:17.5px; max-width:760px; margin:16px 0 4px}
+.dash-intro b{color:var(--ink)}
+.grid{display:grid; grid-template-columns:1fr; gap:20px; margin-top:18px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1080px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.card{
+  display:block; text-decoration:none; color:var(--ink);
+  background:var(--panel); border:1px solid var(--line); border-top:5px solid var(--acc);
+  border-radius:var(--radius); padding:22px 22px 10px; position:relative;
+  transition:transform .18s ease, border-color .18s ease;
+}
+.card:hover{transform:translateY(-4px); border-color:var(--acc)}
+.card .big{font-size:52px; line-height:1}
+.card h3{margin:10px 0 4px; font-size:27px}
+.card .desc{color:var(--muted); font-size:16.5px; margin:0; min-height:52px}
+.card .open-line{margin-top:10px; font-weight:700; color:var(--acc); font-size:16.5px}
+.bot-zone{margin-top:8px; border-top:1px dashed var(--line); padding-top:6px}
+.bot-track{position:relative; height:86px}
+.bot{
+  position:absolute; bottom:2px; left:6px; width:52px; text-align:center;
+  animation:walk 8s ease-in-out infinite alternate;
+}
+@keyframes walk{from{left:6px} to{left:calc(100% - 58px)}}
+.bot-body{
+  width:48px; height:48px; margin:0 auto; border-radius:50%; display:grid; place-items:center;
+  font-size:25px; background:var(--panel2); border:2px solid var(--acc);
+  animation:bob .5s ease-in-out infinite alternate;
+}
+@keyframes bob{from{transform:translateY(0) rotate(-4deg)} to{transform:translateY(-5px) rotate(4deg)}}
+.bot-name{font-size:14.5px; font-weight:700; color:var(--acc); margin-top:2px}
+.bubble{
+  position:absolute; top:0; max-width:78%; background:#eefaf4; color:#0a2436;
+  border-radius:14px; padding:7px 12px; font-size:15px; font-weight:600; line-height:1.35;
+  opacity:0; transform:translateY(4px); transition:opacity .4s ease, transform .4s ease;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.bubble.show{opacity:1; transform:none}
+.bubble::after{content:""; position:absolute; bottom:-7px; left:26px; border:8px solid transparent; border-top-color:#eefaf4; border-bottom:0}
+html[dir="rtl"] .bubble::after{left:auto; right:26px}
+.dash-foot{margin-top:30px; color:var(--muted); font-size:15.5px; text-align:center}
+@media (prefers-reduced-motion: reduce){
+  .land,.ring,.ekg .beat,.btn-enter,.earth,.bot,.bot-body{animation:none !important}
+  .ekg .beat{stroke-dashoffset:0}
+  .splash-title .l1 span{opacity:1; animation:none}
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<!-- LANGUAGE SELECTOR — top-right on every stage -->
+<div class="lang-bar">
+  <label for="lang-select" id="lang-label">🌐 Language</label>
+  <select id="lang-select" aria-label="Language">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी (Hindi)</option>
+    <option value="bn">বাংলা (Bengali)</option>
+    <option value="te">తెలుగు (Telugu)</option>
+    <option value="mr">मराठी (Marathi)</option>
+    <option value="ta">தமிழ் (Tamil)</option>
+    <option value="ur">اردو (Urdu)</option>
+    <option value="gu">ગુજરાતી (Gujarati)</option>
+    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+    <option value="ml">മലയാളം (Malayalam)</option>
+    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+    <option value="as">অসমীয়া (Assamese)</option>
+  </select>
+</div>
+
+<!-- ================= STAGE 1 : SPLASH ================= -->
+<section class="stage active" id="stage-splash" aria-label="Welcome">
+  <div class="earth-wrap" aria-hidden="true">
+    <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div class="earth"><div class="land"><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+  <svg class="ekg" viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true">
+    <path class="base" d="M0,52 L150,52 L166,52 L178,18 L194,86 L206,52 L300,52 L312,38 L322,52 L440,52 L452,52 L464,14 L482,90 L494,52 L600,52"/>
+    <path class="beat" pathLength="100" d="M0,52 L150,52 L166,52 L178,18 L194,86 L206,52 L300,52 L312,38 L322,52 L440,52 L452,52 L464,14 L482,90 L494,52 L600,52"/>
+  </svg>
+  <h1 class="splash-title">
+    <span class="l1" id="title-l1">EARTHPULSE</span>
+    <span class="l2">INDIA</span>
+  </h1>
+  <div class="tribar" aria-hidden="true"><i></i><i></i><i></i></div>
+  <p class="tagline" id="txt-tagline"></p>
+  <p class="subline" id="txt-subline"></p>
+  <button class="btn-enter" id="btn-enter" type="button"></button>
+  <p class="splash-note" id="txt-splash-note"></p>
+</section>
+
+<!-- ================= STAGE 2 : AUTH ================= -->
+<section class="stage" id="stage-auth" aria-label="Login">
+  <div class="auth-card">
+    <div class="auth-head">
+      <div class="mini-earth" aria-hidden="true">🌍💓</div>
+      <h2>EarthPulse India</h2>
+      <p id="txt-auth-sub"></p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" id="tab-login" class="on"></button>
+      <button type="button" id="tab-signup"></button>
+      <button type="button" id="tab-forgot"></button>
+    </div>
+
+    <!-- LOGIN -->
+    <form class="pane on" id="pane-login" autocomplete="off">
+      <p class="msg" id="login-msg"></p>
+      <div class="field">
+        <label for="li-email" id="lbl-li-email"></label>
+        <input id="li-email" type="email" placeholder="e.g. name@example.com" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="li-pass" id="lbl-li-pass"></label>
+        <input id="li-pass" type="password" required />
+      </div>
+      <button class="btn-main" type="submit" id="btn-login"></button>
+      <p style="margin:12px 0 0; font-size:16px"><span id="txt-forgot-q"></span> <button type="button" class="linklike" id="goto-forgot"></button></p>
+      <p style="margin:2px 0 0; font-size:16px"><span id="txt-new-q"></span> <button type="button" class="linklike" id="goto-signup"></button></p>
+    </form>
+
+    <!-- SIGN UP -->
+    <form class="pane" id="pane-signup" autocomplete="off">
+      <p class="msg" id="signup-msg"></p>
+      <div class="field">
+        <label for="su-name" id="lbl-su-name"></label>
+        <input id="su-name" type="text" placeholder="e.g. Keshav Yadav" required />
+      </div>
+      <div class="field">
+        <label for="su-user" id="lbl-su-user"></label>
+        <input id="su-user" type="text" placeholder="e.g. keshav_01" required />
+        <div class="hint" id="txt-su-hint"></div>
+      </div>
+      <div class="field">
+        <label for="su-email" id="lbl-su-email"></label>
+        <input id="su-email" type="email" placeholder="e.g. name@example.com" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="su-pass" id="lbl-su-pass"></label>
+        <input id="su-pass" type="password" required />
+      </div>
+      <div class="field">
+        <label for="su-pass2" id="lbl-su-pass2"></label>
+        <input id="su-pass2" type="password" required />
+      </div>
+      <button class="btn-main" type="submit" id="btn-signup"></button>
+    </form>
+
+    <!-- FORGOT PASSWORD -->
+    <form class="pane" id="pane-forgot" autocomplete="off">
+      <p class="msg" id="forgot-msg"></p>
+      <p style="margin:0 0 14px; color:var(--muted); font-size:16px" id="txt-fg-hint"></p>
+      <div class="field">
+        <label for="fg-email" id="lbl-fg-email"></label>
+        <input id="fg-email" type="email" placeholder="e.g. name@example.com" autocomplete="email" />
+      </div>
+      <button class="btn-main" type="submit" id="fg-send"></button>
+    </form>
+
+    <div class="auth-note" id="txt-auth-note"></div>
+  </div>
+</section>
+
+<!-- ================= STAGE 3 : DASHBOARD ================= -->
+<section class="stage" id="stage-dash" aria-label="Dashboard">
+  <div class="dash-inner">
+    <div class="dash-head">
+      <div class="avatar" id="dash-avatar">?</div>
+      <div>
+        <h2 id="dash-welcome">Welcome! 👋</h2>
+        <p class="who" id="dash-who"></p>
+      </div>
+      <button class="btn-logout" id="btn-logout" type="button"></button>
+    </div>
+    <p class="dash-intro" id="txt-dash-intro"></p>
+    <div class="grid" id="site-grid"></div>
+    <p class="dash-foot" id="txt-dash-foot"></p>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   CONFIG — links of the five disaster websites (unchanged).
+   ============================================================ */
+var SITE_LINKS = {
+  fire:     "https://keshuyadav0946.github.io/earthpulse-india/fire/",
+  flood:    "https://keshuyadav0946.github.io/earthpulse-india/flood/",
+  landslide:"https://keshuyadav0946.github.io/earthpulse-india/landslide/",
+  coldwave: "https://keshuyadav0946.github.io/earthpulse-india/coldwave/",
+  cyclone:  "https://keshuyadav0946.github.io/earthpulse-india/cyclone/"
+};
+
+/* ============================================================
+   TRANSLATIONS — default: English. {name} / {user} are filled in.
+   ============================================================ */
+var I18N = {
+en:{langLabel:"🌐 Language",tagline:"Every disaster in India — one place, one family 🌍💓",subline:"Fire · Flood · Landslide · Cold Wave · Cyclone — five websites, five AI companions, one home.",enter:"ENTER →",splashNote:"New here? Tap ENTER — create an account once, and you will be welcomed by name every time you return 🙏",authSub:"Sign in with your account — all five disaster websites are waiting for you.",tabLogin:"Login",tabSignup:"Sign Up",tabForgot:"Forgot?",username:"Username",email:"Email",emailPh:"e.g. name@example.com",password:"Password",loginBtn:"Log in →",forgotQ:"Forgot your password?",forgotLink:"Get a reset link",newQ:"New here?",signupLink:"Create an account",fullName:"Full name",chooseUser:"Choose a username",userHint:"Just a display name for you — not needed for login (you log in with your email). 3–20 characters: letters, numbers or _.",createPass:"Create a password",passPh:"At least 6 characters",passAgain:"Enter the password again",passAgainPh:"The same password, once more",signupBtn:"Create account →",authNote:"🔒 Your account is kept by <b>Google Firebase</b> — sign up once, then log in with the same email and password on <b>any phone or computer</b>. Your password stays safe with Google; this page never stores it. Forgot it? Use the 'Forgot?' tab — a reset link comes to your email.",fgHint:"Type the email of your account — we will email you a link to set a new password.",resetBtn:"Email me the reset link →",resetSent:"✅ Reset link sent! A password-reset link has been sent to {email} — open that email and tap the link to set a new password, then come back and log in. (If it is not in the inbox, please check the spam folder.)",welcome:"Welcome, {name}! 👋",who:"@{user} · Welcome to the EarthPulse family 🌍💓",logout:"Logout 🚪",dashIntro:"This is your <b>EarthPulse family</b> — all five disaster websites, each with its own AI companion moving beside it. Tap any box and <b>that disaster's full website opens in a new tab</b>.",dashFoot:"🌍💓 EarthPulse India — every disaster in India, one family. For real warnings, always treat official IMD / NDMA information as final.",openLine:"Open website →",
+desc_fire:"Live fire conditions across India from NASA satellites, 110 major fire records and an area fire-checker.",desc_flood:"River water levels, 44 verified flood records and safety guidance — with Jal.",desc_landslide:"Landslide risk in hilly regions, 47 records and GSI risk zones — with Bhumi.",desc_coldwave:"Records of 34 severe cold-wave spells, IMD information and protection from the cold — with Him.",desc_cyclone:"40 cyclone records, track maps and landfall stories — with Vayu.",
+bot_fire:["I am Agni! Fire news reaches me first 🔥","Tap the box — the Fire website will open!"],bot_flood:["I am Jal! Flood waters are always in my sight 🌊","Tap here — the Flood website will tell you everything!"],bot_landslide:["I am Bhumi! I sense a hillside shift before anyone ⛰️","Tap here — the Landslide website will open!"],bot_coldwave:["I am Him! When the cold arrives, preparation is my job ❄️","Tap here — the Cold Wave website will open!"],bot_cyclone:["I am Vayu! When a storm comes, I speak first 🌀","Tap here — the Cyclone website will open!"],
+e_name:"Your name looks too short — please write your full name (at least 3 characters) 🙏",e_user:"Please choose a username of 3–20 characters using only letters, numbers or _ — for example keshav_01 👍",e_pass6:"Please make your password at least 6 characters long — keep it strong 🔒",e_passmatch:"The two passwords do not match — please check and enter them again 👀",e_noaccount:"No account was found for this email 🤔 — check the spelling, or create an account first from Sign Up.",e_wrongpass:"Incorrect password 😅 — please try again. If you have forgotten it, use the 'Forgot?' tab above.",e_emailUsed:"This email is already registered 😅 — please log in with it, or use the 'Forgot?' tab if you have forgotten the password.",e_emailBad:"This email address does not look right 🤔 — please check it and type a complete email, like name@example.com.",e_weakpass:"This password is too weak 🔒 — please choose a longer, stronger password (at least 6 characters; mixing letters and numbers is better).",e_badcred:"Email or password is incorrect 😅 — please check both and try again. If you have forgotten the password, use the 'Forgot?' tab above.",e_network:"Could not reach the account service 📡 — please check your internet connection and try again.",e_toomany:"Too many attempts 🚦 — please wait a little while and try again.",e_generic:"Something went wrong 😅 — please try again in a moment. If it keeps happening, check your internet connection.",e_profilefail:"Your account was created and you are signed in ✅ — but your profile details could not be saved just now. Please check your connection; until they save, your name may show from your email."},
+hi:{langLabel:"🌐 भाषा",tagline:"भारत की हर आपदा — एक जगह, एक परिवार 🌍💓",subline:"आग · बाढ़ · भूस्खलन · शीत लहर · चक्रवात — पाँच वेबसाइट, पाँच AI साथी, एक घर।",enter:"प्रवेश करें →",splashNote:"पहली बार आए हैं? प्रवेश दबाएँ — एक बार खाता बनाएँ, फिर हर बार आपके नाम से स्वागत होगा 🙏",authSub:"अपने खाते से प्रवेश करें — पाँचों आपदा वेबसाइट आपका इंतज़ार कर रही हैं।",tabLogin:"लॉगिन",tabSignup:"साइन अप",tabForgot:"भूल गए?",username:"उपयोगकर्ता नाम",email:"ईमेल",emailPh:"e.g. name@example.com",password:"पासवर्ड",loginBtn:"लॉगिन करें →",forgotQ:"पासवर्ड भूल गए?",forgotLink:"Reset link पाएँ",newQ:"पहली बार आए हैं?",signupLink:"नया खाता बनाएँ",fullName:"पूरा नाम",chooseUser:"उपयोगकर्ता नाम चुनें",userHint:"यह सिर्फ़ आपके लिए एक दिखने वाला नाम है — लॉगिन के लिए नहीं चाहिए (लॉगिन ईमेल से होगा)। 3–20 अक्षर: अक्षर, अंक या _।",createPass:"पासवर्ड बनाएँ",passPh:"कम से कम 6 अक्षर",passAgain:"पासवर्ड दोबारा डालें",passAgainPh:"वही पासवर्ड फिर से",signupBtn:"खाता बनाएँ →",authNote:"🔒 आपका खाता <b>Google Firebase</b> के पास सुरक्षित रहता है — एक बार साइन अप करें, फिर उसी ईमेल और पासवर्ड से <b>किसी भी फ़ोन या कंप्यूटर</b> पर लॉगिन करें। आपका पासवर्ड Google के पास सुरक्षित रहता है; यह पेज उसे कभी सहेजता नहीं। भूल जाएँ तो 'भूल गए?' टैब दबाएँ — ईमेल पर reset link आएगा।",fgHint:"अपने खाते का ईमेल डालें — हम आपको नया पासवर्ड बनाने का link ईमेल करेंगे।",resetBtn:"मुझे reset link ईमेल करें →",resetSent:"✅ Reset link भेज दिया गया! {email} पर पासवर्ड बदलने का link भेजा गया है — वह ईमेल खोलकर link दबाएँ, नया पासवर्ड बनाएँ, फिर यहाँ आकर लॉगिन करें। (Inbox में न मिले तो spam folder भी देखें।)",welcome:"स्वागत है, {name}! 👋",who:"@{user} · EarthPulse परिवार में आपका स्वागत है 🌍💓",logout:"लॉगआउट 🚪",dashIntro:"यह रहा आपका <b>EarthPulse परिवार</b> — पाँचों आपदा वेबसाइट, हर एक के साथ उसका अपना AI साथी घूम रहा है। जिस बॉक्स पर क्लिक करेंगे, <b>उसी आपदा की पूरी वेबसाइट नए टैब में</b> खुल जाएगी।",dashFoot:"🌍💓 EarthPulse India — भारत की हर आपदा, एक परिवार। असली चेतावनी के लिए हमेशा IMD / NDMA की आधिकारिक जानकारी को ही अंतिम मानें।",openLine:"वेबसाइट खोलें →",
+desc_fire:"NASA उपग्रह से भारत की आग का ताज़ा हाल, 110 बड़े अग्नि अभिलेख और क्षेत्र अग्नि-जाँच सुविधा।",desc_flood:"नदियों का जलस्तर, बाढ़ के 44 सत्यापित अभिलेख और सुरक्षा के उपाय — जल के साथ।",desc_landslide:"पहाड़ी इलाकों में भूस्खलन का खतरा, 47 अभिलेख और GSI जोखिम क्षेत्र — भूमि के साथ।",desc_coldwave:"कड़ी ठंड के 34 दौरों का अभिलेख, IMD की जानकारी और ठंड से बचाव — हिम के साथ।",desc_cyclone:"समुद्री तूफ़ानों के 40 अभिलेख, मार्ग मानचित्र और तट-टकराव की कहानियाँ — वायु के साथ।",
+bot_fire:["मैं अग्नि हूँ! आग की खबर सबसे पहले मेरे पास 🔥","बॉक्स पर क्लिक करें — अग्नि वेबसाइट खुल जाएगी!"],bot_flood:["मैं जल हूँ! बाढ़ का पानी मेरी नज़र में है 🌊","क्लिक करें — बाढ़ वेबसाइट आपको सब बताएगी!"],bot_landslide:["मैं भूमि हूँ! पहाड़ कब खिसके, पहले मैं जानती हूँ ⛰️","क्लिक करें — भूस्खलन वेबसाइट खुल जाएगी!"],bot_coldwave:["मैं हिम हूँ! ठंड आए तो गरम तैयारी मेरी ज़िम्मेदारी ❄️","क्लिक करें — शीत लहर वेबसाइट खुल जाएगी!"],bot_cyclone:["मैं वायु हूँ! तूफ़ान आए, सबसे पहले मैं बोलूँ 🌀","क्लिक करें — चक्रवात वेबसाइट खुल जाएगी!"],
+e_name:"नाम बहुत छोटा लग रहा है — कृपया अपना पूरा नाम लिखें (कम से कम 3 अक्षर) 🙏",e_user:"कृपया 3–20 अक्षरों का उपयोगकर्ता नाम चुनें, केवल अक्षर, अंक या _ के साथ — जैसे keshav_01 👍",e_pass6:"कृपया पासवर्ड कम से कम 6 अक्षरों का बनाएँ — थोड़ा मज़बूत रखें 🔒",e_passmatch:"दोनों पासवर्ड एक जैसे नहीं हैं — दोबारा जाँच करके डालें 👀",e_noaccount:"इस ईमेल का कोई खाता नहीं मिला 🤔 — वर्तनी जाँचें, या पहले साइन अप से खाता बनाएँ।",e_wrongpass:"पासवर्ड गलत है 😅 — दोबारा प्रयास करें। भूल गए हों तो ऊपर 'भूल गए?' वाला टैब दबाएँ।",e_emailUsed:"यह ईमेल पहले से पंजीकृत है 😅 — कृपया इसी से लॉगिन करें, या पासवर्ड भूल गए हों तो 'भूल गए?' टैब दबाएँ।",e_emailBad:"यह ईमेल पता सही नहीं लग रहा 🤔 — कृपया जाँचकर पूरा ईमेल लिखें, जैसे name@example.com।",e_weakpass:"यह पासवर्ड बहुत कमज़ोर है 🔒 — कृपया लंबा और मज़बूत पासवर्ड चुनें (कम से कम 6 अक्षर; अक्षर और अंक मिलाएँ तो बेहतर)।",e_badcred:"ईमेल या पासवर्ड गलत है 😅 — कृपया दोनों जाँचकर फिर प्रयास करें। पासवर्ड भूल गए हों तो ऊपर 'भूल गए?' टैब दबाएँ।",e_network:"खाता सेवा तक पहुँच नहीं पाई 📡 — कृपया अपना internet connection जाँचकर फिर प्रयास करें।",e_toomany:"बहुत ज़्यादा प्रयास हो गए 🚦 — कृपया थोड़ी देर रुककर फिर प्रयास करें।",e_generic:"कुछ गड़बड़ हो गई 😅 — कृपया थोड़ी देर बाद फिर प्रयास करें। बार-बार हो तो अपना internet connection जाँचें।",e_profilefail:"आपका खाता बन गया है और आप लॉगिन हैं ✅ — लेकिन आपकी profile जानकारी अभी सहेजी नहीं जा सकी। कृपया connection जाँचें; सहेजे जाने तक आपका नाम ईमेल से दिख सकता है।"},
+bn:{langLabel:"🌐 ভাষা",tagline:"ভারতের প্রতিটি দুর্যোগ — এক জায়গায়, এক পরিবার 🌍💓",subline:"আগুন · বন্যা · ভূমিধস · শৈত্যপ্রবাহ · ঘূর্ণিঝড় — পাঁচটি ওয়েবসাইট, পাঁচজন AI সঙ্গী, এক ঠিকানা।",enter:"প্রবেশ করুন →",splashNote:"প্রথমবার এসেছেন? প্রবেশ চাপুন — একবার অ্যাকাউন্ট তৈরি করুন, তারপর প্রতিবার আপনার নামে স্বাগত জানানো হবে 🙏",authSub:"আপনার অ্যাকাউন্ট দিয়ে প্রবেশ করুন — পাঁচটি দুর্যোগ ওয়েবসাইটই আপনার জন্য অপেক্ষা করছে।",tabLogin:"লগইন",tabSignup:"সাইন আপ",tabForgot:"ভুলে গেছেন?",username:"ব্যবহারকারীর নাম",email:"ইমেল",emailPh:"e.g. name@example.com",password:"পাসওয়ার্ড",loginBtn:"লগইন করুন →",forgotQ:"পাসওয়ার্ড ভুলে গেছেন?",forgotLink:"Reset link নিন",newQ:"প্রথমবার এসেছেন?",signupLink:"নতুন অ্যাকাউন্ট তৈরি করুন",fullName:"পুরো নাম",chooseUser:"ব্যবহারকারীর নাম বেছে নিন",userHint:"এটি শুধু আপনার জন্য দেখানোর নাম — লগইনের জন্য লাগে না (লগইন ইমেল দিয়ে হবে)। 3–20 অক্ষর: অক্ষর, সংখ্যা বা _।",createPass:"পাসওয়ার্ড তৈরি করুন",passPh:"কমপক্ষে 6 অক্ষর",passAgain:"পাসওয়ার্ড আবার লিখুন",passAgainPh:"একই পাসওয়ার্ড আবার",signupBtn:"অ্যাকাউন্ট তৈরি করুন →",authNote:"🔒 আপনার অ্যাকাউন্ট <b>Google Firebase</b>-এর কাছে সুরক্ষিত থাকে — একবার সাইন আপ করুন, তারপর একই ইমেল ও পাসওয়ার্ড দিয়ে <b>যেকোনো ফোন বা কম্পিউটারে</b> লগইন করুন। আপনার পাসওয়ার্ড Google-এর কাছে নিরাপদ থাকে; এই পেজ তা কখনো সংরক্ষণ করে না। ভুলে গেলে 'ভুলে গেছেন?' ট্যাব চাপুন — ইমেলে reset link আসবে।",fgHint:"আপনার অ্যাকাউন্টের ইমেল লিখুন — আমরা আপনাকে নতুন পাসওয়ার্ড তৈরির link ইমেল করব।",resetBtn:"আমাকে reset link ইমেল করুন →",resetSent:"✅ Reset link পাঠানো হয়েছে! {email}-এ পাসওয়ার্ড বদলানোর link পাঠানো হয়েছে — সেই ইমেল খুলে link চাপুন, নতুন পাসওয়ার্ড তৈরি করুন, তারপর এখানে এসে লগইন করুন। (Inbox-এ না পেলে spam folder-ও দেখুন।)",welcome:"স্বাগতম, {name}! 👋",who:"@{user} · EarthPulse পরিবারে আপনাকে স্বাগত 🌍💓",logout:"লগআউট 🚪",dashIntro:"এই হলো আপনার <b>EarthPulse পরিবার</b> — পাঁচটি দুর্যোগ ওয়েবসাইট, প্রতিটির পাশে তার নিজের AI সঙ্গী ঘুরছে। যেকোনো বাক্সে চাপ দিলেই <b>সেই দুর্যোগের পুরো ওয়েবসাইট নতুন ট্যাবে</b> খুলে যাবে।",dashFoot:"🌍💓 EarthPulse India — ভারতের প্রতিটি দুর্যোগ, এক পরিবার। আসল সতর্কবার্তার জন্য সবসময় IMD / NDMA-র সরকারি তথ্যকেই চূড়ান্ত মানুন।",openLine:"ওয়েবসাইট খুলুন →",
+desc_fire:"NASA উপগ্রহ থেকে ভারতের আগুনের তাজা অবস্থা, 110টি বড় অগ্নিকাণ্ডের রেকর্ড এবং এলাকা অগ্নি-পরীক্ষা।",desc_flood:"নদীর জলস্তর, বন্যার 44টি যাচাইকৃত রেকর্ড এবং নিরাপত্তা পরামর্শ — জলের সঙ্গে।",desc_landslide:"পাহাড়ি এলাকায় ভূমিধসের ঝুঁকি, 47টি রেকর্ড এবং GSI ঝুঁকি অঞ্চল — ভূমির সঙ্গে।",desc_coldwave:"প্রচণ্ড ঠান্ডার 34টি পর্বের রেকর্ড, IMD তথ্য এবং ঠান্ডা থেকে সুরক্ষা — হিমের সঙ্গে।",desc_cyclone:"ঘূর্ণিঝড়ের 40টি রেকর্ড, গতিপথের মানচিত্র এবং উপকূলে আঘাতের গল্প — বায়ুর সঙ্গে।",
+bot_fire:["আমি অগ্নি! আগুনের খবর সবার আগে আমার কাছে 🔥","বাক্সে চাপ দিন — অগ্নি ওয়েবসাইট খুলে যাবে!"],bot_flood:["আমি জল! বন্যার জল আমার নজরে 🌊","চাপ দিন — বন্যা ওয়েবসাইট সব জানাবে!"],bot_landslide:["আমি ভূমি! পাহাড় কখন সরবে, আগে আমি জানি ⛰️","চাপ দিন — ভূমিধস ওয়েবসাইট খুলে যাবে!"],bot_coldwave:["আমি হিম! ঠান্ডা এলে প্রস্তুতি আমার দায়িত্ব ❄️","চাপ দিন — শৈত্যপ্রবাহ ওয়েবসাইট খুলে যাবে!"],bot_cyclone:["আমি বায়ু! ঝড় এলে সবার আগে আমি বলি 🌀","চাপ দিন — ঘূর্ণিঝড় ওয়েবসাইট খুলে যাবে!"],
+e_name:"নামটি খুব ছোট মনে হচ্ছে — অনুগ্রহ করে পুরো নাম লিখুন (কমপক্ষে 3 অক্ষর) 🙏",e_user:"অনুগ্রহ করে 3–20 অক্ষরের ব্যবহারকারীর নাম বেছে নিন, শুধু অক্ষর, সংখ্যা বা _ দিয়ে — যেমন keshav_01 👍",e_pass6:"অনুগ্রহ করে পাসওয়ার্ড কমপক্ষে 6 অক্ষরের করুন — শক্ত রাখুন 🔒",e_passmatch:"দুটি পাসওয়ার্ড মিলছে না — যাচাই করে আবার লিখুন 👀",e_noaccount:"এই ইমেলে কোনো অ্যাকাউন্ট পাওয়া যায়নি 🤔 — বানান যাচাই করুন, অথবা আগে সাইন আপ থেকে অ্যাকাউন্ট তৈরি করুন।",e_wrongpass:"পাসওয়ার্ড ভুল 😅 — আবার চেষ্টা করুন। ভুলে গেলে উপরের 'ভুলে গেছেন?' ট্যাবটি চাপুন।",e_emailUsed:"এই ইমেলটি আগেই নিবন্ধিত আছে 😅 — অনুগ্রহ করে এটি দিয়েই লগইন করুন, অথবা পাসওয়ার্ড ভুলে গেলে 'ভুলে গেছেন?' ট্যাব চাপুন।",e_emailBad:"এই ইমেল ঠিকানাটি ঠিক মনে হচ্ছে না 🤔 — অনুগ্রহ করে যাচাই করে সম্পূর্ণ ইমেল লিখুন, যেমন name@example.com।",e_weakpass:"এই পাসওয়ার্ডটি খুব দুর্বল 🔒 — অনুগ্রহ করে লম্বা ও শক্তিশালী পাসওয়ার্ড বেছে নিন (কমপক্ষে 6 অক্ষর; অক্ষর ও সংখ্যা মেশালে ভালো)।",e_badcred:"ইমেল বা পাসওয়ার্ড ভুল 😅 — দুটোই যাচাই করে আবার চেষ্টা করুন। পাসওয়ার্ড ভুলে গেলে উপরের 'ভুলে গেছেন?' ট্যাব চাপুন।",e_network:"অ্যাকাউন্ট সেবায় পৌঁছানো যায়নি 📡 — অনুগ্রহ করে আপনার internet connection যাচাই করে আবার চেষ্টা করুন।",e_toomany:"অনেকবার চেষ্টা হয়ে গেছে 🚦 — অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করে আবার চেষ্টা করুন।",e_generic:"কিছু একটা গণ্ডগোল হয়েছে 😅 — অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন। বারবার হলে আপনার internet connection যাচাই করুন।",e_profilefail:"আপনার অ্যাকাউন্ট তৈরি হয়েছে এবং আপনি লগইন আছেন ✅ — কিন্তু আপনার profile তথ্য এখন সংরক্ষণ করা যায়নি। অনুগ্রহ করে connection যাচাই করুন; সংরক্ষণ না হওয়া পর্যন্ত আপনার নাম ইমেল থেকে দেখাতে পারে।"},
+te:{langLabel:"🌐 భాష",tagline:"భారతదేశంలోని ప్రతి విపత్తు — ఒకే చోట, ఒకే కుటుంబం 🌍💓",subline:"అగ్ని · వరద · కొండచరియలు · శీతల తరంగం · తుఫాను — ఐదు వెబ్‌సైట్లు, ఐదుగురు AI సహచరులు, ఒకే ఇల్లు.",enter:"ప్రవేశించండి →",splashNote:"కొత్తగా వచ్చారా? ప్రవేశించండి నొక్కండి — ఒకసారి ఖాతా సృష్టించండి, ఆపై ప్రతిసారీ మీ పేరుతో స్వాగతం లభిస్తుంది 🙏",authSub:"మీ ఖాతాతో ప్రవేశించండి — ఐదు విపత్తు వెబ్‌సైట్లు మీ కోసం వేచి ఉన్నాయి.",tabLogin:"లాగిన్",tabSignup:"సైన్ అప్",tabForgot:"మర్చిపోయారా?",username:"వినియోగదారు పేరు",email:"ఇమెయిల్",emailPh:"e.g. name@example.com",password:"పాస్‌వర్డ్",loginBtn:"లాగిన్ చేయండి →",forgotQ:"పాస్‌వర్డ్ మర్చిపోయారా?",forgotLink:"Reset link పొందండి",newQ:"కొత్తగా వచ్చారా?",signupLink:"కొత్త ఖాతా సృష్టించండి",fullName:"పూర్తి పేరు",chooseUser:"వినియోగదారు పేరు ఎంచుకోండి",userHint:"ఇది మీ కోసం ప్రదర్శన పేరు మాత్రమే — లాగిన్ కోసం అవసరం లేదు (లాగిన్ ఇమెయిల్‌తో జరుగుతుంది). 3–20 అక్షరాలు: అక్షరాలు, సంఖ్యలు లేదా _.",createPass:"పాస్‌వర్డ్ సృష్టించండి",passPh:"కనీసం 6 అక్షరాలు",passAgain:"పాస్‌వర్డ్ మళ్లీ నమోదు చేయండి",passAgainPh:"అదే పాస్‌వర్డ్ మరోసారి",signupBtn:"ఖాతా సృష్టించండి →",authNote:"🔒 మీ ఖాతా <b>Google Firebase</b> వద్ద సురక్షితంగా ఉంటుంది — ఒకసారి సైన్ అప్ చేయండి, ఆపై అదే ఇమెయిల్ మరియు పాస్‌వర్డ్‌తో <b>ఏ ఫోన్ లేదా కంప్యూటర్‌లోనైనా</b> లాగిన్ చేయండి. మీ పాస్‌వర్డ్ Google వద్ద సురక్షితంగా ఉంటుంది; ఈ పేజీ దానిని ఎప్పుడూ నిల్వ చేయదు. మర్చిపోతే 'మర్చిపోయారా?' ట్యాబ్ నొక్కండి — ఇమెయిల్‌కు reset link వస్తుంది.",fgHint:"మీ ఖాతా ఇమెయిల్ నమోదు చేయండి — కొత్త పాస్‌వర్డ్ సృష్టించడానికి మేము మీకు link ఇమెయిల్ చేస్తాము.",resetBtn:"నాకు reset link ఇమెయిల్ చేయండి →",resetSent:"✅ Reset link పంపబడింది! {email} కు పాస్‌వర్డ్ మార్చే link పంపబడింది — ఆ ఇమెయిల్ తెరిచి link నొక్కండి, కొత్త పాస్‌వర్డ్ సృష్టించండి, ఆపై ఇక్కడికి వచ్చి లాగిన్ చేయండి. (Inboxలో కనిపించకపోతే spam folder కూడా చూడండి.)",welcome:"స్వాగతం, {name}! 👋",who:"@{user} · EarthPulse కుటుంబంలోకి మీకు స్వాగతం 🌍💓",logout:"లాగౌట్ 🚪",dashIntro:"ఇది మీ <b>EarthPulse కుటుంబం</b> — ఐదు విపత్తు వెబ్‌సైట్లు, ప్రతిదాని పక్కన దాని స్వంత AI సహచరుడు తిరుగుతూ ఉంటాడు. ఏ బాక్స్‌నైనా నొక్కితే <b>ఆ విపత్తు పూర్తి వెబ్‌సైట్ కొత్త ట్యాబ్‌లో</b> తెరుచుకుంటుంది.",dashFoot:"🌍💓 EarthPulse India — భారతదేశంలోని ప్రతి విపత్తు, ఒకే కుటుంబం. నిజమైన హెచ్చరికల కోసం ఎల్లప్పుడూ IMD / NDMA అధికారిక సమాచారాన్నే తుది నిర్ణయంగా భావించండి.",openLine:"వెబ్‌సైట్ తెరవండి →",
+desc_fire:"NASA ఉపగ్రహాల నుండి భారతదేశ అగ్ని పరిస్థితి ప్రత్యక్షంగా, 110 ప్రధాన అగ్ని రికార్డులు మరియు ప్రాంత అగ్ని-తనిఖీ.",desc_flood:"నదుల నీటి మట్టాలు, 44 ధృవీకరించిన వరద రికార్డులు మరియు భద్రతా మార్గదర్శకత్వం — జల్‌తో.",desc_landslide:"కొండ ప్రాంతాల్లో కొండచరియల ప్రమాదం, 47 రికార్డులు మరియు GSI ప్రమాద మండలాలు — భూమితో.",desc_coldwave:"34 తీవ్ర శీతల పর্বాల రికార్డులు, IMD సమాచారం మరియు చలి నుండి రక్షణ — హిమ్‌తో.",desc_cyclone:"40 తుఫాను రికార్డులు, మార్గ పటాలు మరియు తీరప్రవేశ కథలు — వాయుతో.",
+bot_fire:["నేను అగ్ని! అగ్ని వార్తలు ముందు నాకే చేరుతాయి 🔥","బాక్స్ నొక్కండి — అగ్ని వెబ్‌సైట్ తెరుచుకుంటుంది!"],bot_flood:["నేను జల్! వరద నీరు ఎప్పుడూ నా దృష్టిలో 🌊","ఇక్కడ నొక్కండి — వరద వెబ్‌సైట్ అన్నీ చెబుతుంది!"],bot_landslide:["నేను భూమి! కొండ జారడాన్ని ఎవరికంటే ముందు నేను గ్రహిస్తాను ⛰️","ఇక్కడ నొక్కండి — కొండచరియల వెబ్‌సైట్ తెరుచుకుంటుంది!"],bot_coldwave:["నేను హిమ్! చలి వస్తే సిద్ధంగా ఉండటం నా బాధ్యత ❄️","ఇక్కడ నొక్కండి — శీతల తరంగం వెబ్‌సైట్ తెరుచుకుంటుంది!"],bot_cyclone:["నేను వాయు! తుఫాను వస్తే ముందు నేనే మాట్లాడతాను 🌀","ఇక్కడ నొక్కండి — తుఫాను వెబ్‌సైట్ తెరుచుకుంటుంది!"],
+e_name:"మీ పేరు చాలా చిన్నగా ఉంది — దయచేసి పూర్తి పేరు రాయండి (కనీసం 3 అక్షరాలు) 🙏",e_user:"దయచేసి 3–20 అక్షరాల వినియోగదారు పేరు ఎంచుకోండి, అక్షరాలు, సంఖ్యలు లేదా _ మాత్రమే — ఉదా. keshav_01 👍",e_pass6:"దయచేసి పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండేలా చేయండి — బలంగా ఉంచండి 🔒",e_passmatch:"రెండు పాస్‌వర్డ్‌లు సరిపోలలేదు — తనిఖీ చేసి మళ్లీ నమోదు చేయండి 👀",e_noaccount:"ఈ ఇమెయిల్‌తో ఖాతా కనుగొనబడలేదు 🤔 — స్పెల్లింగ్ తనిఖీ చేయండి, లేదా ముందు సైన్ అప్ నుండి ఖాతా సృష్టించండి.",e_wrongpass:"పాస్‌వర్డ్ తప్పు 😅 — మళ్లీ ప్రయత్నించండి. మర్చిపోతే పైన ఉన్న 'మర్చిపోయారా?' ట్యాబ్ నొక్కండి.",e_emailUsed:"ఈ ఇమెయిల్ ఇప్పటికే నమోదు చేయబడింది 😅 — దయచేసి దీనితోనే లాగిన్ చేయండి, లేదా పాస్‌వర్డ్ మర్చిపోతే 'మర్చిపోయారా?' ట్యాబ్ నొక్కండి.",e_emailBad:"ఈ ఇమెయిల్ చిరునామా సరిగ్గా లేదు 🤔 — దయచేసి తనిఖీ చేసి పూర్తి ఇమెయిల్ రాయండి, ఉదా. name@example.com.",e_weakpass:"ఈ పాస్‌వర్డ్ చాలా బలహీనంగా ఉంది 🔒 — దయచేసి పొడవైన, బలమైన పాస్‌వర్డ్ ఎంచుకోండి (కనీసం 6 అక్షరాలు; అక్షరాలు, సంఖ్యలు కలిపితే మంచిది).",e_badcred:"ఇమెయిల్ లేదా పాస్‌వర్డ్ తప్పు 😅 — రెండూ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి. పాస్‌వర్డ్ మర్చిపోతే పైన ఉన్న 'మర్చిపోయారా?' ట్యాబ్ నొక్కండి.",e_network:"ఖాతా సేవను చేరుకోలేకపోయాము 📡 — దయచేసి మీ internet connection తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",e_toomany:"చాలా ప్రయత్నాలు అయ్యాయి 🚦 — దయచేసి కొంతసేపు ఆగి మళ్లీ ప్రయత్నించండి.",e_generic:"ఏదో తప్పు జరిగింది 😅 — దయచేసి కొంతసేపటి తర్వాత మళ్లీ ప్రయత్నించండి. మళ్లీ మళ్లీ జరిగితే మీ internet connection తనిఖీ చేయండి.",e_profilefail:"మీ ఖాతా సృష్టించబడింది మరియు మీరు లాగిన్ అయ్యారు ✅ — కానీ మీ profile వివరాలు ఇప్పుడు నిల్వ చేయలేకపోయాము. దయచేసి connection తనిఖీ చేయండి; నిల్వ అయ్యే వరకు మీ పేరు ఇమెయిల్ నుండి కనిపించవచ్చు."},
+mr:{langLabel:"🌐 भाषा",tagline:"भारताची प्रत्येक आपत्ती — एकाच ठिकाणी, एकच परिवार 🌍💓",subline:"आग · पूर · भूस्खलन · थंडीची लाट · चक्रीवादळ — पाच वेबसाइट, पाच AI साथी, एकच घर.",enter:"प्रवेश करा →",splashNote:"पहिल्यांदा आलात? प्रवेश दाबा — एकदा खाते तयार करा, मग प्रत्येक वेळी तुमच्या नावाने स्वागत होईल 🙏",authSub:"तुमच्या खात्याने प्रवेश करा — पाचही आपत्ती वेबसाइट तुमची वाट पाहत आहेत.",tabLogin:"लॉगिन",tabSignup:"साइन अप",tabForgot:"विसरलात?",username:"वापरकर्तानाव",email:"ईमेल",emailPh:"e.g. name@example.com",password:"पासवर्ड",loginBtn:"लॉगिन करा →",forgotQ:"पासवर्ड विसरलात?",forgotLink:"Reset link मिळवा",newQ:"पहिल्यांदा आलात?",signupLink:"नवीन खाते तयार करा",fullName:"पूर्ण नाव",chooseUser:"वापरकर्तानाव निवडा",userHint:"हे फक्त तुमच्यासाठी दाखवायचे नाव आहे — लॉगिनसाठी लागत नाही (लॉगिन ईमेलने होईल). 3–20 अक्षरे: अक्षरे, अंक किंवा _.",createPass:"पासवर्ड तयार करा",passPh:"किमान 6 अक्षरे",passAgain:"पासवर्ड पुन्हा टाका",passAgainPh:"तोच पासवर्ड पुन्हा",signupBtn:"खाते तयार करा →",authNote:"🔒 तुमचे खाते <b>Google Firebase</b> कडे सुरक्षित राहते — एकदा साइन अप करा, मग त्याच ईमेल आणि पासवर्डने <b>कोणत्याही फोन किंवा संगणकावर</b> लॉगिन करा. तुमचा पासवर्ड Google कडे सुरक्षित राहतो; हे पान तो कधीही जतन करत नाही. विसरलात तर 'विसरलात?' टॅब दाबा — ईमेलवर reset link येईल.",fgHint:"तुमच्या खात्याचा ईमेल टाका — आम्ही तुम्हाला नवीन पासवर्ड तयार करण्यासाठी link ईमेल करू.",resetBtn:"मला reset link ईमेल करा →",resetSent:"✅ Reset link पाठवला! {email} वर पासवर्ड बदलण्याचा link पाठवला आहे — तो ईमेल उघडून link दाबा, नवीन पासवर्ड तयार करा, मग येथे येऊन लॉगिन करा. (Inbox मध्ये न सापडल्यास spam folder देखील पहा.)",welcome:"स्वागत आहे, {name}! 👋",who:"@{user} · EarthPulse परिवारात तुमचे स्वागत आहे 🌍💓",logout:"लॉगआउट 🚪",dashIntro:"हा तुमचा <b>EarthPulse परिवार</b> आहे — पाचही आपत्ती वेबसाइट, प्रत्येकीच्या बाजूला तिचा स्वतःचा AI साथी फिरत आहे. कोणत्याही बॉक्सवर दाबा आणि <b>त्या आपत्तीची संपूर्ण वेबसाइट नवीन टॅबमध्ये</b> उघडेल.",dashFoot:"🌍💓 EarthPulse India — भारताची प्रत्येक आपत्ती, एकच परिवार. खऱ्या इशाऱ्यांसाठी नेहमी IMD / NDMA ची अधिकृत माहितीच अंतिम माना.",openLine:"वेबसाइट उघडा →",
+desc_fire:"NASA उपग्रहांवरून भारतातील आगीची थेट स्थिती, 110 मोठे अग्नि अभिलेख आणि परिसर अग्नि-तपासणी.",desc_flood:"नद्यांच्या पाणीपातळ्या, पुराचे 44 पडताळलेले अभिलेख आणि सुरक्षा मार्गदर्शन — जलसोबत.",desc_landslide:"डोंगराळ भागात भूस्खलनाचा धोका, 47 अभिलेख आणि GSI धोका क्षेत्रे — भूमीसोबत.",desc_coldwave:"तीव्र थंडीच्या 34 लाटांचे अभिलेख, IMD माहिती आणि थंडीपासून संरक्षण — हिमसोबत.",desc_cyclone:"चक्रीवादळांचे 40 अभिलेख, मार्ग नकाशे आणि किनारपट्टीच्या कथा — वायूसोबत.",
+bot_fire:["मी अग्नी! आगीची बातमी आधी माझ्याकडे 🔥","बॉक्सवर दाबा — अग्नी वेबसाइट उघडेल!"],bot_flood:["मी जल! पुराचे पाणी नेहमी माझ्या नजरेत 🌊","येथे दाबा — पूर वेबसाइट सर्व सांगेल!"],bot_landslide:["मी भूमी! डोंगर कधी सरकेल, आधी मी ओळखते ⛰️","येथे दाबा — भूस्खलन वेबसाइट उघडेल!"],bot_coldwave:["मी हिम! थंडी आली की तयारी माझी जबाबदारी ❄️","येथे दाबा — थंडीची लाट वेबसाइट उघडेल!"],bot_cyclone:["मी वायू! वादळ आले की आधी मी बोलतो 🌀","येथे दाबा — चक्रीवादळ वेबसाइट उघडेल!"],
+e_name:"तुमचे नाव खूप लहान वाटते — कृपया पूर्ण नाव लिहा (किमान 3 अक्षरे) 🙏",e_user:"कृपया 3–20 अक्षरांचे वापरकर्तानाव निवडा, फक्त अक्षरे, अंक किंवा _ सह — उदा. keshav_01 👍",e_pass6:"कृपया पासवर्ड किमान 6 अक्षरांचा ठेवा — मजबूत ठेवा 🔒",e_passmatch:"दोन्ही पासवर्ड जुळत नाहीत — तपासून पुन्हा टाका 👀",e_noaccount:"या ईमेलचे खाते सापडले नाही 🤔 — अक्षरलेखन तपासा, किंवा आधी साइन अपमधून खाते तयार करा.",e_wrongpass:"पासवर्ड चुकीचा आहे 😅 — पुन्हा प्रयत्न करा. विसरला असाल तर वरील 'विसरलात?' टॅब दाबा.",e_emailUsed:"हा ईमेल आधीच नोंदणीकृत आहे 😅 — कृपया यानेच लॉगिन करा, किंवा पासवर्ड विसरला असाल तर 'विसरलात?' टॅब दाबा.",e_emailBad:"हा ईमेल पत्ता बरोबर वाटत नाही 🤔 — कृपया तपासून पूर्ण ईमेल लिहा, उदा. name@example.com.",e_weakpass:"हा पासवर्ड खूप कमकुवत आहे 🔒 — कृपया लांब व मजबूत पासवर्ड निवडा (किमान 6 अक्षरे; अक्षरे व अंक मिसळल्यास उत्तम).",e_badcred:"ईमेल किंवा पासवर्ड चुकीचा आहे 😅 — दोन्ही तपासून पुन्हा प्रयत्न करा. पासवर्ड विसरला असाल तर वरील 'विसरलात?' टॅब दाबा.",e_network:"खाते सेवेपर्यंत पोहोचता आले नाही 📡 — कृपया तुमचे internet connection तपासून पुन्हा प्रयत्न करा.",e_toomany:"खूप प्रयत्न झाले 🚦 — कृपया थोडा वेळ थांबून पुन्हा प्रयत्न करा.",e_generic:"काहीतरी चूक झाली 😅 — कृपया थोड्या वेळाने पुन्हा प्रयत्न करा. वारंवार होत असल्यास तुमचे internet connection तपासा.",e_profilefail:"तुमचे खाते तयार झाले आहे आणि तुम्ही लॉगिन आहात ✅ — पण तुमची profile माहिती आत्ता जतन करता आली नाही. कृपया connection तपासा; जतन होईपर्यंत तुमचे नाव ईमेलवरून दिसू शकते."},
+ta:{langLabel:"🌐 மொழி",tagline:"இந்தியாவின் ஒவ்வொரு பேரிடரும் — ஒரே இடத்தில், ஒரே குடும்பம் 🌍💓",subline:"தீ · வெள்ளம் · நிலச்சரிவு · குளிர் அலை · சூறாவளி — ஐந்து இணையதளங்கள், ஐந்து AI துணைவர்கள், ஒரே வீடு.",enter:"உள்ளே செல்லவும் →",splashNote:"புதிதாக வருகிறீர்களா? உள்ளே செல்லவும் அழுத்தவும் — ஒருமுறை கணக்கை உருவாக்கவும், பின் ஒவ்வொரு முறையும் உங்கள் பெயரால் வரவேற்கப்படுவீர்கள் 🙏",authSub:"உங்கள் கணக்குடன் உள்நுழையவும் — ஐந்து பேரிடர் இணையதளங்களும் உங்களுக்காகக் காத்திருக்கின்றன.",tabLogin:"உள்நுழைவு",tabSignup:"பதிவு செய்க",tabForgot:"மறந்துவிட்டதா?",username:"பயனர் பெயர்",email:"மின்னஞ்சல்",emailPh:"e.g. name@example.com",password:"கடவுச்சொல்",loginBtn:"உள்நுழையவும் →",forgotQ:"கடவுச்சொல்லை மறந்துவிட்டீர்களா?",forgotLink:"Reset link பெறவும்",newQ:"புதிதாக வருகிறீர்களா?",signupLink:"கணக்கை உருவாக்கவும்",fullName:"முழுப் பெயர்",chooseUser:"பயனர் பெயரைத் தேர்ந்தெடுக்கவும்",userHint:"இது உங்களுக்கான காட்சிப் பெயர் மட்டுமே — உள்நுழைவுக்குத் தேவையில்லை (உள்நுழைவு மின்னஞ்சலால்). 3–20 எழுத்துகள்: எழுத்துகள், எண்கள் அல்லது _.",createPass:"கடவுச்சொல்லை உருவாக்கவும்",passPh:"குறைந்தது 6 எழுத்துகள்",passAgain:"கடவுச்சொல்லை மீண்டும் உள்ளிடவும்",passAgainPh:"அதே கடவுச்சொல் மீண்டும்",signupBtn:"கணக்கை உருவாக்கவும் →",authNote:"🔒 உங்கள் கணக்கு <b>Google Firebase</b>-இடம் பாதுகாப்பாக உள்ளது — ஒருமுறை பதிவு செய்யுங்கள், பின்னர் அதே மின்னஞ்சல் மற்றும் கடவுச்சொல்லால் <b>எந்த தொலைபேசி அல்லது கணினியிலும்</b> உள்நுழையுங்கள். உங்கள் கடவுச்சொல் Google-இடம் பாதுகாப்பாக உள்ளது; இந்தப் பக்கம் அதை ஒருபோதும் சேமிப்பதில்லை. மறந்துவிட்டால் 'மறந்துவிட்டதா?' தாவலை அழுத்தவும் — மின்னஞ்சலுக்கு reset link வரும்.",fgHint:"உங்கள் கணக்கின் மின்னஞ்சலை உள்ளிடவும் — புதிய கடவுச்சொல்லை உருவாக்க நாங்கள் உங்களுக்கு link மின்னஞ்சல் செய்வோம்.",resetBtn:"எனக்கு reset link மின்னஞ்சல் செய்யவும் →",resetSent:"✅ Reset link அனுப்பப்பட்டது! {email}-க்கு கடவுச்சொல்லை மாற்றும் link அனுப்பப்பட்டுள்ளது — அந்த மின்னஞ்சலைத் திறந்து link-ஐ அழுத்தி, புதிய கடவுச்சொல்லை உருவாக்கி, பின் இங்கு வந்து உள்நுழையவும். (Inbox-இல் இல்லையெனில் spam folder-ஐயும் பார்க்கவும்.)",welcome:"வரவேற்கிறோம், {name}! 👋",who:"@{user} · EarthPulse குடும்பத்திற்கு உங்களை வரவேற்கிறோம் 🌍💓",logout:"வெளியேறு 🚪",dashIntro:"இது உங்கள் <b>EarthPulse குடும்பம்</b> — ஐந்து பேரிடர் இணையதளங்கள், ஒவ்வொன்றின் அருகிலும் அதன் சொந்த AI துணைவர் நகர்ந்துகொண்டிருக்கிறார். எந்தப் பெட்டியையும் தட்டினால் <b>அந்தப் பேரிடரின் முழு இணையதளம் புதிய தாவலில்</b> திறக்கும்.",dashFoot:"🌍💓 EarthPulse India — இந்தியாவின் ஒவ்வொரு பேரிடரும், ஒரே குடும்பம். உண்மையான எச்சரிக்கைகளுக்கு எப்போதும் IMD / NDMA அதிகாரப்பூர்வ தகவலையே இறுதியாகக் கருதவும்.",openLine:"இணையதளத்தைத் திறக்கவும் →",
+desc_fire:"NASA செயற்கைக்கோள்களிலிருந்து இந்தியாவின் நேரடி தீ நிலைமை, 110 முக்கிய தீ பதிவுகள் மற்றும் பகுதி தீ-சோதனை.",desc_flood:"ஆற்று நீர்மட்டங்கள், 44 சரிபார்க்கப்பட்ட வெள்ளப் பதிவுகள் மற்றும் பாதுகாப்பு வழிகாட்டுதல் — ஜலுடன்.",desc_landslide:"மலைப் பகுதிகளில் நிலச்சரிவு அபாயம், 47 பதிவுகள் மற்றும் GSI அபாய மண்டலங்கள் — பூமியுடன்.",desc_coldwave:"34 கடும் குளிர் அலை பதிவுகள், IMD தகவல் மற்றும் குளிரிலிருந்து பாதுகாப்பு — ஹிமுடன்.",desc_cyclone:"40 சூறாவளிப் பதிவுகள், பாதை வரைபடங்கள் மற்றும் கரையைத் தாக்கும் கதைகள் — வாயுவுடன்.",
+bot_fire:["நான் அக்னி! தீ செய்தி முதலில் என்னிடம் 🔥","பெட்டியைத் தட்டவும் — தீ இணையதளம் திறக்கும்!"],bot_flood:["நான் ஜல்! வெள்ள நீர் எப்போதும் என் பார்வையில் 🌊","இங்கே தட்டவும் — வெள்ள இணையதளம் எல்லாம் சொல்லும்!"],bot_landslide:["நான் பூமி! மலை சரிவதை முதலில் நான் உணர்வேன் ⛰️","இங்கே தட்டவும் — நிலச்சரிவு இணையதளம் திறக்கும்!"],bot_coldwave:["நான் ஹிம்! குளிர் வந்தால் தயார்நிலை என் பொறுப்பு ❄️","இங்கே தட்டவும் — குளிர் அலை இணையதளம் திறக்கும்!"],bot_cyclone:["நான் வாயு! புயல் வந்தால் முதலில் நான் பேசுவேன் 🌀","இங்கே தட்டவும் — சூறாவளி இணையதளம் திறக்கும்!"],
+e_name:"உங்கள் பெயர் மிகக் குறுகியதாக உள்ளது — முழுப் பெயரை எழுதவும் (குறைந்தது 3 எழுத்துகள்) 🙏",e_user:"3–20 எழுத்துகள் கொண்ட பயனர் பெயரைத் தேர்ந்தெடுக்கவும், எழுத்துகள், எண்கள் அல்லது _ மட்டும் — எ.கா. keshav_01 👍",e_pass6:"கடவுச்சொல்லைக் குறைந்தது 6 எழுத்துகளாக ஆக்கவும் — வலுவாக வைக்கவும் 🔒",e_passmatch:"இரண்டு கடவுச்சொற்களும் பொருந்தவில்லை — சரிபார்த்து மீண்டும் உள்ளிடவும் 👀",e_noaccount:"இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை 🤔 — எழுத்துப்பிழையைச் சரிபார்க்கவும், அல்லது முதலில் பதிவிலிருந்து கணக்கை உருவாக்கவும்.",e_wrongpass:"தவறான கடவுச்சொல் 😅 — மீண்டும் முயற்சிக்கவும். மறந்திருந்தால் மேலே உள்ள 'மறந்துவிட்டதா?' தாவலை அழுத்தவும்.",e_emailUsed:"இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது 😅 — இதனாலேயே உள்நுழையவும், அல்லது கடவுச்சொல்லை மறந்திருந்தால் 'மறந்துவிட்டதா?' தாவலை அழுத்தவும்.",e_emailBad:"இந்த மின்னஞ்சல் முகவரி சரியாக இல்லை 🤔 — சரிபார்த்து முழு மின்னஞ்சலை எழுதவும், எ.கா. name@example.com.",e_weakpass:"இந்தக் கடவுச்சொல் மிகவும் பலவீனமானது 🔒 — நீளமான, வலுவான கடவுச்சொல்லைத் தேர்ந்தெடுக்கவும் (குறைந்தது 6 எழுத்துகள்; எழுத்துகளும் எண்களும் கலந்தால் சிறந்தது).",e_badcred:"மின்னஞ்சல் அல்லது கடவுச்சொல் தவறு 😅 — இரண்டையும் சரிபார்த்து மீண்டும் முயற்சிக்கவும். கடவுச்சொல்லை மறந்திருந்தால் மேலே உள்ள 'மறந்துவிட்டதா?' தாவலை அழுத்தவும்.",e_network:"கணக்குச் சேவையை அடைய முடியவில்லை 📡 — உங்கள் internet connection-ஐச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",e_toomany:"பல முயற்சிகள் ஆகிவிட்டன 🚦 — சிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.",e_generic:"ஏதோ தவறு நடந்துவிட்டது 😅 — சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும். தொடர்ந்து நடந்தால் உங்கள் internet connection-ஐச் சரிபார்க்கவும்.",e_profilefail:"உங்கள் கணக்கு உருவாக்கப்பட்டது, நீங்கள் உள்நுழைந்துள்ளீர்கள் ✅ — ஆனால் உங்கள் profile விவரங்களை இப்போது சேமிக்க முடியவில்லை. Connection-ஐச் சரிபார்க்கவும்; சேமிக்கும் வரை உங்கள் பெயர் மின்னஞ்சலிலிருந்து காட்டப்படலாம்."},
+ur:{langLabel:"🌐 زبان",tagline:"بھارت کی ہر آفت — ایک جگہ، ایک خاندان 🌍💓",subline:"آگ · سیلاب · لینڈ سلائیڈ · سرد لہر · سمندری طوفان — پانچ ویب سائٹس، پانچ AI ساتھی، ایک گھر۔",enter:"داخل ہوں →",splashNote:"پہلی بار آئے ہیں؟ داخل ہوں دبائیں — ایک بار اکاؤنٹ بنائیں، پھر ہر بار آپ کے نام سے خوش آمدید ہوگا 🙏",authSub:"اپنے اکاؤنٹ سے داخل ہوں — پانچوں آفات کی ویب سائٹس آپ کا انتظار کر رہی ہیں۔",tabLogin:"لاگ ان",tabSignup:"سائن اپ",tabForgot:"بھول گئے؟",username:"صارف نام",email:"ای میل",emailPh:"e.g. name@example.com",password:"پاس ورڈ",loginBtn:"لاگ ان کریں →",forgotQ:"پاس ورڈ بھول گئے؟",forgotLink:"Reset link حاصل کریں",newQ:"پہلی بار آئے ہیں؟",signupLink:"نیا اکاؤنٹ بنائیں",fullName:"پورا نام",chooseUser:"صارف نام منتخب کریں",userHint:"یہ صرف آپ کے لیے دکھائی دینے والا نام ہے — لاگ ان کے لیے ضروری نہیں (لاگ ان ای میل سے ہوگا)۔ 3 سے 20 حروف: حروف، اعداد یا _۔",createPass:"پاس ورڈ بنائیں",passPh:"کم از کم 6 حروف",passAgain:"پاس ورڈ دوبارہ درج کریں",passAgainPh:"وہی پاس ورڈ ایک بار پھر",signupBtn:"اکاؤنٹ بنائیں →",authNote:"🔒 آپ کا اکاؤنٹ <b>Google Firebase</b> کے پاس محفوظ رہتا ہے — ایک بار سائن اپ کریں، پھر اسی ای میل اور پاس ورڈ سے <b>کسی بھی فون یا کمپیوٹر</b> پر لاگ ان کریں۔ آپ کا پاس ورڈ Google کے پاس محفوظ رہتا ہے؛ یہ صفحہ اسے کبھی محفوظ نہیں کرتا۔ بھول جائیں تو 'بھول گئے؟' ٹیب دبائیں — ای میل پر reset link آئے گا۔",fgHint:"اپنے اکاؤنٹ کی ای میل درج کریں — ہم آپ کو نیا پاس ورڈ بنانے کے لیے link ای میل کریں گے۔",resetBtn:"مجھے reset link ای میل کریں →",resetSent:"✅ Reset link بھیج دیا گیا! {email} پر پاس ورڈ بدلنے کا link بھیجا گیا ہے — وہ ای میل کھول کر link دبائیں، نیا پاس ورڈ بنائیں، پھر یہاں آ کر لاگ ان کریں۔ (Inbox میں نہ ملے تو spam folder بھی دیکھیں۔)",welcome:"خوش آمدید، {name}! 👋",who:"@{user} · EarthPulse خاندان میں آپ کا خیرمقدم ہے 🌍💓",logout:"لاگ آؤٹ 🚪",dashIntro:"یہ آپ کا <b>EarthPulse خاندان</b> ہے — پانچوں آفات کی ویب سائٹس، ہر ایک کے ساتھ اس کا اپنا AI ساتھی گھوم رہا ہے۔ کسی بھی خانے پر دبائیں اور <b>اس آفت کی مکمل ویب سائٹ نئے ٹیب میں</b> کھل جائے گی۔",dashFoot:"🌍💓 EarthPulse India — بھارت کی ہر آفت، ایک خاندان۔ اصل وارننگ کے لیے ہمیشہ IMD / NDMA کی سرکاری معلومات کو ہی حتمی مانیں۔",openLine:"ویب سائٹ کھولیں →",
+desc_fire:"NASA سٹیلائٹ سے بھارت کی آگ کی براہ راست صورتحال، 110 بڑے آگ ریکارڈ اور علاقائی آگ جانچ۔",desc_flood:"دریاؤں کی پانی کی سطح، سیلاب کے 44 تصدیق شدہ ریکارڈ اور حفاظتی رہنمائی — جل کے ساتھ۔",desc_landslide:"پہاڑی علاقوں میں لینڈ سلائیڈ کا خطرہ، 47 ریکارڈ اور GSI خطرہ زون — بھومی کے ساتھ۔",desc_coldwave:"شدید سردی کے 34 ادوار کا ریکارڈ، IMD معلومات اور سردی سے تحفظ — ہم کے ساتھ۔",desc_cyclone:"سمندری طوفانوں کے 40 ریکارڈ، راستہ نقشے اور ساحل سے ٹکرانے کی کہانیاں — وایو کے ساتھ۔",
+bot_fire:["میں اگنی ہوں! آگ کی خبر سب سے پہلے میرے پاس 🔥","خانے پر دبائیں — آگ کی ویب سائٹ کھل جائے گی!"],bot_flood:["میں جل ہوں! سیلاب کا پانی میری نظر میں ہے 🌊","یہاں دبائیں — سیلاب کی ویب سائٹ سب بتائے گی!"],bot_landslide:["میں بھومی ہوں! پہاڑ کب کھسکے، پہلے میں جانتی ہوں ⛰️","یہاں دبائیں — لینڈ سلائیڈ ویب سائٹ کھل جائے گی!"],bot_coldwave:["میں ہم ہوں! سردی آئے تو تیاری میری ذمہ داری ❄️","یہاں دبائیں — سرد لہر ویب سائٹ کھل جائے گی!"],bot_cyclone:["میں وایو ہوں! طوفان آئے تو سب سے پہلے میں بولوں 🌀","یہاں دبائیں — سمندری طوفان ویب سائٹ کھل جائے گی!"],
+e_name:"آپ کا نام بہت چھوٹا لگ رہا ہے — براہ کرم پورا نام لکھیں (کم از کم 3 حروف) 🙏",e_user:"براہ کرم 3 سے 20 حروف کا صارف نام منتخب کریں، صرف حروف، اعداد یا _ کے ساتھ — جیسے keshav_01 👍",e_pass6:"براہ کرم پاس ورڈ کم از کم 6 حروف کا بنائیں — اسے مضبوط رکھیں 🔒",e_passmatch:"دونوں پاس ورڈ ایک جیسے نہیں ہیں — جانچ کر دوبارہ درج کریں 👀",e_noaccount:"اس ای میل کا کوئی اکاؤنٹ نہیں ملا 🤔 — ہجے جانچیں، یا پہلے سائن اپ سے اکاؤنٹ بنائیں۔",e_wrongpass:"پاس ورڈ غلط ہے 😅 — دوبارہ کوشش کریں۔ بھول گئے ہوں تو اوپر 'بھول گئے؟' والا ٹیب دبائیں۔",e_emailUsed:"یہ ای میل پہلے سے رجسٹرڈ ہے 😅 — براہ کرم اسی سے لاگ ان کریں، یا پاس ورڈ بھول گئے ہوں تو 'بھول گئے؟' ٹیب دبائیں۔",e_emailBad:"یہ ای میل پتہ درست نہیں لگ رہا 🤔 — براہ کرم جانچ کر مکمل ای میل لکھیں، جیسے name@example.com۔",e_weakpass:"یہ پاس ورڈ بہت کمزور ہے 🔒 — براہ کرم لمبا اور مضبوط پاس ورڈ منتخب کریں (کم از کم 6 حروف؛ حروف اور اعداد ملائیں تو بہتر ہے)۔",e_badcred:"ای میل یا پاس ورڈ غلط ہے 😅 — براہ کرم دونوں جانچ کر دوبارہ کوشش کریں۔ پاس ورڈ بھول گئے ہوں تو اوپر 'بھول گئے؟' ٹیب دبائیں۔",e_network:"اکاؤنٹ سروس تک رسائی نہیں ہو سکی 📡 — براہ کرم اپنا internet connection جانچ کر دوبارہ کوشش کریں۔",e_toomany:"بہت زیادہ کوششیں ہو گئی ہیں 🚦 — براہ کرم تھوڑی دیر انتظار کر کے دوبارہ کوشش کریں۔",e_generic:"کچھ گڑبڑ ہو گئی 😅 — براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔ بار بار ہو تو اپنا internet connection جانچیں۔",e_profilefail:"آپ کا اکاؤنٹ بن گیا ہے اور آپ لاگ ان ہیں ✅ — لیکن آپ کی profile تفصیلات ابھی محفوظ نہیں ہو سکیں۔ براہ کرم connection جانچیں؛ محفوظ ہونے تک آپ کا نام ای میل سے دکھ سکتا ہے۔"},
+gu:{langLabel:"🌐 ભાષા",tagline:"ભારતની દરેક આપત્તિ — એક જ જગ્યાએ, એક જ પરિવાર 🌍💓",subline:"આગ · પૂર · ભૂસ્ખલન · ઠંડીની લહેર · ચક્રવાત — પાંચ વેબસાઇટ, પાંચ AI સાથી, એક ઘર.",enter:"પ્રવેશ કરો →",splashNote:"પહેલી વાર આવ્યા છો? પ્રવેશ દબાવો — એકવાર ખાતું બનાવો, પછી દરેક વખતે તમારા નામથી સ્વાગત થશે 🙏",authSub:"તમારા ખાતાથી પ્રવેશ કરો — પાંચેય આપત્તિ વેબસાઇટ તમારી રાહ જોઈ રહી છે.",tabLogin:"લૉગિન",tabSignup:"સાઇન અપ",tabForgot:"ભૂલી ગયા?",username:"વપરાશકર્તા નામ",email:"ઈમેલ",emailPh:"e.g. name@example.com",password:"પાસવર્ડ",loginBtn:"લૉગિન કરો →",forgotQ:"પાસવર્ડ ભૂલી ગયા?",forgotLink:"Reset link મેળવો",newQ:"પહેલી વાર આવ્યા છો?",signupLink:"નવું ખાતું બનાવો",fullName:"પૂરું નામ",chooseUser:"વપરાશકર્તા નામ પસંદ કરો",userHint:"આ ફક્ત તમારા માટે દેખાડવાનું નામ છે — લૉગિન માટે જરૂરી નથી (લૉગિન ઈમેલથી થશે). 3–20 અક્ષરો: અક્ષરો, આંકડા કે _.",createPass:"પાસવર્ડ બનાવો",passPh:"ઓછામાં ઓછા 6 અક્ષરો",passAgain:"પાસવર્ડ ફરી નાખો",passAgainPh:"એ જ પાસવર્ડ ફરી",signupBtn:"ખાતું બનાવો →",authNote:"🔒 તમારું ખાતું <b>Google Firebase</b> પાસે સુરક્ષિત રહે છે — એક વાર સાઇન અપ કરો, પછી એ જ ઈમેલ અને પાસવર્ડથી <b>કોઈપણ ફોન કે કમ્પ્યુટર</b> પર લૉગિન કરો. તમારો પાસવર્ડ Google પાસે સુરક્ષિત રહે છે; આ પેજ તેને ક્યારેય સાચવતું નથી. ભૂલી જાઓ તો 'ભૂલી ગયા?' ટૅબ દબાવો — ઈમેલ પર reset link આવશે.",fgHint:"તમારા ખાતાનો ઈમેલ નાખો — અમે તમને નવો પાસવર્ડ બનાવવા માટે link ઈમેલ કરીશું.",resetBtn:"મને reset link ઈમેલ કરો →",resetSent:"✅ Reset link મોકલી દીધો! {email} પર પાસવર્ડ બદલવાનો link મોકલ્યો છે — તે ઈમેલ ખોલીને link દબાવો, નવો પાસવર્ડ બનાવો, પછી અહીં આવીને લૉગિન કરો. (Inboxમાં ન મળે તો spam folder પણ જુઓ.)",welcome:"સ્વાગત છે, {name}! 👋",who:"@{user} · EarthPulse પરિવારમાં તમારું સ્વાગત છે 🌍💓",logout:"લૉગઆઉટ 🚪",dashIntro:"આ તમારો <b>EarthPulse પરિવાર</b> છે — પાંચેય આપત્તિ વેબસાઇટ, દરેકની સાથે તેનો પોતાનો AI સાથી ફરે છે. કોઈપણ બૉક્સ પર દબાવો અને <b>એ આપત્તિની આખી વેબસાઇટ નવા ટૅબમાં</b> ખૂલી જશે.",dashFoot:"🌍💓 EarthPulse India — ભારતની દરેક આપત્તિ, એક પરિવાર. સાચી ચેતવણી માટે હંમેશા IMD / NDMA ની સત્તાવાર માહિતીને જ અંતિમ માનો.",openLine:"વેબસાઇટ ખોલો →",
+desc_fire:"NASA ઉપગ્રહથી ભારતની આગની જીવંત સ્થિતિ, 110 મોટા અગ્નિ રેકોર્ડ અને વિસ્તાર અગ્નિ-તપાસ.",desc_flood:"નદીઓનું પાણી સ્તર, પૂરના 44 ચકાસાયેલા રેકોર્ડ અને સુરક્ષા માર્ગદર્શન — જલ સાથે.",desc_landslide:"પહાડી વિસ્તારોમાં ભૂસ્ખલનનું જોખમ, 47 રેકોર્ડ અને GSI જોખમ ક્ષેત્રો — ભૂમિ સાથે.",desc_coldwave:"તીવ્ર ઠંડીના 34 ગાળાના રેકોર્ડ, IMD માહિતી અને ઠંડીથી બચાવ — હિમ સાથે.",desc_cyclone:"ચક્રવાતના 40 રેકોર્ડ, માર્ગ નકશા અને કિનારે અથડામણની વાર્તાઓ — વાયુ સાથે.",
+bot_fire:["હું અગ્નિ છું! આગના સમાચાર સૌથી પહેલા મારી પાસે 🔥","બૉક્સ પર દબાવો — અગ્નિ વેબસાઇટ ખૂલી જશે!"],bot_flood:["હું જલ છું! પૂરનું પાણી મારી નજરમાં છે 🌊","અહીં દબાવો — પૂર વેબસાઇટ બધું જણાવશે!"],bot_landslide:["હું ભૂમિ છું! પહાડ ક્યારે ખસકે, પહેલા હું જાણું છું ⛰️","અહીં દબાવો — ભૂસ્ખલન વેબસાઇટ ખૂલી જશે!"],bot_coldwave:["હું હિમ છું! ઠંડી આવે તો તૈયારી મારી જવાબદારી ❄️","અહીં દબાવો — ઠંડીની લહેર વેબસાઇટ ખૂલી જશે!"],bot_cyclone:["હું વાયુ છું! તોફાન આવે, સૌથી પહેલા હું બોલું 🌀","અહીં દબાવો — ચક્રવાત વેબસાઇટ ખૂલી જશે!"],
+e_name:"તમારું નામ ખૂબ ટૂંકું લાગે છે — મહેરબાની કરીને પૂરું નામ લખો (ઓછામાં ઓછા 3 અક્ષરો) 🙏",e_user:"મહેરબાની કરીને 3–20 અક્ષરોનું વપરાશકર્તા નામ પસંદ કરો, માત્ર અક્ષરો, આંકડા કે _ સાથે — જેમ કે keshav_01 👍",e_pass6:"મહેરબાની કરીને પાસવર્ડ ઓછામાં ઓછા 6 અક્ષરોનો રાખો — મજબૂત રાખો 🔒",e_passmatch:"બંને પાસવર્ડ સરખા નથી — ચકાસીને ફરી નાખો 👀",e_noaccount:"આ ઈમેલનું કોઈ ખાતું મળ્યું નથી 🤔 — જોડણી ચકાસો, અથવા પહેલા સાઇન અપથી ખાતું બનાવો.",e_wrongpass:"પાસવર્ડ ખોટો છે 😅 — ફરી પ્રયાસ કરો. ભૂલી ગયા હો તો ઉપરનો 'ભૂલી ગયા?' ટૅબ દબાવો.",e_emailUsed:"આ ઈમેલ પહેલેથી નોંધાયેલો છે 😅 — કૃપા કરીને આનાથી જ લૉગિન કરો, અથવા પાસવર્ડ ભૂલી ગયા હો તો 'ભૂલી ગયા?' ટૅબ દબાવો.",e_emailBad:"આ ઈમેલ સરનામું બરાબર લાગતું નથી 🤔 — કૃપા કરીને ચકાસીને આખો ઈમેલ લખો, જેમ કે name@example.com.",e_weakpass:"આ પાસવર્ડ ખૂબ નબળો છે 🔒 — કૃપા કરીને લાંબો અને મજબૂત પાસવર્ડ પસંદ કરો (ઓછામાં ઓછા 6 અક્ષરો; અક્ષરો અને આંકડા ભેળવો તો સારું).",e_badcred:"ઈમેલ અથવા પાસવર્ડ ખોટો છે 😅 — બંને ચકાસીને ફરી પ્રયાસ કરો. પાસવર્ડ ભૂલી ગયા હો તો ઉપરનો 'ભૂલી ગયા?' ટૅબ દબાવો.",e_network:"ખાતા સેવા સુધી પહોંચી શકાયું નથી 📡 — કૃપા કરીને તમારું internet connection ચકાસી ફરી પ્રયાસ કરો.",e_toomany:"ઘણા પ્રયાસ થઈ ગયા 🚦 — કૃપા કરીને થોડી વાર રાહ જોઈને ફરી પ્રયાસ કરો.",e_generic:"કંઈક ખોટું થયું 😅 — કૃપા કરીને થોડી વાર પછી ફરી પ્રયાસ કરો. વારંવાર થાય તો તમારું internet connection ચકાસો.",e_profilefail:"તમારું ખાતું બની ગયું છે અને તમે લૉગિન છો ✅ — પણ તમારી profile વિગતો હમણાં સાચવી શકાઈ નથી. કૃપા કરીને connection ચકાસો; સચવાય ત્યાં સુધી તમારું નામ ઈમેલ પરથી દેખાઈ શકે છે."},
+kn:{langLabel:"🌐 ಭಾಷೆ",tagline:"ಭಾರತದ ಪ್ರತಿಯೊಂದು ವಿಪತ್ತು — ಒಂದೇ ಸ್ಥಳ, ಒಂದೇ ಕುಟುಂಬ 🌍💓",subline:"ಬೆಂಕಿ · ಪ್ರವಾಹ · ಭೂಕುಸಿತ · ಶೀತ ಅಲೆ · ಚಂಡಮಾರುತ — ಐದು ವೆಬ್‌ಸೈಟ್‌ಗಳು, ಐದು AI ಸಹಚರರು, ಒಂದೇ ಮನೆ.",enter:"ಪ್ರವೇಶಿಸಿ →",splashNote:"ಹೊಸದಾಗಿ ಬಂದಿದ್ದೀರಾ? ಪ್ರವೇಶಿಸಿ ಒತ್ತಿರಿ — ಒಮ್ಮೆ ಖಾತೆ ರಚಿಸಿ, ನಂತರ ಪ್ರತಿ ಬಾರಿ ನಿಮ್ಮ ಹೆಸರಿನಿಂದ ಸ್ವಾಗತ ಸಿಗುತ್ತದೆ 🙏",authSub:"ನಿಮ್ಮ ಖಾತೆಯಿಂದ ಪ್ರವೇಶಿಸಿ — ಐದೂ ವಿಪತ್ತು ವೆಬ್‌ಸೈಟ್‌ಗಳು ನಿಮಗಾಗಿ ಕಾಯುತ್ತಿವೆ.",tabLogin:"ಲಾಗಿನ್",tabSignup:"ಸೈನ್ ಅಪ್",tabForgot:"ಮರೆತಿರಾ?",username:"ಬಳಕೆದಾರ ಹೆಸರು",email:"ಇಮೇಲ್",emailPh:"e.g. name@example.com",password:"ಪಾಸ್‌ವರ್ಡ್",loginBtn:"ಲಾಗಿನ್ ಮಾಡಿ →",forgotQ:"ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?",forgotLink:"Reset link ಪಡೆಯಿರಿ",newQ:"ಹೊಸದಾಗಿ ಬಂದಿದ್ದೀರಾ?",signupLink:"ಹೊಸ ಖಾತೆ ರಚಿಸಿ",fullName:"ಪೂರ್ಣ ಹೆಸರು",chooseUser:"ಬಳಕೆದಾರ ಹೆಸರು ಆಯ್ಕೆಮಾಡಿ",userHint:"ಇದು ನಿಮಗಾಗಿ ಪ್ರದರ್ಶನ ಹೆಸರು ಮಾತ್ರ — ಲಾಗಿನ್‌ಗೆ ಅಗತ್ಯವಿಲ್ಲ (ಲಾಗಿನ್ ಇಮೇಲ್‌ನಿಂದ ಆಗುತ್ತದೆ). 3–20 ಅಕ್ಷರಗಳು: ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು ಅಥವಾ _.",createPass:"ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ",passPh:"ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳು",passAgain:"ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತೆ ನಮೂದಿಸಿ",passAgainPh:"ಅದೇ ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತೊಮ್ಮೆ",signupBtn:"ಖಾತೆ ರಚಿಸಿ →",authNote:"🔒 ನಿಮ್ಮ ಖಾತೆ <b>Google Firebase</b> ಬಳಿ ಸುರಕ್ಷಿತವಾಗಿರುತ್ತದೆ — ಒಮ್ಮೆ ಸೈನ್ ಅಪ್ ಮಾಡಿ, ನಂತರ ಅದೇ ಇಮೇಲ್ ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್‌ನಿಂದ <b>ಯಾವುದೇ ಫೋನ್ ಅಥವಾ ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ</b> ಲಾಗಿನ್ ಮಾಡಿ. ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ Google ಬಳಿ ಸುರಕ್ಷಿತವಾಗಿರುತ್ತದೆ; ಈ ಪುಟ ಅದನ್ನು ಎಂದಿಗೂ ಉಳಿಸುವುದಿಲ್ಲ. ಮರೆತರೆ 'ಮರೆತಿರಾ?' ಟ್ಯಾಬ್ ಒತ್ತಿರಿ — ಇಮೇಲ್‌ಗೆ reset link ಬರುತ್ತದೆ.",fgHint:"ನಿಮ್ಮ ಖಾತೆಯ ಇಮೇಲ್ ನಮೂದಿಸಿ — ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಲು ನಾವು ನಿಮಗೆ link ಇಮೇಲ್ ಮಾಡುತ್ತೇವೆ.",resetBtn:"ನನಗೆ reset link ಇಮೇಲ್ ಮಾಡಿ →",resetSent:"✅ Reset link ಕಳುಹಿಸಲಾಗಿದೆ! {email} ಗೆ ಪಾಸ್‌ವರ್ಡ್ ಬದಲಾಯಿಸುವ link ಕಳುಹಿಸಲಾಗಿದೆ — ಆ ಇಮೇಲ್ ತೆರೆದು link ಒತ್ತಿರಿ, ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ, ನಂತರ ಇಲ್ಲಿಗೆ ಬಂದು ಲಾಗಿನ್ ಮಾಡಿ. (Inboxನಲ್ಲಿ ಸಿಗದಿದ್ದರೆ spam folder ಕೂಡ ನೋಡಿ.)",welcome:"ಸ್ವಾಗತ, {name}! 👋",who:"@{user} · EarthPulse ಕುಟುಂಬಕ್ಕೆ ನಿಮ್ಮನ್ನು ಸ್ವಾಗತಿಸುತ್ತೇವೆ 🌍💓",logout:"ಲಾಗೌಟ್ 🚪",dashIntro:"ಇದು ನಿಮ್ಮ <b>EarthPulse ಕುಟುಂಬ</b> — ಐದೂ ವಿಪತ್ತು ವೆಬ್‌ಸೈಟ್‌ಗಳು, ಪ್ರತಿಯೊಂದರ ಪಕ್ಕದಲ್ಲಿ ಅದರ ಸ್ವಂತ AI ಸಹಚರ ಚಲಿಸುತ್ತಿರುತ್ತಾನೆ. ಯಾವುದೇ ಪೆಟ್ಟಿಗೆಯನ್ನು ಒತ್ತಿದರೆ <b>ಆ ವಿಪತ್ತಿನ ಪೂರ್ಣ ವೆಬ್‌ಸೈಟ್ ಹೊಸ ಟ್ಯಾಬ್‌ನಲ್ಲಿ</b> ತೆರೆಯುತ್ತದೆ.",dashFoot:"🌍💓 EarthPulse India — ಭಾರತದ ಪ್ರತಿ ವಿಪತ್ತು, ಒಂದೇ ಕುಟುಂಬ. ನಿಜವಾದ ಎಚ್ಚರಿಕೆಗಳಿಗಾಗಿ ಯಾವಾಗಲೂ IMD / NDMA ಅಧಿಕೃತ ಮಾಹಿತಿಯನ್ನೇ ಅಂತಿಮವೆಂದು ಪರಿಗಣಿಸಿ.",openLine:"ವೆಬ್‌ಸೈಟ್ ತೆರೆಯಿರಿ →",
+desc_fire:"NASA ಉಪಗ್ರಹಗಳಿಂದ ಭಾರತದ ನೇರ ಅಗ್ನಿ ಪರಿಸ್ಥಿತಿ, 110 ಪ್ರಮುಖ ಅಗ್ನಿ ದಾಖಲೆಗಳು ಮತ್ತು ಪ್ರದೇಶ ಅಗ್ನಿ-ಪರಿಶೀಲನೆ.",desc_flood:"ನದಿಗಳ ನೀರಿನ ಮಟ್ಟಗಳು, 44 ಪರಿಶೀಲಿತ ಪ್ರವಾಹ ದಾಖಲೆಗಳು ಮತ್ತು ಸುರಕ್ಷತಾ ಮಾರ್ಗದರ್ಶನ — ಜಲ್ ಜೊತೆ.",desc_landslide:"ಬೆಟ್ಟ ಪ್ರದೇಶಗಳಲ್ಲಿ ಭೂಕುಸಿತದ ಅಪಾಯ, 47 ದಾಖಲೆಗಳು ಮತ್ತು GSI ಅಪಾಯ ವಲಯಗಳು — ಭೂಮಿ ಜೊತೆ.",desc_coldwave:"34 ತೀವ್ರ ಶೀತ ಅಲೆಗಳ ದಾಖಲೆಗಳು, IMD ಮಾಹಿತಿ ಮತ್ತು ಚಳಿಯಿಂದ ರಕ್ಷಣೆ — ಹಿಮ್ ಜೊತೆ.",desc_cyclone:"40 ಚಂಡಮಾರುತ ದಾಖಲೆಗಳು, ಪಥ ನಕ್ಷೆಗಳು ಮತ್ತು ತೀರ ತಾಕುವ ಕಥೆಗಳು — ವಾಯು ಜೊತೆ.",
+bot_fire:["ನಾನು ಅಗ್ನಿ! ಬೆಂಕಿಯ ಸುದ್ದಿ ಮೊದಲು ನನಗೆ 🔥","ಪೆಟ್ಟಿಗೆ ಒತ್ತಿರಿ — ಅಗ್ನಿ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],bot_flood:["ನಾನು ಜಲ್! ಪ್ರವಾಹದ ನೀರು ಯಾವಾಗಲೂ ನನ್ನ ದೃಷ್ಟಿಯಲ್ಲಿ 🌊","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಪ್ರವಾಹ ವೆಬ್‌ಸೈಟ್ ಎಲ್ಲ ಹೇಳುತ್ತದೆ!"],bot_landslide:["ನಾನು ಭೂಮಿ! ಬೆಟ್ಟ ಜಾರುವುದನ್ನು ಮೊದಲು ನಾನು ಗ್ರಹಿಸುತ್ತೇನೆ ⛰️","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಭೂಕುಸಿತ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],bot_coldwave:["ನಾನು ಹಿಮ್! ಚಳಿ ಬಂದರೆ ಸಿದ್ಧತೆ ನನ್ನ ಜವಾಬ್ದಾರಿ ❄️","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಶೀತ ಅಲೆ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],bot_cyclone:["ನಾನು ವಾಯು! ಚಂಡಮಾರುತ ಬಂದರೆ ಮೊದಲು ನಾನು ಮಾತನಾಡುತ್ತೇನೆ 🌀","ಇಲ್ಲಿ ಒತ್ತಿರಿ — ಚಂಡಮಾರುತ ವೆಬ್‌ಸೈಟ್ ತೆರೆಯುತ್ತದೆ!"],
+e_name:"ನಿಮ್ಮ ಹೆಸರು ತುಂಬ ಚಿಕ್ಕದಾಗಿದೆ — ದಯವಿಟ್ಟು ಪೂರ್ಣ ಹೆಸರು ಬರೆಯಿರಿ (ಕನಿಷ್ಠ 3 ಅಕ್ಷರಗಳು) 🙏",e_user:"ದಯವಿಟ್ಟು 3–20 ಅಕ್ಷರಗಳ ಬಳಕೆದಾರ ಹೆಸರು ಆಯ್ಕೆಮಾಡಿ, ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು ಅಥವಾ _ ಮಾತ್ರ — ಉದಾ. keshav_01 👍",e_pass6:"ದಯವಿಟ್ಟು ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳಾಗಿಸಿ — ಬಲವಾಗಿ ಇರಿಸಿ 🔒",e_passmatch:"ಎರಡೂ ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ — ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ನಮೂದಿಸಿ 👀",e_noaccount:"ಈ ಇಮೇಲ್‌ನ ಖಾತೆ ಸಿಗಲಿಲ್ಲ 🤔 — ಕಾಗುಣಿತ ಪರಿಶೀಲಿಸಿ, ಅಥವಾ ಮೊದಲು ಸೈನ್ ಅಪ್‌ನಿಂದ ಖಾತೆ ರಚಿಸಿ.",e_wrongpass:"ತಪ್ಪು ಪಾಸ್‌ವರ್ಡ್ 😅 — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ಮರೆತಿದ್ದರೆ ಮೇಲಿನ 'ಮರೆತಿರಾ?' ಟ್ಯಾಬ್ ಒತ್ತಿರಿ.",e_emailUsed:"ಈ ಇಮೇಲ್ ಈಗಾಗಲೇ ನೋಂದಾಯಿಸಲಾಗಿದೆ 😅 — ದಯವಿಟ್ಟು ಇದರಿಂದಲೇ ಲಾಗಿನ್ ಮಾಡಿ, ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿದ್ದರೆ 'ಮರೆತಿರಾ?' ಟ್ಯಾಬ್ ಒತ್ತಿರಿ.",e_emailBad:"ಈ ಇಮೇಲ್ ವಿಳಾಸ ಸರಿಯಾಗಿ ಕಾಣುತ್ತಿಲ್ಲ 🤔 — ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಪೂರ್ಣ ಇಮೇಲ್ ಬರೆಯಿರಿ, ಉದಾ. name@example.com.",e_weakpass:"ಈ ಪಾಸ್‌ವರ್ಡ್ ತುಂಬಾ ದುರ್ಬಲವಾಗಿದೆ 🔒 — ದಯವಿಟ್ಟು ಉದ್ದವಾದ, ಬಲವಾದ ಪಾಸ್‌ವರ್ಡ್ ಆಯ್ಕೆಮಾಡಿ (ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳು; ಅಕ್ಷರಗಳು ಮತ್ತು ಸಂಖ್ಯೆಗಳನ್ನು ಬೆರೆಸಿದರೆ ಉತ್ತಮ).",e_badcred:"ಇಮೇಲ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ತಪ್ಪು 😅 — ಎರಡನ್ನೂ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿದ್ದರೆ ಮೇಲಿನ 'ಮರೆತಿರಾ?' ಟ್ಯಾಬ್ ಒತ್ತಿರಿ.",e_network:"ಖಾತೆ ಸೇವೆಯನ್ನು ತಲುಪಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ 📡 — ದಯವಿಟ್ಟು ನಿಮ್ಮ internet connection ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",e_toomany:"ಹಲವು ಪ್ರಯತ್ನಗಳಾಗಿವೆ 🚦 — ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯ ಕಾಯ್ದು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",e_generic:"ಏನೋ ತಪ್ಪಾಗಿದೆ 😅 — ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ಮತ್ತೆ ಮತ್ತೆ ಆದರೆ ನಿಮ್ಮ internet connection ಪರಿಶೀಲಿಸಿ.",e_profilefail:"ನಿಮ್ಮ ಖಾತೆ ರಚನೆಯಾಗಿದೆ ಮತ್ತು ನೀವು ಲಾಗಿನ್ ಆಗಿದ್ದೀರಿ ✅ — ಆದರೆ ನಿಮ್ಮ profile ವಿವರಗಳನ್ನು ಈಗ ಉಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು connection ಪರಿಶೀಲಿಸಿ; ಉಳಿಯುವವರೆಗೆ ನಿಮ್ಮ ಹೆಸರು ಇಮೇಲ್‌ನಿಂದ ಕಾಣಿಸಬಹುದು."},
+ml:{langLabel:"🌐 ഭാഷ",tagline:"ഇന്ത്യയിലെ ഓരോ ദുരന്തവും — ഒരിടത്ത്, ഒരു കുടുംബം 🌍💓",subline:"തീ · വെള്ളപ്പൊക്കം · മണ്ണിടിച്ചിൽ · ശൈത്യ തരംഗം · ചുഴലിക്കാറ്റ് — അഞ്ച് വെബ്‌സൈറ്റുകൾ, അഞ്ച് AI കൂട്ടുകാർ, ഒരു വീട്.",enter:"പ്രവേശിക്കുക →",splashNote:"ആദ്യമായാണോ വരുന്നത്? പ്രവേശിക്കുക അമർത്തുക — ഒരിക്കൽ അക്കൗണ്ട് ഉണ്ടാക്കുക, പിന്നെ ഓരോ തവണയും നിങ്ങളുടെ പേരിൽ സ്വാഗതം ലഭിക്കും 🙏",authSub:"നിങ്ങളുടെ അക്കൗണ്ട് ഉപയോഗിച്ച് പ്രവേശിക്കുക — അഞ്ച് ദുരന്ത വെബ്‌സൈറ്റുകളും നിങ്ങളെ കാത്തിരിക്കുന്നു.",tabLogin:"ലോഗിൻ",tabSignup:"സൈൻ അപ്പ്",tabForgot:"മറന്നോ?",username:"ഉപയോക്തൃനാമം",email:"ഇമെയിൽ",emailPh:"e.g. name@example.com",password:"പാസ്‌വേഡ്",loginBtn:"ലോഗിൻ ചെയ്യുക →",forgotQ:"പാസ്‌വേഡ് മറന്നോ?",forgotLink:"Reset link നേടുക",newQ:"ആദ്യമായാണോ?",signupLink:"പുതിയ അക്കൗണ്ട് ഉണ്ടാക്കുക",fullName:"മുഴുവൻ പേര്",chooseUser:"ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക",userHint:"ഇത് നിങ്ങൾക്കുള്ള ഒരു പ്രദർശന നാമം മാത്രമാണ് — ലോഗിന് ആവശ്യമില്ല (ലോഗിൻ ഇമെയിൽ വഴിയാണ്). 3–20 അക്ഷരങ്ങൾ: അക്ഷരങ്ങൾ, അക്കങ്ങൾ അല്ലെങ്കിൽ _.",createPass:"പാസ്‌വേഡ് ഉണ്ടാക്കുക",passPh:"കുറഞ്ഞത് 6 അക്ഷരങ്ങൾ",passAgain:"പാസ്‌വേഡ് വീണ്ടും നൽകുക",passAgainPh:"അതേ പാസ്‌വേഡ് വീണ്ടും",signupBtn:"അക്കൗണ്ട് ഉണ്ടാക്കുക →",authNote:"🔒 നിങ്ങളുടെ അക്കൗണ്ട് <b>Google Firebase</b>-ന്റെ പക്കൽ സുരക്ഷിതമാണ് — ഒരിക്കൽ സൈൻ അപ്പ് ചെയ്യുക, പിന്നീട് അതേ ഇമെയിലും പാസ്‌വേഡും ഉപയോഗിച്ച് <b>ഏത് ഫോണിലും കമ്പ്യൂട്ടറിലും</b> ലോഗിൻ ചെയ്യുക. നിങ്ങളുടെ പാസ്‌വേഡ് Google-ന്റെ പക്കൽ സുരക്ഷിതമാണ്; ഈ പേജ് അത് ഒരിക്കലും സേവ് ചെയ്യുന്നില്ല. മറന്നാൽ 'മറന്നോ?' ടാബ് അമർത്തുക — ഇമെയിലിലേക്ക് reset link വരും.",fgHint:"നിങ്ങളുടെ അക്കൗണ്ടിന്റെ ഇമെയിൽ നൽകുക — പുതിയ പാസ്‌വേഡ് ഉണ്ടാക്കാൻ ഞങ്ങൾ നിങ്ങൾക്ക് link ഇമെയിൽ ചെയ്യും.",resetBtn:"എനിക്ക് reset link ഇമെയിൽ ചെയ്യുക →",resetSent:"✅ Reset link അയച്ചു! {email}-ലേക്ക് പാസ്‌വേഡ് മാറ്റാനുള്ള link അയച്ചിട്ടുണ്ട് — ആ ഇമെയിൽ തുറന്ന് link അമർത്തി, പുതിയ പാസ്‌വേഡ് ഉണ്ടാക്കി, പിന്നീട് ഇവിടെ വന്ന് ലോഗിൻ ചെയ്യുക. (Inbox-ൽ കാണാനില്ലെങ്കിൽ spam folder-ഉം നോക്കുക.)",welcome:"സ്വാഗതം, {name}! 👋",who:"@{user} · EarthPulse കുടുംബത്തിലേക്ക് സ്വാഗതം 🌍💓",logout:"ലോഗൗട്ട് 🚪",dashIntro:"ഇതാണ് നിങ്ങളുടെ <b>EarthPulse കുടുംബം</b> — അഞ്ച് ദുരന്ത വെബ്‌സൈറ്റുകൾ, ഓരോന്നിന്റെയും അടുത്ത് അതിന്റെ സ്വന്തം AI കൂട്ടുകാരൻ ചുറ്റിനടക്കുന്നു. ഏത് പെട്ടിയിലും അമർത്തിയാൽ <b>ആ ദുരന്തത്തിന്റെ മുഴുവൻ വെബ്‌സൈറ്റ് പുതിയ ടാബിൽ</b> തുറക്കും.",dashFoot:"🌍💓 EarthPulse India — ഇന്ത്യയിലെ ഓരോ ദുരന്തവും, ഒരു കുടുംബം. യഥാർത്ഥ മുന്നറിയിപ്പുകൾക്ക് എപ്പോഴും IMD / NDMA ഔദ്യോഗിക വിവരങ്ങൾ അന്തിമമായി കരുതുക.",openLine:"വെബ്‌സൈറ്റ് തുറക്കുക →",
+desc_fire:"NASA ഉപഗ്രഹങ്ങളിൽ നിന്ന് ഇന്ത്യയിലെ തത്സമയ അഗ്നി സ്ഥിതി, 110 പ്രധാന അഗ്നി രേഖകൾ, പ്രദേശ അഗ്നി-പരിശോധന.",desc_flood:"നദീജലനിരപ്പ്, 44 സ്ഥിരീകരിച്ച വെള്ളപ്പൊക്ക രേഖകൾ, സുരക്ഷാ മാർഗനിർദേശം — ജലിനൊപ്പം.",desc_landslide:"മലയോര പ്രദേശങ്ങളിലെ മണ്ണിടിച്ചിൽ അപകടം, 47 രേഖകൾ, GSI അപകട മേഖലകൾ — ഭൂമിയോടൊപ്പം.",desc_coldwave:"34 കഠിന ശൈത്യ തരംഗങ്ങളുടെ രേഖകൾ, IMD വിവരങ്ങൾ, തണുപ്പിൽ നിന്നുള്ള സംരക്ഷണം — ഹിമ്മിനൊപ്പം.",desc_cyclone:"40 ചുഴലിക്കാറ്റ് രേഖകൾ, പാതാ ഭൂപടങ്ങൾ, തീരത്ത് എത്തുന്ന കഥകൾ — വായുവിനൊപ്പം.",
+bot_fire:["ഞാൻ അഗ്നി! തീയുടെ വാർത്ത ആദ്യം എന്റെയടുത്ത് 🔥","പെട്ടിയിൽ അമർത്തുക — അഗ്നി വെബ്‌സൈറ്റ് തുറക്കും!"],bot_flood:["ഞാൻ ജൽ! വെള്ളപ്പൊക്ക ജലം എപ്പോഴും എന്റെ ശ്രദ്ധയിൽ 🌊","ഇവിടെ അമർത്തുക — വെള്ളപ്പൊക്ക വെബ്‌സൈറ്റ് എല്ലാം പറയും!"],bot_landslide:["ഞാൻ ഭൂമി! മല ഇടിയുന്നത് ആദ്യം ഞാൻ അറിയും ⛰️","ഇവിടെ അമർത്തുക — മണ്ണിടിച്ചിൽ വെബ്‌സൈറ്റ് തുറക്കും!"],bot_coldwave:["ഞാൻ ഹിം! തണുപ്പ് വന്നാൽ തയ്യാറെടുപ്പ് എന്റെ ഉത്തരവാദിത്തം ❄️","ഇവിടെ അമർത്തുക — ശൈത്യ തരംഗ വെബ്‌സൈറ്റ് തുറക്കും!"],bot_cyclone:["ഞാൻ വായു! കൊടുങ്കാറ്റ് വന്നാൽ ആദ്യം ഞാൻ സംസാരിക്കും 🌀","ഇവിടെ അമർത്തുക — ചുഴലിക്കാറ്റ് വെബ്‌സൈറ്റ് തുറക്കും!"],
+e_name:"നിങ്ങളുടെ പേര് വളരെ ചെറുതായി തോന്നുന്നു — മുഴുവൻ പേര് എഴുതുക (കുറഞ്ഞത് 3 അക്ഷരങ്ങൾ) 🙏",e_user:"3–20 അക്ഷരങ്ങളുള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക, അക്ഷരങ്ങൾ, അക്കങ്ങൾ അല്ലെങ്കിൽ _ മാത്രം — ഉദാ. keshav_01 👍",e_pass6:"പാസ്‌വേഡ് കുറഞ്ഞത് 6 അക്ഷരങ്ങളാക്കുക — ശക്തമായി സൂക്ഷിക്കുക 🔒",e_passmatch:"രണ്ട് പാസ്‌വേഡുകളും പൊരുത്തപ്പെടുന്നില്ല — പരിശോധിച്ച് വീണ്ടും നൽകുക 👀",e_noaccount:"ഈ ഇമെയിലിൽ അക്കൗണ്ട് കണ്ടെത്തിയില്ല 🤔 — അക്ഷരവിന്യാസം പരിശോധിക്കുക, അല്ലെങ്കിൽ ആദ്യം സൈൻ അപ്പിൽ നിന്ന് അക്കൗണ്ട് ഉണ്ടാക്കുക.",e_wrongpass:"തെറ്റായ പാസ്‌വേഡ് 😅 — വീണ്ടും ശ്രമിക്കുക. മറന്നെങ്കിൽ മുകളിലെ 'മറന്നോ?' ടാബ് അമർത്തുക.",e_emailUsed:"ഈ ഇമെയിൽ ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട് 😅 — ഇത് ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യുക, അല്ലെങ്കിൽ പാസ്‌വേഡ് മറന്നെങ്കിൽ 'മറന്നോ?' ടാബ് അമർത്തുക.",e_emailBad:"ഈ ഇമെയിൽ വിലാസം ശരിയായി തോന്നുന്നില്ല 🤔 — പരിശോധിച്ച് മുഴുവൻ ഇമെയിൽ എഴുതുക, ഉദാ. name@example.com.",e_weakpass:"ഈ പാസ്‌വേഡ് വളരെ ദുർബലമാണ് 🔒 — ദയവായി നീളമുള്ള, ശക്തമായ പാസ്‌വേഡ് തിരഞ്ഞെടുക്കുക (കുറഞ്ഞത് 6 അക്ഷരങ്ങൾ; അക്ഷരങ്ങളും അക്കങ്ങളും കലർത്തിയാൽ നല്ലത്).",e_badcred:"ഇമെയിൽ അല്ലെങ്കിൽ പാസ്‌വേഡ് തെറ്റാണ് 😅 — രണ്ടും പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക. പാസ്‌വേഡ് മറന്നെങ്കിൽ മുകളിലെ 'മറന്നോ?' ടാബ് അമർത്തുക.",e_network:"അക്കൗണ്ട് സേവനത്തിൽ എത്താൻ കഴിഞ്ഞില്ല 📡 — നിങ്ങളുടെ internet connection പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.",e_toomany:"നിരവധി ശ്രമങ്ങൾ കഴിഞ്ഞു 🚦 — കുറച്ച് സമയം കാത്തിരുന്ന് വീണ്ടും ശ്രമിക്കുക.",e_generic:"എന്തോ തെറ്റ് സംഭവിച്ചു 😅 — കുറച്ച് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക. വീണ്ടും വീണ്ടും സംഭവിച്ചാൽ നിങ്ങളുടെ internet connection പരിശോധിക്കുക.",e_profilefail:"നിങ്ങളുടെ അക്കൗണ്ട് ഉണ്ടാക്കി, നിങ്ങൾ ലോഗിൻ ചെയ്തിരിക്കുന്നു ✅ — പക്ഷേ നിങ്ങളുടെ profile വിവരങ്ങൾ ഇപ്പോൾ സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. Connection പരിശോധിക്കുക; സേവ് ആകുന്നതുവരെ നിങ്ങളുടെ പേര് ഇമെയിലിൽ നിന്ന് കാണിച്ചേക്കാം."},
+pa:{langLabel:"🌐 ਭਾਸ਼ਾ",tagline:"ਭਾਰਤ ਦੀ ਹਰ ਆਫ਼ਤ — ਇੱਕ ਥਾਂ, ਇੱਕ ਪਰਿਵਾਰ 🌍💓",subline:"ਅੱਗ · ਹੜ੍ਹ · ਭੂ-ਖਿਸਕਣ · ਠੰਢ ਦੀ ਲਹਿਰ · ਚੱਕਰਵਾਤ — ਪੰਜ ਵੈੱਬਸਾਈਟਾਂ, ਪੰਜ AI ਸਾਥੀ, ਇੱਕ ਘਰ।",enter:"ਦਾਖ਼ਲ ਹੋਵੋ →",splashNote:"ਪਹਿਲੀ ਵਾਰ ਆਏ ਹੋ? ਦਾਖ਼ਲ ਦਬਾਓ — ਇੱਕ ਵਾਰ ਖਾਤਾ ਬਣਾਓ, ਫਿਰ ਹਰ ਵਾਰ ਤੁਹਾਡੇ ਨਾਂ ਨਾਲ ਸਵਾਗਤ ਹੋਵੇਗਾ 🙏",authSub:"ਆਪਣੇ ਖਾਤੇ ਨਾਲ ਦਾਖ਼ਲ ਹੋਵੋ — ਪੰਜੋਂ ਆਫ਼ਤ ਵੈੱਬਸਾਈਟਾਂ ਤੁਹਾਡਾ ਇੰਤਜ਼ਾਰ ਕਰ ਰਹੀਆਂ ਹਨ।",tabLogin:"ਲੌਗਿਨ",tabSignup:"ਸਾਈਨ ਅੱਪ",tabForgot:"ਭੁੱਲ ਗਏ?",username:"ਵਰਤੋਂਕਾਰ ਨਾਂ",email:"ਈਮੇਲ",emailPh:"e.g. name@example.com",password:"ਪਾਸਵਰਡ",loginBtn:"ਲੌਗਿਨ ਕਰੋ →",forgotQ:"ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ?",forgotLink:"Reset link ਲਵੋ",newQ:"ਪਹਿਲੀ ਵਾਰ ਆਏ ਹੋ?",signupLink:"ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ",fullName:"ਪੂਰਾ ਨਾਂ",chooseUser:"ਵਰਤੋਂਕਾਰ ਨਾਂ ਚੁਣੋ",userHint:"ਇਹ ਸਿਰਫ਼ ਤੁਹਾਡੇ ਲਈ ਵਿਖਾਉਣ ਵਾਲਾ ਨਾਂ ਹੈ — ਲੌਗਇਨ ਲਈ ਲੋੜੀਂਦਾ ਨਹੀਂ (ਲੌਗਇਨ ਈਮੇਲ ਨਾਲ ਹੋਵੇਗਾ)। 3–20 ਅੱਖਰ: ਅੱਖਰ, ਅੰਕ ਜਾਂ _।",createPass:"ਪਾਸਵਰਡ ਬਣਾਓ",passPh:"ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰ",passAgain:"ਪਾਸਵਰਡ ਦੁਬਾਰਾ ਪਾਓ",passAgainPh:"ਉਹੀ ਪਾਸਵਰਡ ਫਿਰ",signupBtn:"ਖਾਤਾ ਬਣਾਓ →",authNote:"🔒 ਤੁਹਾਡਾ ਖਾਤਾ <b>Google Firebase</b> ਕੋਲ ਸੁਰੱਖਿਅਤ ਰਹਿੰਦਾ ਹੈ — ਇੱਕ ਵਾਰ ਸਾਈਨ ਅੱਪ ਕਰੋ, ਫਿਰ ਉਸੇ ਈਮੇਲ ਅਤੇ ਪਾਸਵਰਡ ਨਾਲ <b>ਕਿਸੇ ਵੀ ਫ਼ੋਨ ਜਾਂ ਕੰਪਿਊਟਰ</b> 'ਤੇ ਲੌਗਇਨ ਕਰੋ। ਤੁਹਾਡਾ ਪਾਸਵਰਡ Google ਕੋਲ ਸੁਰੱਖਿਅਤ ਰਹਿੰਦਾ ਹੈ; ਇਹ ਪੰਨਾ ਇਸਨੂੰ ਕਦੇ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਕਰਦਾ। ਭੁੱਲ ਜਾਓ ਤਾਂ 'ਭੁੱਲ ਗਏ?' ਟੈਬ ਦਬਾਓ — ਈਮੇਲ 'ਤੇ reset link ਆਵੇਗਾ।",fgHint:"ਆਪਣੇ ਖਾਤੇ ਦੀ ਈਮੇਲ ਪਾਓ — ਅਸੀਂ ਤੁਹਾਨੂੰ ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਉਣ ਲਈ link ਈਮੇਲ ਕਰਾਂਗੇ।",resetBtn:"ਮੈਨੂੰ reset link ਈਮੇਲ ਕਰੋ →",resetSent:"✅ Reset link ਭੇਜ ਦਿੱਤਾ ਗਿਆ! {email} 'ਤੇ ਪਾਸਵਰਡ ਬਦਲਣ ਦਾ link ਭੇਜਿਆ ਗਿਆ ਹੈ — ਉਹ ਈਮੇਲ ਖੋਲ੍ਹ ਕੇ link ਦਬਾਓ, ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ, ਫਿਰ ਇੱਥੇ ਆ ਕੇ ਲੌਗਇਨ ਕਰੋ। (Inbox ਵਿੱਚ ਨਾ ਮਿਲੇ ਤਾਂ spam folder ਵੀ ਵੇਖੋ।)",welcome:"ਸਵਾਗਤ ਹੈ, {name}! 👋",who:"@{user} · EarthPulse ਪਰਿਵਾਰ ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ 🌍💓",logout:"ਲੌਗਆਉਟ 🚪",dashIntro:"ਇਹ ਤੁਹਾਡਾ <b>EarthPulse ਪਰਿਵਾਰ</b> ਹੈ — ਪੰਜੋਂ ਆਫ਼ਤ ਵੈੱਬਸਾਈਟਾਂ, ਹਰ ਇੱਕ ਦੇ ਨਾਲ ਉਸਦਾ ਆਪਣਾ AI ਸਾਥੀ ਘੁੰਮ ਰਿਹਾ ਹੈ। ਜਿਸ ਬਕਸੇ 'ਤੇ ਦਬਾਓਗੇ, <b>ਉਸ ਆਫ਼ਤ ਦੀ ਪੂਰੀ ਵੈੱਬਸਾਈਟ ਨਵੀਂ ਟੈਬ ਵਿੱਚ</b> ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ।",dashFoot:"🌍💓 EarthPulse India — ਭਾਰਤ ਦੀ ਹਰ ਆਫ਼ਤ, ਇੱਕ ਪਰਿਵਾਰ। ਅਸਲੀ ਚੇਤਾਵਨੀ ਲਈ ਹਮੇਸ਼ਾ IMD / NDMA ਦੀ ਸਰਕਾਰੀ ਜਾਣਕਾਰੀ ਨੂੰ ਹੀ ਅੰਤਿਮ ਮੰਨੋ।",openLine:"ਵੈੱਬਸਾਈਟ ਖੋਲ੍ਹੋ →",
+desc_fire:"NASA ਸੈਟੇਲਾਈਟ ਤੋਂ ਭਾਰਤ ਦੀ ਅੱਗ ਦੀ ਲਾਈਵ ਹਾਲਤ, 110 ਵੱਡੇ ਅੱਗ ਰਿਕਾਰਡ ਅਤੇ ਖੇਤਰ ਅੱਗ-ਜਾਂਚ।",desc_flood:"ਨਦੀਆਂ ਦਾ ਪਾਣੀ ਪੱਧਰ, ਹੜ੍ਹ ਦੇ 44 ਤਸਦੀਕਸ਼ੁਦਾ ਰਿਕਾਰਡ ਅਤੇ ਸੁਰੱਖਿਆ ਦੇ ਉਪਾਅ — ਜਲ ਦੇ ਨਾਲ।",desc_landslide:"ਪਹਾੜੀ ਇਲਾਕਿਆਂ ਵਿੱਚ ਭੂ-ਖਿਸਕਣ ਦਾ ਖ਼ਤਰਾ, 47 ਰਿਕਾਰਡ ਅਤੇ GSI ਜੋਖਮ ਖੇਤਰ — ਭੂਮੀ ਦੇ ਨਾਲ।",desc_coldwave:"ਸਖ਼ਤ ਠੰਢ ਦੇ 34 ਦੌਰਾਂ ਦਾ ਰਿਕਾਰਡ, IMD ਜਾਣਕਾਰੀ ਅਤੇ ਠੰਢ ਤੋਂ ਬਚਾਅ — ਹਿਮ ਦੇ ਨਾਲ।",desc_cyclone:"ਚੱਕਰਵਾਤਾਂ ਦੇ 40 ਰਿਕਾਰਡ, ਰਸਤਾ ਨਕਸ਼ੇ ਅਤੇ ਕਿਨਾਰੇ ਟਕਰਾਉਣ ਦੀਆਂ ਕਹਾਣੀਆਂ — ਵਾਯੂ ਦੇ ਨਾਲ।",
+bot_fire:["ਮੈਂ ਅਗਨੀ ਹਾਂ! ਅੱਗ ਦੀ ਖ਼ਬਰ ਸਭ ਤੋਂ ਪਹਿਲਾਂ ਮੇਰੇ ਕੋਲ 🔥","ਬਕਸੇ 'ਤੇ ਦਬਾਓ — ਅੱਗ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],bot_flood:["ਮੈਂ ਜਲ ਹਾਂ! ਹੜ੍ਹ ਦਾ ਪਾਣੀ ਮੇਰੀ ਨਜ਼ਰ ਵਿੱਚ ਹੈ 🌊","ਇੱਥੇ ਦਬਾਓ — ਹੜ੍ਹ ਵੈੱਬਸਾਈਟ ਸਭ ਦੱਸੇਗੀ!"],bot_landslide:["ਮੈਂ ਭੂਮੀ ਹਾਂ! ਪਹਾੜ ਕਦੋਂ ਖਿਸਕੇ, ਪਹਿਲਾਂ ਮੈਂ ਜਾਣਦੀ ਹਾਂ ⛰️","ਇੱਥੇ ਦਬਾਓ — ਭੂ-ਖਿਸਕਣ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],bot_coldwave:["ਮੈਂ ਹਿਮ ਹਾਂ! ਠੰਢ ਆਵੇ ਤਾਂ ਤਿਆਰੀ ਮੇਰੀ ਜ਼ਿੰਮੇਦਾਰੀ ❄️","ਇੱਥੇ ਦਬਾਓ — ਠੰਢ ਦੀ ਲਹਿਰ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],bot_cyclone:["ਮੈਂ ਵਾਯੂ ਹਾਂ! ਤੂਫ਼ਾਨ ਆਵੇ, ਸਭ ਤੋਂ ਪਹਿਲਾਂ ਮੈਂ ਬੋਲਾਂ 🌀","ਇੱਥੇ ਦਬਾਓ — ਚੱਕਰਵਾਤ ਵੈੱਬਸਾਈਟ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ!"],
+e_name:"ਤੁਹਾਡਾ ਨਾਂ ਬਹੁਤ ਛੋਟਾ ਲੱਗ ਰਿਹਾ ਹੈ — ਕਿਰਪਾ ਕਰਕੇ ਪੂਰਾ ਨਾਂ ਲਿਖੋ (ਘੱਟੋ-ਘੱਟ 3 ਅੱਖਰ) 🙏",e_user:"ਕਿਰਪਾ ਕਰਕੇ 3–20 ਅੱਖਰਾਂ ਦਾ ਵਰਤੋਂਕਾਰ ਨਾਂ ਚੁਣੋ, ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ ਜਾਂ _ ਨਾਲ — ਜਿਵੇਂ keshav_01 👍",e_pass6:"ਕਿਰਪਾ ਕਰਕੇ ਪਾਸਵਰਡ ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰਾਂ ਦਾ ਬਣਾਓ — ਮਜ਼ਬੂਤ ਰੱਖੋ 🔒",e_passmatch:"ਦੋਵੇਂ ਪਾਸਵਰਡ ਇੱਕੋ ਜਿਹੇ ਨਹੀਂ ਹਨ — ਜਾਂਚ ਕੇ ਦੁਬਾਰਾ ਪਾਓ 👀",e_noaccount:"ਇਸ ਈਮੇਲ ਦਾ ਕੋਈ ਖਾਤਾ ਨਹੀਂ ਮਿਲਿਆ 🤔 — ਸ਼ਬਦ-ਜੋੜ ਜਾਂਚੋ, ਜਾਂ ਪਹਿਲਾਂ ਸਾਈਨ ਅੱਪ ਤੋਂ ਖਾਤਾ ਬਣਾਓ।",e_wrongpass:"ਪਾਸਵਰਡ ਗਲਤ ਹੈ 😅 — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ। ਭੁੱਲ ਗਏ ਹੋ ਤਾਂ ਉੱਪਰਲਾ 'ਭੁੱਲ ਗਏ?' ਟੈਬ ਦਬਾਓ।",e_emailUsed:"ਇਹ ਈਮੇਲ ਪਹਿਲਾਂ ਹੀ ਰਜਿਸਟਰ ਹੈ 😅 — ਕਿਰਪਾ ਕਰਕੇ ਇਸੇ ਨਾਲ ਲੌਗਇਨ ਕਰੋ, ਜਾਂ ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ ਹੋ ਤਾਂ 'ਭੁੱਲ ਗਏ?' ਟੈਬ ਦਬਾਓ।",e_emailBad:"ਇਹ ਈਮੇਲ ਪਤਾ ਸਹੀ ਨਹੀਂ ਲੱਗ ਰਿਹਾ 🤔 — ਕਿਰਪਾ ਕਰਕੇ ਜਾਂਚ ਕੇ ਪੂਰੀ ਈਮੇਲ ਲਿਖੋ, ਜਿਵੇਂ name@example.com।",e_weakpass:"ਇਹ ਪਾਸਵਰਡ ਬਹੁਤ ਕਮਜ਼ੋਰ ਹੈ 🔒 — ਕਿਰਪਾ ਕਰਕੇ ਲੰਬਾ ਅਤੇ ਮਜ਼ਬੂਤ ਪਾਸਵਰਡ ਚੁਣੋ (ਘੱਟੋ-ਘੱਟ 6 ਅੱਖਰ; ਅੱਖਰ ਅਤੇ ਅੰਕ ਮਿਲਾਓ ਤਾਂ ਵਧੀਆ)।",e_badcred:"ਈਮੇਲ ਜਾਂ ਪਾਸਵਰਡ ਗਲਤ ਹੈ 😅 — ਦੋਵੇਂ ਜਾਂਚ ਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ। ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ ਹੋ ਤਾਂ ਉੱਪਰਲਾ 'ਭੁੱਲ ਗਏ?' ਟੈਬ ਦਬਾਓ।",e_network:"ਖਾਤਾ ਸੇਵਾ ਤੱਕ ਪਹੁੰਚ ਨਹੀਂ ਹੋ ਸਕੀ 📡 — ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ internet connection ਜਾਂਚ ਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",e_toomany:"ਬਹੁਤ ਕੋਸ਼ਿਸ਼ਾਂ ਹੋ ਗਈਆਂ ਹਨ 🚦 — ਕਿਰਪਾ ਕਰਕੇ ਥੋੜ੍ਹੀ ਦੇਰ ਉਡੀਕ ਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",e_generic:"ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ 😅 — ਕਿਰਪਾ ਕਰਕੇ ਥੋੜ੍ਹੀ ਦੇਰ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ। ਵਾਰ-ਵਾਰ ਹੋਵੇ ਤਾਂ ਆਪਣਾ internet connection ਜਾਂਚੋ।",e_profilefail:"ਤੁਹਾਡਾ ਖਾਤਾ ਬਣ ਗਿਆ ਹੈ ਅਤੇ ਤੁਸੀਂ ਲੌਗਇਨ ਹੋ ✅ — ਪਰ ਤੁਹਾਡੀ profile ਜਾਣਕਾਰੀ ਹੁਣੇ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕੀ। ਕਿਰਪਾ ਕਰਕੇ connection ਜਾਂਚੋ; ਸੁਰੱਖਿਅਤ ਹੋਣ ਤੱਕ ਤੁਹਾਡਾ ਨਾਂ ਈਮੇਲ ਤੋਂ ਵਿਖਾਈ ਦੇ ਸਕਦਾ ਹੈ।"},
+or:{langLabel:"🌐 ଭାଷା",tagline:"ଭାରତର ପ୍ରତ୍ୟେକ ବିପର୍ଯ୍ୟୟ — ଗୋଟିଏ ସ୍ଥାନ, ଗୋଟିଏ ପରିବାର 🌍💓",subline:"ଅଗ୍ନି · ବନ୍ୟା · ଭୂସ୍ଖଳନ · ଶୀତ ଲହରୀ · ଘୂର୍ଣ୍ଣିବାତ୍ୟା — ପାଞ୍ଚ ୱେବସାଇଟ, ପାଞ୍ଚ AI ସାଥୀ, ଗୋଟିଏ ଘର।",enter:"ପ୍ରବେଶ କରନ୍ତୁ →",splashNote:"ପ୍ରଥମ ଥର ଆସିଛନ୍ତି? ପ୍ରବେଶ ଦବାନ୍ତୁ — ଥରେ ଖାତା ତିଆରି କରନ୍ତୁ, ତା’ପରେ ପ୍ରତିଥର ଆପଣଙ୍କ ନାମରେ ସ୍ୱାଗତ ହେବ 🙏",authSub:"ଆପଣଙ୍କ ଖାତା ସହିତ ପ୍ରବେଶ କରନ୍ତୁ — ପାଞ୍ଚ ବିପର୍ଯ୍ୟୟ ୱେବସାଇଟ ଆପଣଙ୍କୁ ଅପେକ୍ଷା କରିଛି।",tabLogin:"ଲଗଇନ",tabSignup:"ସାଇନ ଅପ",tabForgot:"ଭୁଲିଗଲେ?",username:"ବ୍ୟବହାରକାରୀ ନାମ",email:"ଇମେଲ",emailPh:"e.g. name@example.com",password:"ପାସୱାର୍ଡ",loginBtn:"ଲଗଇନ କରନ୍ତୁ →",forgotQ:"ପାସୱାର୍ଡ ଭୁଲିଗଲେ?",forgotLink:"Reset link ନିଅନ୍ତୁ",newQ:"ପ୍ରଥମ ଥର ଆସିଛନ୍ତି?",signupLink:"ନୂଆ ଖାତା ତିଆରି କରନ୍ତୁ",fullName:"ପୂରା ନାମ",chooseUser:"ବ୍ୟବହାରକାରୀ ନାମ ବାଛନ୍ତୁ",userHint:"ଏହା କେବଳ ଆପଣଙ୍କ ପାଇଁ ଏକ ଦେଖାଯିବା ନାମ — ଲଗଇନ ପାଇଁ ଦରକାର ନାହିଁ (ଲଗଇନ ଇମେଲ ଦ୍ୱାରା ହେବ)। 3–20 ଅକ୍ଷର: ଅକ୍ଷର, ସଂଖ୍ୟା କିମ୍ବା _।",createPass:"ପାସୱାର୍ଡ ତିଆରି କରନ୍ତୁ",passPh:"କମରୁ କମ 6 ଅକ୍ଷର",passAgain:"ପାସୱାର୍ଡ ପୁଣି ଦିଅନ୍ତୁ",passAgainPh:"ସେହି ପାସୱାର୍ଡ ପୁଣି ଥରେ",signupBtn:"ଖାତା ତିଆରି କରନ୍ତୁ →",authNote:"🔒 ଆପଣଙ୍କ ଖାତା <b>Google Firebase</b> ପାଖରେ ସୁରକ୍ଷିତ ରୁହେ — ଥରେ ସାଇନ ଅପ କରନ୍ତୁ, ତା’ପରେ ସେହି ଇମେଲ ଏବଂ ପାସୱାର୍ଡରେ <b>ଯେକୌଣସି ଫୋନ କିମ୍ବା କମ୍ପ୍ୟୁଟରରେ</b> ଲଗଇନ କରନ୍ତୁ। ଆପଣଙ୍କ ପାସୱାର୍ଡ Google ପାଖରେ ସୁରକ୍ଷିତ ରୁହେ; ଏହି ପୃଷ୍ଠା ତାହା କେବେ ସଂରକ୍ଷଣ କରେ ନାହିଁ। ଭୁଲିଗଲେ 'ଭୁଲିଗଲେ?' ଟ୍ୟାବ ଦବାନ୍ତୁ — ଇମେଲକୁ reset link ଆସିବ।",fgHint:"ଆପଣଙ୍କ ଖାତାର ଇମେଲ ଦିଅନ୍ତୁ — ନୂଆ ପାସୱାର୍ଡ ତିଆରି କରିବାକୁ ଆମେ ଆପଣଙ୍କୁ link ଇମେଲ କରିବୁ।",resetBtn:"ମୋତେ reset link ଇମେଲ କରନ୍ତୁ →",resetSent:"✅ Reset link ପଠାଗଲା! {email} କୁ ପାସୱାର୍ଡ ବଦଳାଇବା link ପଠାଯାଇଛି — ସେହି ଇମେଲ ଖୋଲି link ଦବାନ୍ତୁ, ନୂଆ ପାସୱାର୍ଡ ତିଆରି କରନ୍ତୁ, ତା’ପରେ ଏଠାକୁ ଆସି ଲଗଇନ କରନ୍ତୁ। (Inboxରେ ନ ମିଳିଲେ spam folder ମଧ୍ୟ ଦେଖନ୍ତୁ।)",welcome:"ସ୍ୱାଗତ, {name}! 👋",who:"@{user} · EarthPulse ପରିବାରକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ 🌍💓",logout:"ଲଗଆଉଟ 🚪",dashIntro:"ଏହା ଆପଣଙ୍କ <b>EarthPulse ପରିବାର</b> — ପାଞ୍ଚ ବିପର୍ଯ୍ୟୟ ୱେବସାଇଟ, ପ୍ରତ୍ୟେକ ପାଖରେ ତା’ର ନିଜ AI ସାଥୀ ଘୂରି ବୁଲୁଛି। ଯେକୌଣସି ବାକ୍ସ ଉପରେ ଦବାଇଲେ <b>ସେହି ବିପର୍ଯ୍ୟୟର ପୂରା ୱେବସାଇଟ ନୂଆ ଟ୍ୟାବରେ</b> ଖୋଲିବ।",dashFoot:"🌍💓 EarthPulse India — ଭାରତର ପ୍ରତ୍ୟେକ ବିପର୍ଯ୍ୟୟ, ଗୋଟିଏ ପରିବାର। ପ୍ରକୃତ ଚେତାବନୀ ପାଇଁ ସର୍ବଦା IMD / NDMA ର ସରକାରୀ ସୂଚନାକୁ ହିଁ ଶେଷ ମାନନ୍ତୁ।",openLine:"ୱେବସାଇଟ ଖୋଲନ୍ତୁ →",
+desc_fire:"NASA ଉପଗ୍ରହରୁ ଭାରତର ଅଗ୍ନି ସ୍ଥିତି ସିଧା, 110 ବଡ଼ ଅଗ୍ନି ରେକର୍ଡ ଏବଂ ଅଞ୍ଚଳ ଅଗ୍ନି-ଯାଞ୍ଚ।",desc_flood:"ନଦୀ ଜଳସ୍ତର, ବନ୍ୟାର 44 ଯାଞ୍ଚ ହୋଇଥିବା ରେକର୍ଡ ଏବଂ ସୁରକ୍ଷା ମାର୍ଗଦର୍ଶନ — ଜଳ ସହିତ।",desc_landslide:"ପାହାଡ଼ ଅଞ୍ଚଳରେ ଭୂସ୍ଖଳନ ବିପଦ, 47 ରେକର୍ଡ ଏବଂ GSI ବିପଦ ଅଞ୍ଚଳ — ଭୂମି ସହିତ।",desc_coldwave:"34 ପ୍ରବଳ ଶୀତ ଲହରୀର ରେକର୍ଡ, IMD ସୂଚନା ଏବଂ ଥଣ୍ଡାରୁ ସୁରକ୍ଷା — ହିମ ସହିତ।",desc_cyclone:"ଘୂର୍ଣ୍ଣିବାତ୍ୟାର 40 ରେକର୍ଡ, ଗତିପଥ ମାନଚିତ୍ର ଏବଂ କୂଳ ଛୁଇଁବା କାହାଣୀ — ବାୟୁ ସହିତ।",
+bot_fire:["ମୁଁ ଅଗ୍ନି! ଅଗ୍ନି ଖବର ସବୁଠାରୁ ଆଗ ମୋ ପାଖକୁ 🔥","ବାକ୍ସ ଉପରେ ଦବାନ୍ତୁ — ଅଗ୍ନି ୱେବସାଇଟ ଖୋଲିବ!"],bot_flood:["ମୁଁ ଜଳ! ବନ୍ୟା ପାଣି ମୋ ନଜରରେ ଅଛି 🌊","ଏଠାରେ ଦବାନ୍ତୁ — ବନ୍ୟା ୱେବସାଇଟ ସବୁ କହିବ!"],bot_landslide:["ମୁଁ ଭୂମି! ପାହାଡ଼ କେବେ ଖସିବ, ଆଗ ମୁଁ ଜାଣେ ⛰️","ଏଠାରେ ଦବାନ୍ତୁ — ଭୂସ୍ଖଳନ ୱେବସାଇଟ ଖୋଲିବ!"],bot_coldwave:["ମୁଁ ହିମ! ଥଣ୍ଡା ଆସିଲେ ପ୍ରସ୍ତୁତି ମୋ ଦାୟିତ୍ୱ ❄️","ଏଠାରେ ଦବାନ୍ତୁ — ଶୀତ ଲହରୀ ୱେବସାଇଟ ଖୋଲିବ!"],bot_cyclone:["ମୁଁ ବାୟୁ! ଝଡ଼ ଆସିଲେ ସବୁଠାରୁ ଆଗ ମୁଁ କହେ 🌀","ଏଠାରେ ଦବାନ୍ତୁ — ଘୂର୍ଣ୍ଣିବାତ୍ୟା ୱେବସାଇଟ ଖୋଲିବ!"],
+e_name:"ଆପଣଙ୍କ ନାମ ବହୁତ ଛୋଟ ଲାଗୁଛି — ଦୟାକରି ପୂରା ନାମ ଲେଖନ୍ତୁ (କମରୁ କମ 3 ଅକ୍ଷର) 🙏",e_user:"ଦୟାକରି 3–20 ଅକ୍ଷରର ବ୍ୟବହାରକାରୀ ନାମ ବାଛନ୍ତୁ, କେବଳ ଅକ୍ଷର, ସଂଖ୍ୟା କିମ୍ବା _ ସହିତ — ଯେପରି keshav_01 👍",e_pass6:"ଦୟାକରି ପାସୱାର୍ଡ କମରୁ କମ 6 ଅକ୍ଷରର ରଖନ୍ତୁ — ଶକ୍ତିଶାଳୀ ରଖନ୍ତୁ 🔒",e_passmatch:"ଦୁଇଟି ପାସୱାର୍ଡ ମେଳ ଖାଉନାହିଁ — ଯାଞ୍ଚ କରି ପୁଣି ଦିଅନ୍ତୁ 👀",e_noaccount:"ଏହି ଇମେଲରେ କୌଣସି ଖାତା ମିଳିଲା ନାହିଁ 🤔 — ବନାନ ଯାଞ୍ଚ କରନ୍ତୁ, କିମ୍ବା ପ୍ରଥମେ ସାଇନ ଅପରୁ ଖାତା ତିଆରି କରନ୍ତୁ।",e_wrongpass:"ପାସୱାର୍ଡ ଭୁଲ ଅଛି 😅 — ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ। ଭୁଲିଥିଲେ ଉପର 'ଭୁଲିଗଲେ?' ଟ୍ୟାବ ଦବାନ୍ତୁ।",e_emailUsed:"ଏହି ଇମେଲ ପୂର୍ବରୁ ପଞ୍ଜୀକୃତ ଅଛି 😅 — ଦୟାକରି ଏହା ଦ୍ୱାରା ଲଗଇନ କରନ୍ତୁ, କିମ୍ବା ପାସୱାର୍ଡ ଭୁଲିଥିଲେ 'ଭୁଲିଗଲେ?' ଟ୍ୟାବ ଦବାନ୍ତୁ।",e_emailBad:"ଏହି ଇମେଲ ଠିକଣା ଠିକ ଲାଗୁନାହିଁ 🤔 — ଦୟାକରି ଯାଞ୍ଚ କରି ସମ୍ପୂର୍ଣ୍ଣ ଇମେଲ ଲେଖନ୍ତୁ, ଯେପରି name@example.com।",e_weakpass:"ଏହି ପାସୱାର୍ଡ ବହୁତ ଦୁର୍ବଳ 🔒 — ଦୟାକରି ଲମ୍ବା ଏବଂ ଶକ୍ତିଶାଳୀ ପାସୱାର୍ଡ ବାଛନ୍ତୁ (କମରୁ କମ 6 ଅକ୍ଷର; ଅକ୍ଷର ଏବଂ ସଂଖ୍ୟା ମିଶାଇଲେ ଭଲ)।",e_badcred:"ଇମେଲ କିମ୍ବା ପାସୱାର୍ଡ ଭୁଲ ଅଛି 😅 — ଦୁହିଁଙ୍କୁ ଯାଞ୍ଚ କରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ। ପାସୱାର୍ଡ ଭୁଲିଥିଲେ ଉପର 'ଭୁଲିଗଲେ?' ଟ୍ୟାବ ଦବାନ୍ତୁ।",e_network:"ଖାତା ସେବା ପାଖରେ ପହଞ୍ଚି ପାରିଲା ନାହିଁ 📡 — ଦୟାକରି ଆପଣଙ୍କ internet connection ଯାଞ୍ଚ କରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।",e_toomany:"ବହୁତ ଚେଷ୍ଟା ହୋଇଗଲା 🚦 — ଦୟାକରି କିଛି ସମୟ ଅପେକ୍ଷା କରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।",e_generic:"କିଛି ଭୁଲ ହୋଇଗଲା 😅 — ଦୟାକରି କିଛି ସମୟ ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ। ବାରମ୍ବାର ହେଲେ ଆପଣଙ୍କ internet connection ଯାଞ୍ଚ କରନ୍ତୁ।",e_profilefail:"ଆପଣଙ୍କ ଖାତା ତିଆରି ହୋଇଗଲା ଏବଂ ଆପଣ ଲଗଇନ ଅଛନ୍ତି ✅ — କିନ୍ତୁ ଆପଣଙ୍କ profile ବିବରଣୀ ବର୍ତ୍ତମାନ ସଂରକ୍ଷଣ ହୋଇପାରିଲା ନାହିଁ। ଦୟାକରି connection ଯାଞ୍ଚ କରନ୍ତୁ; ସଂରକ୍ଷଣ ନ ହେବା ପର୍ଯ୍ୟନ୍ତ ଆପଣଙ୍କ ନାମ ଇମେଲରୁ ଦେଖାଯାଇପାରେ।"},
+as:{langLabel:"🌐 ভাষা",tagline:"ভাৰতৰ প্ৰতিটো দুৰ্যোগ — একে ঠাইত, একে পৰিয়াল 🌍💓",subline:"জুই · বান · ভূমিস্খলন · শীতল ঢৌ · ঘূৰ্ণীবতাহ — পাঁচটা ৱেবছাইট, পাঁচজন AI সংগী, এটা ঘৰ।",enter:"প্ৰৱেশ কৰক →",splashNote:"প্ৰথমবাৰ আহিছে? প্ৰৱেশ টিপক — এবাৰ একাউণ্ট বনাওক, তাৰ পিছত প্ৰতিবাৰ আপোনাৰ নামেৰে স্বাগতম জনোৱা হ’ব 🙏",authSub:"আপোনাৰ একাউণ্টেৰে প্ৰৱেশ কৰক — পাঁচোখন দুৰ্যোগ ৱেবছাইটে আপোনালৈ অপেক্ষা কৰি আছে।",tabLogin:"লগইন",tabSignup:"ছাইন আপ",tabForgot:"পাহৰিলে?",username:"ব্যৱহাৰকাৰীৰ নাম",email:"ইমেইল",emailPh:"e.g. name@example.com",password:"পাছৱৰ্ড",loginBtn:"লগইন কৰক →",forgotQ:"পাছৱৰ্ড পাহৰিলে?",forgotLink:"Reset link লওক",newQ:"প্ৰথমবাৰ আহিছে?",signupLink:"নতুন একাউণ্ট বনাওক",fullName:"সম্পূৰ্ণ নাম",chooseUser:"ব্যৱহাৰকাৰীৰ নাম বাছক",userHint:"এইটো কেৱল আপোনাৰ বাবে দেখুওৱা নাম — লগইনৰ বাবে প্ৰয়োজন নাই (লগইন ইমেইলৰে হ'ব)। 3–20 আখৰ: আখৰ, সংখ্যা বা _।",createPass:"পাছৱৰ্ড বনাওক",passPh:"কমেও 6 আখৰ",passAgain:"পাছৱৰ্ড আকৌ লিখক",passAgainPh:"একেটা পাছৱৰ্ড আকৌ",signupBtn:"একাউণ্ট বনাওক →",authNote:"🔒 আপোনাৰ একাউণ্ট <b>Google Firebase</b>ৰ ওচৰত সুৰক্ষিত থাকে — এবাৰ ছাইন আপ কৰক, তাৰ পিছত একে ইমেইল আৰু পাছৱৰ্ডেৰে <b>যিকোনো ফোন বা কম্পিউটাৰত</b> লগইন কৰক। আপোনাৰ পাছৱৰ্ড Googleৰ ওচৰত সুৰক্ষিত থাকে; এই পৃষ্ঠাই ইয়াক কেতিয়াও সংৰক্ষণ নকৰে। পাহৰিলে 'পাহৰিলে?' টেব টিপক — ইমেইললৈ reset link আহিব।",fgHint:"আপোনাৰ একাউণ্টৰ ইমেইল লিখক — নতুন পাছৱৰ্ড বনাবলৈ আমি আপোনাক link ইমেইল কৰিম।",resetBtn:"মোক reset link ইমেইল কৰক →",resetSent:"✅ Reset link পঠোৱা হ'ল! {email}লৈ পাছৱৰ্ড সলোৱাৰ link পঠোৱা হৈছে — সেই ইমেইল খুলি link টিপক, নতুন পাছৱৰ্ড বনাওক, তাৰ পিছত ইয়ালৈ আহি লগইন কৰক। (Inboxত নাপালে spam folderও চাওক।)",welcome:"স্বাগতম, {name}! 👋",who:"@{user} · EarthPulse পৰিয়াললৈ আপোনাক স্বাগতম 🌍💓",logout:"লগআউট 🚪",dashIntro:"এয়া আপোনাৰ <b>EarthPulse পৰিয়াল</b> — পাঁচোখন দুৰ্যোগ ৱেবছাইট, প্ৰতিখনৰ কাষতে তাৰ নিজৰ AI সংগী ঘূৰি ফুৰিছে। যিকোনো বাকচত টিপিলেই <b>সেই দুৰ্যোগৰ সম্পূৰ্ণ ৱেবছাইট নতুন টেবত</b> খুলিব।",dashFoot:"🌍💓 EarthPulse India — ভাৰতৰ প্ৰতিটো দুৰ্যোগ, একে পৰিয়াল। প্ৰকৃত সতৰ্কবাণীৰ বাবে সদায় IMD / NDMA ৰ চৰকাৰী তথ্যকে চূড়ান্ত বুলি মানক।",openLine:"ৱেবছাইট খোলক →",
+desc_fire:"NASA উপগ্ৰহৰ পৰা ভাৰতৰ জুইৰ তাজা অৱস্থা, 110টা ডাঙৰ অগ্নিকাণ্ডৰ ৰেকৰ্ড আৰু অঞ্চল অগ্নি-পৰীক্ষা।",desc_flood:"নদীৰ পানীৰ স্তৰ, বানৰ 44টা পৰীক্ষিত ৰেকৰ্ড আৰু নিৰাপত্তা পৰামৰ্শ — জলৰ সৈতে।",desc_landslide:"পাহাৰীয়া অঞ্চলত ভূমিস্খলনৰ বিপদ, 47টা ৰেকৰ্ড আৰু GSI বিপদ অঞ্চল — ভূমিৰ সৈতে।",desc_coldwave:"প্ৰচণ্ড ঠাণ্ডাৰ 34টা পৰ্যায়ৰ ৰেকৰ্ড, IMD তথ্য আৰু ঠাণ্ডাৰ পৰা সুৰক্ষা — হিমৰ সৈতে।",desc_cyclone:"ঘূৰ্ণীবতাহৰ 40টা ৰেকৰ্ড, গতিপথৰ মানচিত্ৰ আৰু উপকূলত আঘাতৰ কাহিনী — বায়ুৰ সৈতে।",
+bot_fire:["মই অগ্নি! জুইৰ খবৰ সকলোতকৈ আগতে মোৰ ওচৰত 🔥","বাকচত টিপক — অগ্নি ৱেবছাইট খুলিব!"],bot_flood:["মই জল! বানৰ পানী মোৰ নজৰত 🌊","ইয়াত টিপক — বান ৱেবছাইটে সকলো জনাব!"],bot_landslide:["মই ভূমি! পাহাৰ কেতিয়া খহিব, আগতে মই জানো ⛰️","ইয়াত টিপক — ভূমিস্খলন ৱেবছাইট খুলিব!"],bot_coldwave:["মই হিম! ঠাণ্ডা আহিলে প্ৰস্তুতি মোৰ দায়িত্ব ❄️","ইয়াত টিপক — শীতল ঢৌ ৱেবছাইট খুলিব!"],bot_cyclone:["মই বায়ু! ধুমুহা আহিলে সকলোতকৈ আগতে মই কওঁ 🌀","ইয়াত টিপক — ঘূৰ্ণীবতাহ ৱেবছাইট খুলিব!"],
+e_name:"আপোনাৰ নামটো বহুত চুটি যেন লাগিছে — অনুগ্ৰহ কৰি সম্পূৰ্ণ নাম লিখক (কমেও 3 আখৰ) 🙏",e_user:"অনুগ্ৰহ কৰি 3–20 আখৰৰ ব্যৱহাৰকাৰীৰ নাম বাছক, কেৱল আখৰ, সংখ্যা বা _ ৰে — যেনে keshav_01 👍",e_pass6:"অনুগ্ৰহ কৰি পাছৱৰ্ড কমেও 6 আখৰৰ কৰক — শক্তিশালী ৰাখক 🔒",e_passmatch:"দুয়োটা পাছৱৰ্ড মিলা নাই — পৰীক্ষা কৰি আকৌ লিখক 👀",e_noaccount:"এই ইমেইলত কোনো একাউণ্ট পোৱা নগ'ল 🤔 — বানান পৰীক্ষা কৰক, বা প্ৰথমে ছাইন আপৰ পৰা একাউণ্ট বনাওক।",e_wrongpass:"পাছৱৰ্ড ভুল 😅 — আকৌ চেষ্টা কৰক। পাহৰিলে ওপৰৰ 'পাহৰিলে?' টেবটো টিপক।",e_emailUsed:"এই ইমেইলটো ইতিমধ্যে পঞ্জীয়ন হৈছে 😅 — অনুগ্ৰহ কৰি ইয়াৰেই লগইন কৰক, বা পাছৱৰ্ড পাহৰিলে 'পাহৰিলে?' টেব টিপক।",e_emailBad:"এই ইমেইল ঠিকনাটো শুদ্ধ যেন লগা নাই 🤔 — অনুগ্ৰহ কৰি পৰীক্ষা কৰি সম্পূৰ্ণ ইমেইল লিখক, যেনে name@example.com।",e_weakpass:"এই পাছৱৰ্ডটো বহুত দুৰ্বল 🔒 — অনুগ্ৰহ কৰি দীঘল আৰু শক্তিশালী পাছৱৰ্ড বাছক (কমেও 6 আখৰ; আখৰ আৰু সংখ্যা মিহলালে ভাল)।",e_badcred:"ইমেইল বা পাছৱৰ্ড ভুল 😅 — দুয়োটা পৰীক্ষা কৰি আকৌ চেষ্টা কৰক। পাছৱৰ্ড পাহৰিলে ওপৰৰ 'পাহৰিলে?' টেব টিপক।",e_network:"একাউণ্ট সেৱালৈ পোৱা নগ'ল 📡 — অনুগ্ৰহ কৰি আপোনাৰ internet connection পৰীক্ষা কৰি আকৌ চেষ্টা কৰক।",e_toomany:"বহুত চেষ্টা হৈ গ'ল 🚦 — অনুগ্ৰহ কৰি অলপ সময় ৰৈ আকৌ চেষ্টা কৰক।",e_generic:"কিবা ভুল হৈ গ'ল 😅 — অনুগ্ৰহ কৰি অলপ পিছত আকৌ চেষ্টা কৰক। বাৰে বাৰে হ'লে আপোনাৰ internet connection পৰীক্ষা কৰক।",e_profilefail:"আপোনাৰ একাউণ্ট বনোৱা হ'ল আৰু আপুনি লগইন হৈ আছে ✅ — কিন্তু আপোনাৰ profile তথ্য এতিয়া সংৰক্ষণ কৰিব পৰা নগ'ল। অনুগ্ৰহ কৰি connection পৰীক্ষা কৰক; সংৰক্ষণ নোহোৱালৈকে আপোনাৰ নাম ইমেইলৰ পৰা দেখুৱাব পাৰে।"}
+};
+
+/* Card titles keep their short native subtitle as a name (per spec) */
+var SITES = [
+  { key:"fire", emoji:"🔥", title:"Fire — Aag", bot:"Agni", botEmoji:"🔥", acc:"#ff7a45" },
+  { key:"flood", emoji:"🌊", title:"Flood — Baadh", bot:"Jal", botEmoji:"💧", acc:"#3fb9d8" },
+  { key:"landslide", emoji:"⛰️", title:"Landslide — Bhuskhalan", bot:"Bhumi", botEmoji:"🌱", acc:"#d29a5b" },
+  { key:"coldwave", emoji:"❄️", title:"Cold Wave — Sheet Lehar", bot:"Him", botEmoji:"⛄", acc:"#9fd8e8" },
+  { key:"cyclone", emoji:"🌀", title:"Cyclone — Chakrawaat", bot:"Vayu", botEmoji:"🌪️", acc:"#9a86f0" }
+];
+
+/* ---------- tiny helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function showStage(id){
+  var stages = document.querySelectorAll(".stage");
+  for (var i=0;i<stages.length;i++) stages[i].classList.remove("active");
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function setMsg(el, text, ok){
+  el.textContent = text;
+  el.className = "msg " + (ok ? "ok" : "err");
+  el.style.display = "block";
+}
+function clearMsg(el){ el.textContent=""; el.className="msg"; el.style.display="none"; }
+
+/* ---------- language preference storage ----------
+   The ONLY thing this page keeps in localStorage is the chosen language
+   (key earthpulse_lang_v1). Accounts and passwords live with Firebase —
+   they are never stored on this page. */
+var LANG_KEY = "earthpulse_lang_v1";
+var store = {
+  get: function(k){ try { return window.localStorage.getItem(k); } catch(e){ return null; } },
+  set: function(k,v){ try { window.localStorage.setItem(k,v); } catch(e){} }
+};
+
+/* ---------- language system ---------- */
+var LANGS = ["en","hi","bn","te","mr","ta","ur","gu","kn","ml","pa","or","as"];
+var currentLang = store.get(LANG_KEY) || "en";
+if (LANGS.indexOf(currentLang) < 0) currentLang = "en";
+var currentUser = null;
+function t(key){
+  var d = I18N[currentLang] || I18N.en;
+  return (d[key] !== undefined) ? d[key] : I18N.en[key];
+}
+function applyLanguage(){
+  var d = I18N[currentLang] || I18N.en;
+  document.documentElement.lang = currentLang === "or" ? "or" : currentLang;
+  document.documentElement.dir = (currentLang === "ur") ? "rtl" : "ltr";
+  $("lang-select").value = currentLang;
+  $("lang-label").textContent = d.langLabel;
+  $("lang-select").setAttribute("aria-label", d.langLabel.replace("🌐 ",""));
+  $("txt-tagline").textContent = d.tagline;
+  $("txt-subline").textContent = d.subline;
+  $("btn-enter").textContent = d.enter;
+  $("txt-splash-note").textContent = d.splashNote;
+  $("txt-auth-sub").textContent = d.authSub;
+  $("tab-login").textContent = d.tabLogin;
+  $("tab-signup").textContent = d.tabSignup;
+  $("tab-forgot").textContent = d.tabForgot;
+  $("lbl-li-email").textContent = d.email;
+  $("li-email").placeholder = d.emailPh;
+  $("lbl-li-pass").textContent = d.password;
+  $("li-pass").placeholder = (currentLang === "en") ? "Enter your password" : d.passPh;
+  $("btn-login").textContent = d.loginBtn;
+  $("txt-forgot-q").textContent = d.forgotQ;
+  $("goto-forgot").textContent = d.forgotLink;
+  $("txt-new-q").textContent = d.newQ;
+  $("goto-signup").textContent = d.signupLink;
+  $("lbl-su-name").textContent = d.fullName;
+  $("lbl-su-user").textContent = d.chooseUser;
+  $("txt-su-hint").textContent = d.userHint;
+  $("lbl-su-email").textContent = d.email;
+  $("su-email").placeholder = d.emailPh;
+  $("lbl-su-pass").textContent = d.createPass;
+  $("su-pass").placeholder = d.passPh;
+  $("lbl-su-pass2").textContent = d.passAgain;
+  $("su-pass2").placeholder = d.passAgainPh;
+  $("btn-signup").textContent = d.signupBtn;
+  $("txt-auth-note").innerHTML = d.authNote;
+  $("txt-fg-hint").textContent = d.fgHint;
+  $("lbl-fg-email").textContent = d.email;
+  $("fg-email").placeholder = d.emailPh;
+  $("fg-send").textContent = d.resetBtn;
+  $("btn-logout").textContent = d.logout;
+  $("txt-dash-intro").innerHTML = d.dashIntro;
+  $("txt-dash-foot").textContent = d.dashFoot;
+  /* dashboard texts depend on the signed-in user */
+  if (currentUser) updateDashHead(currentUser);
+  /* rebuild cards so descriptions + bubble lines use the new language */
+  var grid = $("site-grid");
+  if (grid.getAttribute("data-built") === "1"){
+    grid.removeAttribute("data-built");
+    grid.innerHTML = "";
+    buildCards();
+  }
+}
+$("lang-select").addEventListener("change", function(){
+  var v = this.value;
+  if (LANGS.indexOf(v) < 0) v = "en";
+  currentLang = v;
+  store.set(LANG_KEY, v);
+  applyLanguage();
+});
+
+/* ---------- Firebase accounts ----------
+   The Firebase JS SDK (Auth + Firestore) is loaded by the scripts at
+   the end of this file, from Google's CDN (www.gstatic.com). It hands the
+   live services to window.__epFirebaseReady below. Passwords live only
+   with Firebase — this page never stores a password or a password hash. */
+var FB = null;              /* Firebase services + SDK functions, once loaded */
+var fbUser = null;          /* current Firebase user (null = signed out) */
+var authKnown = false;      /* onAuthStateChanged has reported at least once */
+var enterPending = false;   /* ENTER tapped before the auth state was known */
+var pendingProfile = null;  /* profile typed at sign-up, until Firestore confirms it */
+var dashUid = null;         /* uid whose dashboard is currently shown */
+var authBusy = false;       /* an auth request is in flight */
+
+function emailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+/* Map a Firebase Auth error code to a friendly message key (per flow). */
+function fbErrKey(err, mode){
+  var code = (err && err.code) ? err.code : "";
+  if (code === "auth/network-request-failed") return "e_network";
+  if (code === "auth/too-many-requests") return "e_toomany";
+  if (mode === "signup"){
+    if (code === "auth/email-already-in-use") return "e_emailUsed";
+    if (code === "auth/invalid-email") return "e_emailBad";
+    if (code === "auth/weak-password") return "e_weakpass";
+  } else if (mode === "login"){
+    if (code === "auth/user-not-found") return "e_noaccount";
+    if (code === "auth/wrong-password") return "e_wrongpass";
+    if (code === "auth/invalid-credential") return "e_badcred";
+    if (code === "auth/invalid-email") return "e_emailBad";
+  } else if (mode === "forgot"){
+    if (code === "auth/user-not-found") return "e_noaccount";
+    if (code === "auth/invalid-email") return "e_emailBad";
+  }
+  return "e_generic";
+}
+
+function fallbackProfile(user){
+  var base = user.email ? user.email.split("@")[0] : "friend";
+  return { name: base, username: base, email: user.email || "" };
+}
+function profileFromDoc(user, data){
+  return {
+    name: data.name,
+    username: data.username || (user.email ? user.email.split("@")[0] : ""),
+    email: data.email || user.email || ""
+  };
+}
+function saveProfileDoc(user, prof){
+  return FB.setDoc(FB.doc(FB.db, "users", user.uid), {
+    name: prof.name, username: prof.username, email: prof.email,
+    createdAt: FB.serverTimestamp()
+  });
+}
+/* Load users/{uid}; if it does not exist yet (e.g. its first save was
+   interrupted), heal it from the details typed at sign-up when we have
+   them, and always resolve with a usable profile — never fail silently. */
+function loadProfile(user){
+  return FB.getDoc(FB.doc(FB.db, "users", user.uid)).then(function(snap){
+    if (snap && snap.exists()){
+      var data = snap.data();
+      if (data && data.name) return profileFromDoc(user, data);
+    }
+    if (pendingProfile && pendingProfile.email === user.email){
+      var p = pendingProfile;
+      return saveProfileDoc(user, p).then(function(){ return p; }, function(){ return p; });
+    }
+    return fallbackProfile(user);
+  }, function(){ return fallbackProfile(user); });
+}
+function routeSignedIn(user){
+  loadProfile(user).then(function(prof){
+    currentUser = prof;
+    dashUid = user.uid;
+    updateDashHead(prof);
+    buildCards();
+    showStage("stage-dash");
+  });
+}
+/* The stage shown is driven by the Firebase auth state: signed in ->
+   dashboard (greeted by the profile name), signed out -> auth stage. */
+function handleAuthState(user){
+  authKnown = true;
+  fbUser = user || null;
+  if (user){
+    var onSplash = $("stage-splash").classList.contains("active");
+    if (!onSplash || enterPending){ enterPending = false; routeSignedIn(user); }
+  } else {
+    currentUser = null; dashUid = null;
+    if (enterPending){ enterPending = false; showPane("login"); showStage("stage-auth"); }
+    else if ($("stage-dash").classList.contains("active")){ showPane("login"); showStage("stage-auth"); }
+  }
+}
+window.__epFirebaseReady = function(services){
+  FB = services;
+  FB.onAuthStateChanged(FB.auth, handleAuthState);
+};
+
+/* ---------- splash title letters ---------- */
+(function(){
+  var l1 = $("title-l1"), text = l1.textContent, out = "";
+  for (var i=0;i<text.length;i++) out += '<span style="animation-delay:' + (i*0.07) + 's">' + text.charAt(i) + '</span>';
+  l1.innerHTML = out;
+})();
+
+/* ---------- starfield / particles ---------- */
+(function(){
+  var cv = $("stars"), ctx = cv.getContext("2d"), W, H, dots = [], raf = null;
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize(){
+    W = cv.width = window.innerWidth; H = cv.height = window.innerHeight;
+    dots = [];
+    var n = Math.min(110, Math.floor(W*H/16000));
+    for (var i=0;i<n;i++) dots.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.7+0.4, s:Math.random()*0.25+0.05, tw:Math.random()*Math.PI*2 });
+  }
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for (var i=0;i<dots.length;i++){
+      var d = dots[i]; d.y -= d.s; d.tw += 0.02;
+      if (d.y < -4){ d.y = H+4; d.x = Math.random()*W; }
+      ctx.globalAlpha = 0.35 + 0.45*Math.abs(Math.sin(d.tw));
+      ctx.fillStyle = "#bfe9dc";
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+  if (!reduced) frame(); else {
+    for (var i=0;i<dots.length;i++){ ctx.fillStyle="#bfe9dc"; ctx.beginPath(); ctx.arc(dots[i].x, dots[i].y, dots[i].r, 0, Math.PI*2); ctx.fill(); }
+  }
+})();
+
+/* ---------- stage flow ---------- */
+$("btn-enter").addEventListener("click", function(){
+  if (fbUser){ routeSignedIn(fbUser); return; }
+  if (authKnown){ showPane("login"); showStage("stage-auth"); return; }
+  /* Auth state not known yet (the SDK is still loading): go to the auth
+     stage — if a session exists, the auth listener brings the dashboard
+     up as soon as it reports. */
+  enterPending = true;
+  showPane("login");
+  showStage("stage-auth");
+});
+
+/* ---------- auth tabs ---------- */
+function showPane(name){
+  var panes = { login:$("pane-login"), signup:$("pane-signup"), forgot:$("pane-forgot") };
+  var tabs = { login:$("tab-login"), signup:$("tab-signup"), forgot:$("tab-forgot") };
+  for (var k in panes){ panes[k].classList.toggle("on", k===name); tabs[k].classList.toggle("on", k===name); }
+}
+$("tab-login").addEventListener("click", function(){ showPane("login"); });
+$("tab-signup").addEventListener("click", function(){ showPane("signup"); });
+$("tab-forgot").addEventListener("click", function(){ showPane("forgot"); });
+$("goto-forgot").addEventListener("click", function(){ showPane("forgot"); });
+$("goto-signup").addEventListener("click", function(){ showPane("signup"); });
+
+/* ---------- SIGN UP (Firebase Auth + Firestore profile) ---------- */
+$("pane-signup").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var msg = $("signup-msg"); clearMsg(msg);
+  var name = $("su-name").value.trim();
+  var user = $("su-user").value.trim();
+  var email = $("su-email").value.trim().toLowerCase();
+  var pass = $("su-pass").value, pass2 = $("su-pass2").value;
+  if (name.length < 3) return setMsg(msg, t("e_name"));
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(user)) return setMsg(msg, t("e_user"));
+  if (!emailOk(email)) return setMsg(msg, t("e_emailBad"));
+  if (pass.length < 6) return setMsg(msg, t("e_pass6"));
+  if (pass !== pass2) return setMsg(msg, t("e_passmatch"));
+  if (!FB) return setMsg(msg, t("e_network"));
+  if (authBusy) return;
+  authBusy = true;
+  pendingProfile = { name:name, username:user, email:email };
+  FB.createUserWithEmailAndPassword(FB.auth, email, pass).then(function(cred){
+    /* Auth account created — write the profile document users/{uid}. The
+       auth-state listener opens the dashboard either way; if this write
+       fails, the user is told (never a silent failure). */
+    return saveProfileDoc(cred.user, pendingProfile).then(function(){
+      authBusy = false;
+    }, function(){
+      authBusy = false;
+      setMsg(msg, t("e_profilefail"));
+    });
+  }).catch(function(err){
+    authBusy = false;
+    setMsg(msg, t(fbErrKey(err, "signup")));
+  });
+});
+
+/* ---------- LOGIN (Firebase Auth) ---------- */
+$("pane-login").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var msg = $("login-msg"); clearMsg(msg);
+  var email = $("li-email").value.trim().toLowerCase();
+  var pass = $("li-pass").value;
+  if (!emailOk(email)) return setMsg(msg, t("e_emailBad"));
+  if (!FB) return setMsg(msg, t("e_network"));
+  if (authBusy) return;
+  authBusy = true;
+  FB.signInWithEmailAndPassword(FB.auth, email, pass).then(function(){
+    authBusy = false; /* the auth-state listener opens the dashboard */
+  }).catch(function(err){
+    authBusy = false;
+    setMsg(msg, t(fbErrKey(err, "login")));
+  });
+});
+
+/* ---------- FORGOT PASSWORD (Firebase email reset link) ---------- */
+$("pane-forgot").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var msg = $("forgot-msg"); clearMsg(msg);
+  var email = $("fg-email").value.trim().toLowerCase();
+  if (!emailOk(email)) return setMsg(msg, t("e_emailBad"));
+  if (!FB) return setMsg(msg, t("e_network"));
+  if (authBusy) return;
+  authBusy = true;
+  FB.sendPasswordResetEmail(FB.auth, email).then(function(){
+    authBusy = false;
+    setMsg(msg, t("resetSent").replace("{email}", email), true);
+  }).catch(function(err){
+    authBusy = false;
+    setMsg(msg, t(fbErrKey(err, "forgot")));
+  });
+});
+
+/* ---------- DASHBOARD ---------- */
+var bubbleTimers = [];
+function updateDashHead(u){
+  $("dash-welcome").textContent = t("welcome").replace("{name}", u.name);
+  $("dash-who").textContent = t("who").replace("{user}", u.username);
+  $("dash-avatar").textContent = (u.name.trim().charAt(0) || "?").toUpperCase();
+}
+function openDashboard(u){
+  currentUser = u;
+  updateDashHead(u);
+  buildCards();
+  showStage("stage-dash");
+}
+function buildCards(){
+  var grid = $("site-grid");
+  if (grid.getAttribute("data-built") === "1") { startBubbles(); return; }
+  grid.setAttribute("data-built","1");
+  var html = "";
+  for (var i=0;i<SITES.length;i++){
+    var s = SITES[i];
+    html += '<a class="card" style="--acc:' + s.acc + '" href="' + SITE_LINKS[s.key] + '" target="_blank" rel="noopener">'
+      + '<div class="big" aria-hidden="true">' + s.emoji + '</div>'
+      + '<h3>' + s.title + '</h3>'
+      + '<p class="desc">' + t("desc_" + s.key) + '</p>'
+      + '<div class="open-line">' + t("openLine") + '</div>'
+      + '<div class="bot-zone"><div class="bot-track">'
+      + '<div class="bubble" id="bubble-' + s.key + '"></div>'
+      + '<div class="bot" style="animation-duration:' + (6.5 + i*0.9) + 's; animation-delay:-' + (i*1.7) + 's">'
+      + '<div class="bot-body">' + s.botEmoji + '</div><div class="bot-name">' + s.bot + '</div>'
+      + '</div></div></div></a>';
+  }
+  grid.innerHTML = html;
+  startBubbles();
+}
+function startBubbles(){
+  for (var x=0;x<bubbleTimers.length;x++) clearInterval(bubbleTimers[x]);
+  bubbleTimers = [];
+  SITES.forEach(function(s, idx){
+    var b = $("bubble-" + s.key);
+    if (!b) return;
+    var li = 0;
+    function cycle(){
+      var lines = t("bot_" + s.key) || [];
+      b.textContent = lines[li % lines.length]; li++;
+      b.classList.add("show");
+      setTimeout(function(){ b.classList.remove("show"); }, 3600);
+    }
+    setTimeout(cycle, 900 + idx*1400);
+    bubbleTimers.push(setInterval(cycle, 8200));
+  });
+}
+$("btn-logout").addEventListener("click", function(){
+  $("li-pass").value = "";
+  currentUser = null; dashUid = null; fbUser = null;
+  showPane("login");
+  showStage("stage-auth");
+  if (FB){ FB.signOut(FB.auth).catch(function(){}); }
+});
+
+/* ---------- first paint: language (default English) ---------- */
+applyLanguage();
+/* The splash stays first. The Firebase auth listener (registered by the
+   Firebase scripts below) drives the auth/dashboard stages from the real
+   sign-in state, with Firebase's default local session persistence — a
+   returning user on this device stays signed in. */
+</script>
+
+<!-- Firebase JS SDK from Google's CDN — Auth + Firestore (classic compat
+     builds of the same official SDK, so this page needs no module scripts).
+     Free Spark project "earthpulse-india"; Email/Password sign-in. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* Initialize Firebase and hand the live services to the portal code above.
+   The compat SDK surface is adapted here to the small function set the
+   portal uses; error codes (err.code, e.g. "auth/wrong-password") are the
+   same as the modular SDK's. */
+(function(){
+  if (!window.firebase || typeof window.__epFirebaseReady !== "function") return;
+  var firebaseConfig = {
+    apiKey: "AIzaSyDDbWsRoXM0OXvj3qXe-MBdwLpKx7IsWFY",
+    authDomain: "earthpulse-india.firebaseapp.com",
+    projectId: "earthpulse-india",
+    storageBucket: "earthpulse-india.firebasestorage.app",
+    messagingSenderId: "461024917773",
+    appId: "1:461024917773:web:d573331d5a91948fe41844"
+  };
+  var app = firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth(app);
+  var db = firebase.firestore(app);
+  window.__epFirebaseReady({
+    auth: auth, db: db,
+    onAuthStateChanged: function(a, cb){ return a.onAuthStateChanged(cb); },
+    createUserWithEmailAndPassword: function(a, email, pass){ return a.createUserWithEmailAndPassword(email, pass); },
+    signInWithEmailAndPassword: function(a, email, pass){ return a.signInWithEmailAndPassword(email, pass); },
+    sendPasswordResetEmail: function(a, email){ return a.sendPasswordResetEmail(email); },
+    signOut: function(a){ return a.signOut(); },
+    doc: function(d, col, id){ return d.collection(col).doc(id); },
+    getDoc: function(ref){
+      return ref.get().then(function(snap){
+        return { exists: function(){ return snap.exists; }, data: function(){ return snap.data(); } };
+      });
+    },
+    setDoc: function(ref, data){ return ref.set(data); },
+    serverTimestamp: function(){ return firebase.firestore.FieldValue.serverTimestamp(); }
+  });
+})();
+</script>
+<script>
+/* PWA app layer: register the service worker (pages stay network-first; see sw.js). */
+try {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+} catch (e) { /* older browser: the site works exactly the same without the app layer */ }
+</script>
+</body>
+</html>
