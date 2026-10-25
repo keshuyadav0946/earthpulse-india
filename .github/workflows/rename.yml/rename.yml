@@ -1,0 +1,18 @@
+name: Rename Cyclone file
+on:
+  workflow_dispatch:
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rename uploaded file to index.html
+        run: |
+          mv cyclone/india-cyclone-disaster-website.html cyclone/index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Rename uploaded Cyclone page to index.html" || exit 0
+          git push
