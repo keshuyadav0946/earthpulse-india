@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarthPulse India — SPACE OUT Ideathon 2026</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body {
+    background:#02040c;
+    font-family:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color:#e8f1ff;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ---------- ambient space backdrop ---------- */
+  #stars { position:fixed; inset:0; z-index:0; }
+  #nebula {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(38,92,180,.28), transparent 60%),
+      radial-gradient(800px 600px at -10% 110%, rgba(0,160,190,.16), transparent 60%),
+      radial-gradient(600px 400px at 55% 120%, rgba(120,60,200,.10), transparent 60%);
+  }
+  /* ---------- stage ---------- */
+  #viewport { position:fixed; inset:0; z-index:1; display:flex; align-items:center; justify-content:center; }
+  #stage {
+    position:relative; width:1280px; height:720px; flex:0 0 auto;
+    transform-origin:center center;
+    background:linear-gradient(160deg, #071228 0%, #040b1d 55%, #03061a 100%);
+    border:1px solid rgba(96,165,250,.22);
+    border-radius:18px;
+    box-shadow:0 0 90px rgba(20,80,200,.25), inset 0 0 120px rgba(0,40,110,.18);
+    overflow:hidden;
+  }
+  /* ---------- slides ---------- */
+  .slide {
+    position:absolute; inset:0; padding:54px 68px 64px;
+    opacity:0; visibility:hidden; transform:translateX(46px) scale(.995);
+    transition:opacity .55s ease, transform .55s ease, visibility 0s linear .55s;
+    display:flex; flex-direction:column;
+    pointer-events:none;
+  }
+  .slide.active { opacity:1; visibility:visible; transform:none; transition:opacity .55s ease, transform .55s ease; pointer-events:auto; }
+  .slide.before { transform:translateX(-46px) scale(.995); }
+  .anim { opacity:0; }
+  .slide.active .anim { animation:rise .8s cubic-bezier(.2,.75,.25,1) both; animation-delay:var(--d, 0s); }
+  @keyframes rise { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:none; } }
+  .slide.active .anim-l { animation:slideL .85s cubic-bezier(.2,.75,.25,1) both; animation-delay:var(--d, 0s); }
+  @keyframes slideL { from { opacity:0; transform:translateX(-38px); } to { opacity:1; transform:none; } }
+  .slide.active .anim-r { animation:slideR .85s cubic-bezier(.2,.75,.25,1) both; animation-delay:var(--d, 0s); }
+  @keyframes slideR { from { opacity:0; transform:translateX(38px); } to { opacity:1; transform:none; } }
+
+  .kicker {
+    font-size:14px; letter-spacing:.34em; font-weight:700; color:#5ec8e6;
+    text-transform:uppercase; margin-bottom:14px;
+  }
+  h1.title {
+    font-size:86px; line-height:.98; font-weight:800; letter-spacing:.01em;
+    background:linear-gradient(92deg, #ffffff 20%, #9fd8ff 55%, #ffd97a 95%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    text-shadow:0 0 42px rgba(90,160,255,.0);
+  }
+  h2.head { font-size:44px; line-height:1.12; font-weight:800; color:#f4f9ff; margin-bottom:10px; }
+  h2.head .hl { color:#ffc94d; }
+  h2.head .hlb { color:#54c8f0; }
+  p.sub { font-size:20px; line-height:1.5; color:#a9c3e8; max-width:900px; }
+  .rule { width:84px; height:4px; border-radius:2px; margin:18px 0 26px;
+    background:linear-gradient(90deg, #2f9df0, #ffc94d); box-shadow:0 0 14px rgba(64,160,255,.7); }
+
+  /* ---------- title slide ---------- */
+  .title-wrap { display:flex; align-items:center; gap:20px; height:100%; }
+  .title-left { flex:1.15; min-width:0; }
+  .title-sub { font-size:27px; line-height:1.45; color:#cfe4ff; font-weight:600; margin-top:26px; max-width:560px; }
+  .title-sub span { color:#ffc94d; }
+  .meta-row { display:flex; gap:14px; margin-top:40px; flex-wrap:wrap; }
+  .meta-chip {
+    border:1px solid rgba(120,190,255,.4); border-radius:999px; padding:10px 20px;
+    font-size:16px; font-weight:600; color:#d9ecff; background:rgba(20,60,130,.28);
+  }
+  .meta-chip.gold { border-color:rgba(255,201,77,.55); color:#ffe3a1; background:rgba(120,80,10,.18); }
+  .globe-holder { flex:1; display:flex; align-items:center; justify-content:center; position:relative; }
+  canvas.globe { display:block; }
+
+  /* ---------- generic cards / chips ---------- */
+  .grid { display:grid; gap:18px; }
+  .card {
+    background:linear-gradient(165deg, rgba(23,52,110,.55), rgba(10,24,54,.65));
+    border:1px solid rgba(110,175,255,.25); border-radius:16px; padding:22px 24px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .card h3 { font-size:21px; margin-bottom:8px; color:#ffffff; }
+  .card p { font-size:16.5px; line-height:1.5; color:#aec6ea; }
+  .pt-list { list-style:none; margin-top:8px; }
+  .pt-list li {
+    font-size:20px; line-height:1.45; color:#d7e7ff; padding:13px 0 13px 42px; position:relative;
+    border-bottom:1px solid rgba(110,170,255,.12);
+  }
+  .pt-list li:last-child { border-bottom:none; }
+  .pt-list li::before {
+    content:""; position:absolute; left:4px; top:22px; width:11px; height:11px; border-radius:50%;
+    background:#ffc94d; box-shadow:0 0 12px rgba(255,201,77,.9);
+  }
+  .pt-list li b { color:#ffffff; }
+  .stat-row { display:flex; gap:16px; margin-top:30px; flex-wrap:wrap; }
+  .stat-chip {
+    flex:1; min-width:230px; border-radius:16px; padding:20px 22px; text-align:left;
+    background:linear-gradient(160deg, rgba(16,90,160,.35), rgba(8,30,70,.5));
+    border:1px solid rgba(94,200,230,.35);
+  }
+  .stat-chip .num { font-size:46px; font-weight:800; color:#7ee2ff; line-height:1; }
+  .stat-chip .num.gold { color:#ffc94d; }
+  .stat-chip .lbl { font-size:16px; color:#c4dcff; margin-top:8px; line-height:1.4; }
+
+  /* ---------- idea diagram ---------- */
+  .diagram { margin-top:34px; display:flex; flex-direction:column; align-items:center; gap:0; }
+  .portal-box {
+    font-size:24px; font-weight:800; letter-spacing:.04em; color:#06122b;
+    background:linear-gradient(92deg, #ffd97a, #ffb84d); padding:16px 44px; border-radius:14px;
+    box-shadow:0 0 34px rgba(255,190,70,.45);
+  }
+  .diagram .stem { width:3px; height:34px; background:linear-gradient(#ffb84d, #54c8f0); }
+  .diagram .bus { width:82%; height:3px; background:linear-gradient(90deg, transparent, #54c8f0 15%, #54c8f0 85%, transparent); }
+  .hazard-row { display:flex; gap:14px; margin-top:0; width:100%; justify-content:space-between; }
+  .hazard-chip {
+    flex:1; text-align:center; padding:18px 8px 15px; border-radius:14px; margin-top:22px; position:relative;
+    background:rgba(14,36,80,.6); border:1px solid rgba(120,180,255,.3); font-size:18px; font-weight:700; color:#eaf4ff;
+  }
+  .hazard-chip::before { content:""; position:absolute; top:-22px; left:50%; width:3px; height:22px; background:#54c8f0; }
+  .hazard-chip .dot { display:block; width:14px; height:14px; border-radius:50%; margin:0 auto 9px; }
+  .hazard-chip small { display:block; font-weight:600; font-size:13.5px; color:#9dbde8; margin-top:4px; letter-spacing:.06em; }
+
+  /* ---------- hazard cards (slide 4) ---------- */
+  .haz-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:15px; margin-top:26px; }
+  .haz-card { border-radius:16px; padding:22px 17px; background:linear-gradient(170deg, rgba(20,48,105,.6), rgba(8,20,48,.7)); border:1px solid rgba(110,175,255,.25); border-top:4px solid var(--c); }
+  .haz-card .ic { font-size:31px; }
+  .haz-card h3 { font-size:20px; margin:11px 0 3px; color:#fff; }
+  .haz-card .bot-name { font-size:14px; font-weight:700; letter-spacing:.14em; color:var(--c); text-transform:uppercase; }
+  .haz-card p { font-size:14.8px; line-height:1.5; color:#a9c3e8; margin-top:10px; }
+  .strip {
+    margin-top:24px; border-radius:14px; padding:17px 24px; text-align:center;
+    background:rgba(10,60,110,.3); border:1px dashed rgba(94,200,230,.45);
+    font-size:18.5px; color:#d9ecff; font-weight:600;
+  }
+  .strip b { color:#ffc94d; }
+
+  /* ---------- assistants / chat mock ---------- */
+  .two-col { display:flex; gap:30px; margin-top:8px; flex:1; min-height:0; }
+  .col { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .chat {
+    background:rgba(6,16,38,.85); border:1px solid rgba(110,175,255,.3); border-radius:18px;
+    padding:20px; display:flex; flex-direction:column; gap:12px; flex:1;
+  }
+  .chat-head { display:flex; align-items:center; gap:11px; padding-bottom:12px; border-bottom:1px solid rgba(110,170,255,.16); }
+  .chat-ava { width:40px; height:40px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #8fd8ff, #1c6fd1); display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 0 16px rgba(70,160,255,.6); }
+  .chat-head b { font-size:17px; color:#fff; }
+  .chat-head small { display:block; color:#8fb2dd; font-size:13px; }
+  .bubble { max-width:86%; padding:12px 16px; border-radius:15px; font-size:16px; line-height:1.5; }
+  .bubble.user { align-self:flex-end; background:linear-gradient(120deg, #1c6fd1, #2f9df0); color:#fff; border-bottom-right-radius:5px; min-height:52px; }
+  .bubble.bot { align-self:flex-start; background:rgba(30,60,120,.65); border:1px solid rgba(110,175,255,.25); color:#dceaff; border-bottom-left-radius:5px; }
+  .bubble .caret { display:inline-block; width:8px; height:17px; background:#bfe3ff; vertical-align:-3px; margin-left:2px; animation:blink 0.8s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+  .chip-row { display:flex; gap:9px; flex-wrap:wrap; }
+  .mini-chip { font-size:13.5px; padding:7px 13px; border-radius:999px; border:1px solid rgba(255,201,77,.5); color:#ffe3a1; background:rgba(120,80,10,.16); }
+  .sos-box {
+    margin-top:16px; border-radius:16px; padding:18px 20px;
+    background:linear-gradient(150deg, rgba(150,20,30,.32), rgba(60,8,16,.5));
+    border:1px solid rgba(255,90,100,.5);
+  }
+  .sos-box h3 { color:#ffb3ba; font-size:19px; margin-bottom:7px; }
+  .sos-box p { color:#f3d3d6; font-size:15.5px; line-height:1.5; }
+  .sos-nums { display:flex; gap:9px; margin-top:12px; flex-wrap:wrap; }
+  .sos-nums span { background:#c22430; color:#fff; font-weight:800; font-size:17px; padding:8px 15px; border-radius:10px; box-shadow:0 0 14px rgba(255,50,70,.45); }
+  .feat-list { list-style:none; }
+  .feat-list li { font-size:18.5px; line-height:1.45; color:#d7e7ff; padding:11px 0 11px 36px; position:relative; border-bottom:1px solid rgba(110,170,255,.12); }
+  .feat-list li:last-child { border-bottom:none; }
+  .feat-list li::before { content:"✦"; position:absolute; left:4px; top:11px; color:#54c8f0; font-size:16px; }
+  .feat-list li b { color:#fff; }
+
+  /* ---------- source cards ---------- */
+  .src-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:24px; }
+  .src-card { border-radius:16px; padding:20px 21px; background:linear-gradient(165deg, rgba(23,52,110,.55), rgba(10,24,54,.65)); border:1px solid rgba(110,175,255,.25); }
+  .src-card .tag { font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+  .src-card h3 { font-size:20px; color:#fff; margin:8px 0 6px; }
+  .src-card p { font-size:15.5px; line-height:1.5; color:#aec6ea; }
+  .honesty { margin-top:22px; border-radius:14px; padding:17px 24px; background:rgba(120,80,10,.16); border:1px solid rgba(255,201,77,.45); font-size:17.5px; line-height:1.55; color:#ffe9bb; }
+  .honesty b { color:#ffc94d; }
+
+  /* ---------- pipeline ---------- */
+  .pipe { margin-top:56px; position:relative; }
+  .pipe-track { position:absolute; left:2%; right:2%; top:37px; height:5px; border-radius:3px;
+    background:linear-gradient(90deg, #2f9df0, #ffc94d); opacity:.55; }
+  .pipe-dot { position:absolute; top:31px; width:17px; height:17px; border-radius:50%;
+    background:#bfe9ff; box-shadow:0 0 16px 5px rgba(120,210,255,.75); animation:flow 5.2s linear infinite; }
+  .pipe-dot.d2 { animation-delay:1.7s; } .pipe-dot.d3 { animation-delay:3.4s; }
+  @keyframes flow { 0% { left:2%; opacity:0; } 7% { opacity:1; } 93% { opacity:1; } 100% { left:95%; opacity:0; } }
+  .pipe-steps { display:flex; justify-content:space-between; position:relative; }
+  .pipe-step { width:19%; text-align:center; }
+  .pipe-node { width:78px; height:78px; margin:0 auto; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:33px;
+    background:radial-gradient(circle at 34% 30%, #1d4e89, #0a1e42); border:2px solid rgba(120,200,255,.6);
+    box-shadow:0 0 24px rgba(50,140,255,.35); }
+  .pipe-step h3 { font-size:19px; color:#fff; margin:15px 0 6px; }
+  .pipe-step p { font-size:14.8px; line-height:1.45; color:#a9c3e8; }
+
+  /* ---------- scale / phone slides ---------- */
+  .big-quote { font-size:32px; font-weight:700; line-height:1.35; color:#fff; }
+  .big-quote span { color:#ffc94d; }
+  .scale-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px; }
+  .phone-visual { display:flex; gap:22px; align-items:center; justify-content:center; margin-top:26px; }
+  .phone {
+    width:172px; height:336px; border-radius:28px; border:3px solid rgba(140,200,255,.5);
+    background:linear-gradient(170deg, #0a1c3e, #050d22); padding:18px 14px; position:relative;
+    box-shadow:0 18px 44px rgba(0,0,0,.5), 0 0 30px rgba(50,140,255,.22);
+  }
+  .phone::before { content:""; position:absolute; top:8px; left:50%; transform:translateX(-50%); width:52px; height:6px; border-radius:3px; background:rgba(160,210,255,.4); }
+  .phone .p-title { font-size:15px; font-weight:800; color:#fff; margin:12px 0 10px; text-align:center; }
+  .phone .p-globe { width:104px; height:104px; margin:0 auto; border-radius:50%;
+    background:radial-gradient(circle at 36% 32%, #2a7ad1, #0a2c5e 62%, #04122e);
+    border:1px solid rgba(140,210,255,.55); box-shadow:inset -14px -10px 26px rgba(0,0,0,.55), 0 0 18px rgba(60,150,255,.4); position:relative; }
+  .phone .p-globe::after { content:""; position:absolute; inset:16px 22px; border-radius:50%; border:1.5px dashed rgba(255,201,77,.65); }
+  .phone .p-btn { margin:13px auto 0; width:82%; text-align:center; font-size:12.5px; font-weight:700; padding:8px 0; border-radius:9px; background:rgba(47,157,240,.3); border:1px solid rgba(120,200,255,.5); color:#dceeff; }
+  .phone .p-btn.red { background:rgba(194,36,48,.4); border-color:rgba(255,110,120,.6); }
+  .vs-list { list-style:none; }
+  .vs-list li { font-size:19px; color:#d7e7ff; padding:12px 0 12px 38px; position:relative; border-bottom:1px solid rgba(110,170,255,.12); line-height:1.45; }
+  .vs-list li:last-child { border-bottom:none; }
+  .vs-list li::before { content:"▸"; position:absolute; left:6px; top:12px; color:#ffc94d; font-size:20px; }
+  .vs-list li b { color:#fff; }
+
+  /* ---------- team ---------- */
+  .team-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:28px; }
+  .member { text-align:center; border-radius:16px; padding:26px 14px 22px; background:linear-gradient(170deg, rgba(20,48,105,.6), rgba(8,20,48,.7)); border:1px solid rgba(110,175,255,.25); }
+  .member .ava { width:76px; height:76px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:30px; font-weight:800; color:#06122b; background:linear-gradient(140deg, #9fd8ff, #54c8f0); box-shadow:0 0 22px rgba(84,200,240,.45); }
+  .member.lead .ava { background:linear-gradient(140deg, #ffe3a1, #ffc94d); box-shadow:0 0 22px rgba(255,201,77,.5); }
+  .member h3 { font-size:20px; color:#fff; }
+  .member p { font-size:14.5px; color:#9dbde8; margin-top:5px; letter-spacing:.05em; }
+  .member.lead p { color:#ffc94d; font-weight:700; }
+  .close-line { margin-top:34px; text-align:center; }
+  .close-line .live { font-size:21px; color:#d9ecff; }
+  .close-line .live b { color:#7ee2ff; }
+  .thanks { font-size:52px; font-weight:800; margin-top:16px;
+    background:linear-gradient(92deg, #fff, #9fd8ff 60%, #ffd97a); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+
+  /* ---------- chrome (nav, progress) ---------- */
+  #progressWrap { position:fixed; top:0; left:0; right:0; height:5px; background:rgba(90,140,220,.15); z-index:50; }
+  #progressBar { height:100%; width:0; background:linear-gradient(90deg, #2f9df0, #ffc94d); box-shadow:0 0 12px rgba(80,170,255,.8); transition:width .5s ease; }
+  #hud { position:fixed; right:22px; bottom:20px; z-index:50; display:flex; align-items:center; gap:10px; }
+  .hud-btn {
+    width:46px; height:46px; border-radius:50%; border:1px solid rgba(120,190,255,.45); cursor:pointer;
+    background:rgba(10,28,64,.75); color:#d9ecff; font-size:19px; display:flex; align-items:center; justify-content:center;
+    transition:background .2s, transform .2s; backdrop-filter:blur(4px);
+  }
+  .hud-btn:hover { background:rgba(35,90,180,.85); transform:scale(1.07); }
+  #counter { font-size:15px; font-weight:700; color:#9dbde8; letter-spacing:.12em; min-width:64px; text-align:center; }
+  .clickzone { position:fixed; top:0; bottom:0; width:11%; z-index:40; cursor:pointer; }
+  #zonePrev { left:0; } #zoneNext { right:0; }
+  #hint { position:fixed; left:22px; bottom:26px; z-index:50; font-size:13px; color:rgba(160,195,240,.55); letter-spacing:.05em; }
+  @media (max-width:700px) { #hint { display:none; } }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div id="nebula"></div>
+<div id="progressWrap"><div id="progressBar"></div></div>
+
+<div id="viewport">
+  <div id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slide>
+      <div class="title-wrap">
+        <div class="title-left">
+          <div class="kicker anim" style="--d:.05s">Live Disaster Information Platform</div>
+          <h1 class="title anim" style="--d:.15s">EARTHPULSE<br>INDIA</h1>
+          <p class="title-sub anim" style="--d:.3s">One Portal. Five Disasters. <span>Live, Verified</span> — In Your Language.</p>
+          <div class="meta-row">
+            <div class="meta-chip anim" style="--d:.5s">SPACE OUT — Space Innovation Ideathon 2026 · Round 1</div>
+            <div class="meta-chip gold anim" style="--d:.62s">Team Project Sentinel</div>
+          </div>
+        </div>
+        <div class="globe-holder anim-r" style="--d:.25s">
+          <canvas class="globe" id="globeTitle" width="560" height="560"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · THE PROBLEM -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">The Problem</div>
+      <h2 class="head anim" style="--d:.12s">When Disaster Strikes, <span class="hl">Information</span> Saves Lives</h2>
+      <div class="rule anim" style="--d:.2s"></div>
+      <ul class="pt-list">
+        <li class="anim" style="--d:.28s">Every hazard's official data lives on a <b>different portal</b>, in a different format — fire, flood, cyclone, landslide and cold wave never appear together.</li>
+        <li class="anim" style="--d:.4s">Warnings are published in technical language and rarely reach people in <b>their own language</b>.</li>
+        <li class="anim" style="--d:.52s"><b>Old news is forwarded as if it were happening now</b> — creating panic in one place and false calm in another.</li>
+        <li class="anim" style="--d:.64s">There is <b>no single place</b> that shows what is happening across India, right now, from verified sources.</li>
+      </ul>
+      <div class="stat-row">
+        <div class="stat-chip anim" style="--d:.8s"><div class="num" data-count="5">0</div><div class="lbl">major hazards strike India every year — each tracked by a separate agency</div></div>
+        <div class="stat-chip anim" style="--d:.92s"><div class="num" data-count="13">0</div><div class="lbl">languages are spoken across India's disaster-prone regions</div></div>
+        <div class="stat-chip anim" style="--d:1.04s"><div class="num gold" data-count="1">0</div><div class="lbl">unified live platform bringing all of it together — until now</div></div>
+      </div>
+    </section>
+
+    <!-- 3 · THE IDEA -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">The Idea</div>
+      <h2 class="head anim" style="--d:.12s">One Portal Opens <span class="hlb">Five Dedicated Websites</span></h2>
+      <p class="sub anim" style="--d:.2s">EarthPulse India is a live disaster-information platform for India. A single portal opens five dedicated websites — one per hazard — each with its own live data, maps, verified history and assistant.</p>
+      <div class="diagram">
+        <div class="portal-box anim" style="--d:.35s">EARTHPULSE INDIA — ONE PORTAL</div>
+        <div class="stem anim" style="--d:.45s"></div>
+        <div class="bus anim" style="--d:.5s"></div>
+        <div class="hazard-row">
+          <div class="hazard-chip anim" style="--d:.6s"><span class="dot" style="background:#ff7a29; box-shadow:0 0 12px #ff7a29"></span>Forest Fire<small>AGNI</small></div>
+          <div class="hazard-chip anim" style="--d:.7s"><span class="dot" style="background:#38b6ff; box-shadow:0 0 12px #38b6ff"></span>Flood<small>JAL</small></div>
+          <div class="hazard-chip anim" style="--d:.8s"><span class="dot" style="background:#c98d4b; box-shadow:0 0 12px #c98d4b"></span>Landslide<small>BHUMI</small></div>
+          <div class="hazard-chip anim" style="--d:.9s"><span class="dot" style="background:#a5e8ff; box-shadow:0 0 12px #a5e8ff"></span>Cold Wave<small>HIM</small></div>
+          <div class="hazard-chip anim" style="--d:1s"><span class="dot" style="background:#b78bff; box-shadow:0 0 12px #b78bff"></span>Cyclone<small>VAYU</small></div>
+        </div>
+      </div>
+      <p class="sub anim" style="--d:1.15s; margin-top:36px; text-align:center; max-width:none">Five hazards. Five specialists. <b style="color:#fff">One trusted address.</b></p>
+    </section>
+
+    <!-- 4 · INSIDE THE PLATFORM -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Inside the Platform</div>
+      <h2 class="head anim" style="--d:.12s">Five Specialists, <span class="hl">One Mission</span></h2>
+      <div class="haz-grid">
+        <div class="haz-card anim" style="--c:#ff7a29; --d:.25s"><div class="ic">🔥</div><h3>Forest Fire</h3><div class="bot-name">Agni</div><p>Tracks live satellite fire hotspots across India's forests, with each detection's time and age.</p></div>
+        <div class="haz-card anim" style="--c:#38b6ff; --d:.35s"><div class="ic">🌊</div><h3>Flood</h3><div class="bot-name">Jal</div><p>Tracks river levels against official warning and danger marks, station by station.</p></div>
+        <div class="haz-card anim" style="--c:#c98d4b; --d:.45s"><div class="ic">⛰️</div><h3>Landslide</h3><div class="bot-name">Bhumi</div><p>Tracks landslide forecasts for hill districts, combined with live rainfall triggers.</p></div>
+        <div class="haz-card anim" style="--c:#a5e8ff; --d:.55s"><div class="ic">❄️</div><h3>Cold Wave</h3><div class="bot-name">Him</div><p>Tracks cold-wave warnings and minimum temperatures across the northern plains.</p></div>
+        <div class="haz-card anim" style="--c:#b78bff; --d:.65s"><div class="ic">🌀</div><h3>Cyclone</h3><div class="bot-name">Vayu</div><p>Tracks cyclonic systems over the Bay of Bengal and the Arabian Sea, with forecast tracks.</p></div>
+      </div>
+      <div class="strip anim" style="--d:.85s"><b data-count="275">0</b> verified historical records &nbsp;·&nbsp; Live 3D globe &nbsp;·&nbsp; 2D archive maps &nbsp;·&nbsp; Source cited on every record</div>
+    </section>
+
+    <!-- 5 · A LIVING GLOBE -->
+    <section class="slide" data-slide>
+      <div class="title-wrap">
+        <div class="title-left" style="flex:1.05">
+          <div class="kicker anim" style="--d:.05s">The Living Globe</div>
+          <h2 class="head anim" style="--d:.12s">The Globe Shows <span class="hl">Only What Is Happening Now</span></h2>
+          <div class="rule anim" style="--d:.2s"></div>
+          <ul class="feat-list">
+            <li class="anim" style="--d:.3s"><b>Live only.</b> The home globe displays current events — for fire, only the last 24 hours of satellite detections.</li>
+            <li class="anim" style="--d:.42s"><b>Calm means calm.</b> When nothing is happening, the globe stays quiet. Old records never appear on it.</li>
+            <li class="anim" style="--d:.54s"><b>Honest about time.</b> Every live marker carries its date and time, and fades as it grows older.</li>
+            <li class="anim" style="--d:.66s"><b>History has its own place.</b> The past lives on a separate 2D map — never mixed into the live view.</li>
+          </ul>
+        </div>
+        <div class="globe-holder anim-r" style="--d:.25s">
+          <canvas class="globe" id="globeLive" width="600" height="600"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · ASSISTANTS -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Assistance for Everyone</div>
+      <h2 class="head anim" style="--d:.12s">Assistants That Speak <span class="hlb">Your Language</span></h2>
+      <div class="two-col">
+        <div class="col anim-l" style="--d:.25s">
+          <div class="chat">
+            <div class="chat-head"><div class="chat-ava">🔥</div><div><b>Agni — Fire Assistant</b><small>Online · replies in your language</small></div></div>
+            <div class="bubble user" id="chatQ"></div>
+            <div class="bubble bot" id="chatA" style="opacity:0">In the last 24 hours, satellites detected <b>2,392 hotspots</b> across India. The freshest pass was at 3:19 PM IST. Tap any record to see its source report.</div>
+            <div class="chip-row" id="chatChips" style="opacity:0">
+              <span class="mini-chip">Which state has the most fires?</span>
+              <span class="mini-chip">Show the biggest fire event</span>
+              <span class="mini-chip">Safety tips</span>
+            </div>
+          </div>
+        </div>
+        <div class="col anim-r" style="--d:.35s">
+          <ul class="feat-list">
+            <li><b>Five assistants</b> — Agni, Jal, Bhumi, Him and Vayu — one expert per hazard.</li>
+            <li><b>13 languages</b> — the whole site and the assistant switch instantly, including right-to-left Urdu.</li>
+            <li><b>Voice in and out</b> — speak a question, hear the answer, mute anytime.</li>
+            <li><b>Real conversations</b> — follow-up questions and tappable record chips, not dead-end menus.</li>
+          </ul>
+          <div class="sos-box">
+            <h3>🚨 SOS — Only for a Genuine Live Risk</h3>
+            <p>The SOS button glows <b>only</b> when live data shows a real life-risk, names the place, and opens big one-tap helpline numbers — with a siren that can be muted instantly.</p>
+            <div class="sos-nums"><span>112</span><span>108</span><span>101</span><span>100</span><span>1078</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · WHERE THE DATA COMES FROM -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Trusted Sources</div>
+      <h2 class="head anim" style="--d:.12s">Where the Data <span class="hl">Comes From</span></h2>
+      <p class="sub anim" style="--d:.2s">Every layer of EarthPulse India begins with an official source — satellites in orbit and India's own monitoring agencies.</p>
+      <div class="src-grid">
+        <div class="src-card anim" style="--d:.3s"><div class="tag" style="color:#ff7a29">Forest Fire · From Space</div><h3>NASA FIRMS</h3><p>Satellite fire hotspots from the VIIRS and MODIS instruments, filtered to India and cross-checked between sensors.</p></div>
+        <div class="src-card anim" style="--d:.4s"><div class="tag" style="color:#38b6ff">Flood</div><h3>Central Water Commission</h3><p>Official river-level bulletins — which stations are above the warning level, and which have reached danger level.</p></div>
+        <div class="src-card anim" style="--d:.5s"><div class="tag" style="color:#b78bff">Cyclone</div><h3>IMD / RSMC New Delhi</h3><p>India Meteorological Department cyclone bulletins, forecast tracks and landfall guidance for both coasts.</p></div>
+        <div class="src-card anim" style="--d:.6s"><div class="tag" style="color:#c98d4b">Landslide</div><h3>Geological Survey of India</h3><p>GSI landslide forecasts for hill districts, combined with IMD rainfall — the trigger behind most landslips.</p></div>
+        <div class="src-card anim" style="--d:.7s"><div class="tag" style="color:#a5e8ff">Cold Wave</div><h3>IMD Warnings</h3><p>India Meteorological Department cold-wave warnings and observed minimum temperatures.</p></div>
+        <div class="src-card anim" style="--d:.8s"><div class="tag" style="color:#ffc94d">Historical Archive</div><h3>Verified, One by One</h3><p>Every historical record — all 275 — was checked against its original published source before it was added.</p></div>
+      </div>
+      <div class="honesty anim" style="--d:.95s"><b>The honesty rule:</b> every record panel carries a “Source — read the original report” button. Event media is credited — or honestly noted when none exists. Nothing is borrowed from another event, and nothing is faked.</div>
+    </section>
+
+    <!-- 8 · HOW IT UPDATES ITSELF -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Automation</div>
+      <h2 class="head anim" style="--d:.12s">How It <span class="hlb">Updates Itself</span></h2>
+      <p class="sub anim" style="--d:.2s">No manual news-chasing. A scheduled automatic cycle keeps the live layers fresh — four times a day, every day.</p>
+      <div class="pipe anim" style="--d:.35s">
+        <div class="pipe-track"></div>
+        <div class="pipe-dot"></div><div class="pipe-dot d2"></div><div class="pipe-dot d3"></div>
+        <div class="pipe-steps">
+          <div class="pipe-step"><div class="pipe-node">🛰️</div><h3>Official Sources</h3><p>NASA, IMD, CWC and GSI publish fresh observations.</p></div>
+          <div class="pipe-step"><div class="pipe-node">⏱️</div><h3>Automatic Fetch</h3><p>Every 6 hours, the system collects the newest data on its own.</p></div>
+          <div class="pipe-step"><div class="pipe-node">✔️</div><h3>Validation</h3><p>Readings are checked, de-duplicated and stamped with their date and time.</p></div>
+          <div class="pipe-step"><div class="pipe-node">🚀</div><h3>Publish</h3><p>The verified update is published to the live website automatically.</p></div>
+          <div class="pipe-step"><div class="pipe-node">🌐</div><h3>Live Website</h3><p>Every visitor immediately sees the current, honestly-dated picture.</p></div>
+        </div>
+      </div>
+      <div class="stat-row" style="margin-top:52px">
+        <div class="stat-chip anim" style="--d:.6s"><div class="num" data-count="4">0</div><div class="lbl">automatic refresh cycles every day — only the live layers change</div></div>
+        <div class="stat-chip anim" style="--d:.72s"><div class="num gold" data-count="0">0</div><div class="lbl">historical records are ever auto-edited — the archive changes only after manual verification</div></div>
+        <div class="stat-chip anim" style="--d:.84s"><div class="num" data-count="100" data-suffix="%">0</div><div class="lbl">of live figures carry a visible date — if a source fails, the previous data stays, clearly dated. Nothing is guessed</div></div>
+      </div>
+    </section>
+
+    <!-- 9 · ACCOUNTS THAT SCALE -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Accounts &amp; Scale</div>
+      <h2 class="head anim" style="--d:.12s">Sign Up Once. <span class="hl">Your Account Works Everywhere.</span></h2>
+      <p class="sub anim" style="--d:.2s">One account opens the portal on any device — phone, laptop or desktop — and stays signed in. Here is exactly where a million users' data lives:</p>
+      <div class="scale-grid">
+        <div class="card anim" style="--d:.32s"><h3>🔐 Firebase Authentication</h3><p>Sign-up and login with email and password, run by Google's identity platform. Password reset arrives by email — no manual support needed.</p></div>
+        <div class="card anim" style="--d:.42s"><h3>🗄️ Cloud Firestore — Mumbai Region</h3><p>Each user's profile is stored as a document in Google's Cloud Firestore database, in the <b style="color:#fff">asia-south1 (Mumbai)</b> region — close to Indian users, fast everywhere.</p></div>
+        <div class="card anim" style="--d:.52s"><h3>🛡️ Private by Design</h3><p>Firestore security rules guarantee that every user can read and write <b style="color:#fff">only their own</b> account data. Accounts stay private to their owners — even with millions of users.</p></div>
+        <div class="card anim" style="--d:.62s"><h3>📈 Built to Scale</h3><p>The same Google cloud infrastructure serves a hundred users or millions without any redesign — and the platform starts on the free tier, at zero cost.</p></div>
+      </div>
+    </section>
+
+    <!-- 10 · BUILT FOR EVERY PHONE -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Access for All</div>
+      <h2 class="head anim" style="--d:.12s">Built for <span class="hlb">Every Phone in India</span></h2>
+      <div class="two-col" style="align-items:flex-start">
+        <div class="col anim-l" style="--d:.25s">
+          <ul class="vs-list">
+            <li><b>Installs like an app</b> — a Progressive Web App: add to home screen in one tap. No Play Store, no fees, no downloads queue.</li>
+            <li><b>Android and desktop</b> — the same portal, the same account, everywhere.</li>
+            <li><b>13 languages</b> — the complete experience, including right-to-left Urdu.</li>
+            <li><b>Honest on slow networks</b> — if map data hangs, the map detects it and retries by itself instead of staying blank.</li>
+            <li><b>Help in one tap</b> — SOS helpline numbers are large, tappable, and dial immediately.</li>
+          </ul>
+        </div>
+        <div class="col anim-r" style="--d:.35s">
+          <div class="phone-visual">
+            <div class="phone">
+              <div class="p-title">EARTHPULSE INDIA</div>
+              <div class="p-globe"></div>
+              <div class="p-btn">🌐 Live Globe</div>
+              <div class="p-btn">🗺️ Archive Map</div>
+              <div class="p-btn red">🚨 SOS — 112</div>
+            </div>
+            <div class="phone">
+              <div class="p-title">FIVE WEBSITES</div>
+              <div class="p-btn">🔥 Fire · Agni</div>
+              <div class="p-btn">🌊 Flood · Jal</div>
+              <div class="p-btn">⛰️ Landslide · Bhumi</div>
+              <div class="p-btn">❄️ Cold Wave · Him</div>
+              <div class="p-btn">🌀 Cyclone · Vayu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · WHY IT MATTERS -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s">Why It Matters</div>
+      <p class="big-quote anim" style="--d:.15s">In a disaster, <span>minutes decide outcomes</span> — and minutes are lost when people must hunt through five portals, three languages and last year's forwarded warnings.</p>
+      <div class="rule anim" style="--d:.3s"></div>
+      <ul class="pt-list">
+        <li class="anim" style="--d:.4s"><b>One trusted place</b> — every Indian, every hazard, always current, always sourced.</li>
+        <li class="anim" style="--d:.52s"><b>Truth over noise</b> — live means live: dated, verified, and quiet when nothing is happening.</li>
+        <li class="anim" style="--d:.64s"><b>Built from space data</b> — satellite eyes on India's forests and coasts, translated into language people actually speak.</li>
+      </ul>
+      <h3 class="anim" style="--d:.8s; font-size:23px; color:#fff; margin-top:30px">The Road Ahead</h3>
+      <div class="chip-row anim" style="--d:.9s; margin-top:14px; gap:11px">
+        <span class="mini-chip" style="font-size:15.5px; padding:10px 18px">🌍 More hazards — earthquake &amp; heatwave</span>
+        <span class="mini-chip" style="font-size:15.5px; padding:10px 18px">📍 District-level alerts</span>
+        <span class="mini-chip" style="font-size:15.5px; padding:10px 18px">📴 Offline alert caching</span>
+        <span class="mini-chip" style="font-size:15.5px; padding:10px 18px">🔔 Personalised watch-lists</span>
+      </div>
+    </section>
+
+    <!-- 12 · TEAM + CLOSE -->
+    <section class="slide" data-slide>
+      <div class="kicker anim" style="--d:.05s; text-align:center">The Team</div>
+      <h2 class="head anim" style="--d:.12s; text-align:center">Team <span class="hl">Project Sentinel</span></h2>
+      <div class="team-grid">
+        <div class="member lead anim" style="--d:.3s"><div class="ava">K</div><h3>Keshav Yadav</h3><p>TEAM LEADER</p></div>
+        <div class="member anim" style="--d:.42s"><div class="ava">J</div><h3>Jay Agrawal</h3><p>TEAM MEMBER</p></div>
+        <div class="member anim" style="--d:.54s"><div class="ava">G</div><h3>Gagan Laur</h3><p>TEAM MEMBER</p></div>
+        <div class="member anim" style="--d:.66s"><div class="ava">K</div><h3>Kapil Kumar</h3><p>TEAM MEMBER</p></div>
+      </div>
+      <div class="close-line">
+        <div class="live anim" style="--d:.85s">EarthPulse India — <b>Live now:</b> keshuyadav0946.github.io/earthpulse-india</div>
+        <div class="thanks anim" style="--d:1s">Thank You</div>
+        <p class="anim" style="--d:1.12s; color:#8fb2dd; font-size:16px; margin-top:10px">SPACE OUT — Space Innovation Ideathon 2026</p>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div id="zonePrev" class="clickzone"></div>
+<div id="zoneNext" class="clickzone"></div>
+<div id="hint">← → arrow keys · space · swipe</div>
+<div id="hud">
+  <div id="counter">1 / 12</div>
+  <button class="hud-btn" id="btnPrev" title="Previous slide">‹</button>
+  <button class="hud-btn" id="btnNext" title="Next slide">›</button>
+  <button class="hud-btn" id="btnFull" title="Fullscreen">⛶</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============ stage scaling (16:9) ============ */
+  var stage = document.getElementById("stage");
+  function fit() {
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit);
+  fit();
+
+  /* ============ starfield backdrop ============ */
+  var sc = document.getElementById("stars"), sx = sc.getContext("2d"), stars = [];
+  function starInit() {
+    sc.width = window.innerWidth; sc.height = window.innerHeight;
+    stars = [];
+    for (var i = 0; i < 150; i++) stars.push({ x: Math.random() * sc.width, y: Math.random() * sc.height, r: Math.random() * 1.4 + 0.3, p: Math.random() * 6.28 });
+  }
+  window.addEventListener("resize", starInit);
+  starInit();
+  function drawStars(t) {
+    sx.clearRect(0, 0, sc.width, sc.height);
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i], a = 0.35 + 0.3 * Math.sin(t / 900 + st.p);
+      sx.globalAlpha = a; sx.fillStyle = "#cfe6ff";
+      sx.beginPath(); sx.arc(st.x, st.y, st.r, 0, 6.2832); sx.fill();
+    }
+    sx.globalAlpha = 1;
+  }
+
+  /* ============ globe engine (pure Canvas 2D) ============ */
+  // Simplified India boundary (lon, lat)
+  var INDIA = [
+    [68.2, 23.7], [70.1, 22.3], [72.6, 20.0], [72.9, 18.9], [74.8, 13.9], [76.2, 10.3],
+    [77.4, 8.1], [78.8, 9.2], [80.3, 13.4], [80.8, 15.9], [82.3, 16.5], [84.9, 18.3],
+    [86.4, 20.1], [87.0, 21.6], [88.1, 21.7], [89.0, 22.0], [89.1, 25.3], [88.4, 26.5],
+    [88.1, 27.9], [85.2, 29.0], [81.2, 30.4], [79.3, 30.8], [78.2, 32.0], [76.9, 32.6],
+    [75.3, 34.0], [74.4, 34.6], [73.8, 33.9], [71.1, 35.4], [69.6, 33.1], [68.9, 29.9],
+    [68.2, 26.2], [68.1, 24.6]
+  ];
+  // Coarse continental blobs (lat, lon, latRadius, lonRadius) — stylised landmass
+  var BLOBS = [
+    [46, -102, 20, 34], [38, -96, 9, 20], [20, -102, 8, 9], [-12, -60, 19, 13], [-28, -66, 9, 7],
+    [7, 18, 25, 17], [-14, 24, 12, 10], [50, 14, 9, 20], [58, 60, 10, 30],
+    [47, 88, 17, 48], [33, 105, 11, 15], [20, 78, 10, 9], [17, 102, 9, 8], [36, 138, 6, 8],
+    [-25, 134, 9, 14], [64, 95, 8, 55], [-41, 173, 5, 6], [19, 45, 7, 9]
+  ];
+  function inPoly(lon, lat, poly) {
+    var inside = false;
+    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+      if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
+    }
+    return inside;
+  }
+  function isLand(lat, lon) {
+    for (var i = 0; i < BLOBS.length; i++) {
+      var b = BLOBS[i], dLa = (lat - b[0]) / b[2], dLo = (lon - b[1]) / (b[3] / Math.max(0.35, Math.cos(b[0] * Math.PI / 180)));
+      if (dLa * dLa + dLo * dLo < 1) return true;
+    }
+    return false;
+  }
+  // Sphere points in geographic convention: x = cosLat·sin(lon), z = cosLat·cos(lon)
+  function sph(latDeg, lonDeg) {
+    var la = latDeg * Math.PI / 180, lo = lonDeg * Math.PI / 180;
+    return { x: Math.cos(la) * Math.sin(lo), y: Math.sin(la), z: Math.cos(la) * Math.cos(lo) };
+  }
+  var PTS = [];
+  (function buildPoints() {
+    var golden = Math.PI * (3 - Math.sqrt(5)), NPT = 1400;
+    for (var i = 0; i < NPT; i++) {
+      var y = 1 - (i / (NPT - 1)) * 2;
+      var lat = Math.asin(y) * 180 / Math.PI;
+      var phiDeg = (golden * i) * 180 / Math.PI;
+      var lon = 90 - (((phiDeg % 360) + 360) % 360);   // geographic lon matching sph()
+      if (lon > 180) lon -= 360;
+      var kind = 0; // 0 ocean, 1 land, 2 India
+      if (inPoly(lon, lat, INDIA)) kind = 2;
+      else if (isLand(lat, lon)) kind = 1;
+      var s = sph(lat, lon);
+      PTS.push({ x: s.x, y: s.y, z: s.z, kind: kind });
+    }
+    // Dense gold fill inside the India polygon so the shape reads clearly
+    var seed = 42;
+    function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+    var added = 0, guard = 0;
+    while (added < 230 && guard < 8000) {
+      guard++;
+      var lo2 = 66 + rnd() * 26, la2 = 6 + rnd() * 32;
+      if (!inPoly(lo2, la2, INDIA)) continue;
+      var s2 = sph(la2, lo2);
+      PTS.push({ x: s2.x, y: s2.y, z: s2.z, kind: 2 });
+      added++;
+    }
+  })();
+  var MARKERS = [
+    { lat: 30.3, lon: 79.2, color: "#ff7a29", label: "FIRE", dx: -10, dy: -7, align: "right" },
+    { lat: 26.1, lon: 85.4, color: "#38b6ff", label: "FLOOD", dx: 11, dy: -2, align: "left" },
+    { lat: 10.8, lon: 76.9, color: "#e0a458", label: "LANDSLIDE", dx: 10, dy: 4, align: "left" },
+    { lat: 20.3, lon: 86.4, color: "#b78bff", label: "CYCLONE", dx: 11, dy: 6, align: "left" },
+    { lat: 28.6, lon: 77.2, color: "#a5e8ff", label: "COLD WAVE", dx: -10, dy: 15, align: "right" }
+  ];
+  var TILT = 0.42, cosT = Math.cos(TILT), sinT = Math.sin(TILT);
+  function project(latDeg, lonDeg, rot) {
+    var lat = latDeg * Math.PI / 180, lon = lonDeg * Math.PI / 180 + rot;
+    var x = Math.cos(lat) * Math.sin(lon), z = Math.cos(lat) * Math.cos(lon), y = Math.sin(lat);
+    return { x: x, y: y * cosT - z * sinT, z: y * sinT + z * cosT };
+  }
+  function drawGlobe(cv, t) {
+    var ctx = cv.getContext("2d");
+    var W = cv.width, H = cv.height, cx = W / 2, cy = H / 2, R = W * 0.44;
+    var rot = t * 0.00007 - 1.40; // slow spin; India faces the viewer at load
+    ctx.clearRect(0, 0, W, H);
+    // atmosphere glow
+    var g = ctx.createRadialGradient(cx, cy, R * 0.85, cx, cy, R * 1.22);
+    g.addColorStop(0, "rgba(50,130,255,0)");
+    g.addColorStop(0.82, "rgba(50,130,255,0.14)");
+    g.addColorStop(1, "rgba(50,130,255,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.22, 0, 6.2832); ctx.fill();
+    // sphere body
+    var g2 = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.35, R * 0.1, cx, cy, R);
+    g2.addColorStop(0, "#10294f"); g2.addColorStop(0.7, "#081a38"); g2.addColorStop(1, "#040d20");
+    ctx.fillStyle = g2;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.fill();
+    // graticule
+    ctx.strokeStyle = "rgba(110,180,255,0.10)"; ctx.lineWidth = 1;
+    var la, lo, p, first;
+    for (la = -60; la <= 60; la += 30) {
+      ctx.beginPath(); first = true;
+      for (lo = -180; lo <= 180; lo += 6) {
+        p = project(la, lo, rot);
+        if (p.z < -0.05) { first = true; continue; }
+        var gx = cx + p.x * R, gy = cy - p.y * R;
+        if (first) { ctx.moveTo(gx, gy); first = false; } else ctx.lineTo(gx, gy);
+      }
+      ctx.stroke();
+    }
+    for (lo = -180; lo < 180; lo += 30) {
+      ctx.beginPath(); first = true;
+      for (la = -90; la <= 90; la += 6) {
+        p = project(la, lo, rot);
+        if (p.z < -0.05) { first = true; continue; }
+        var mx = cx + p.x * R, my = cy - p.y * R;
+        if (first) { ctx.moveTo(mx, my); first = false; } else ctx.lineTo(mx, my);
+      }
+      ctx.stroke();
+    }
+    // dot matrix
+    var cosR = Math.cos(rot), sinR = Math.sin(rot);
+    for (var i = 0; i < PTS.length; i++) {
+      var pt = PTS[i];
+      var x1 = pt.x * cosR + pt.z * sinR;         // rotate around Y
+      var z1 = -pt.x * sinR + pt.z * cosR;
+      var y2 = pt.y * cosT - z1 * sinT;           // tilt around X
+      var z2 = pt.y * sinT + z1 * cosT;
+      if (z2 < -0.12) continue;
+      var depth = (z2 + 0.12) / 1.12;             // 0 at limb → 1 facing viewer
+      var px = cx + x1 * R, py = cy - y2 * R;
+      if (pt.kind === 2) {
+        ctx.fillStyle = "rgba(255,190,60," + (0.35 + 0.65 * depth) + ")";
+        ctx.beginPath(); ctx.arc(px, py, 2.6 + 1.5 * depth, 0, 6.2832); ctx.fill();
+      } else if (pt.kind === 1) {
+        ctx.fillStyle = "rgba(140,205,255," + (0.16 + 0.55 * depth) + ")";
+        ctx.beginPath(); ctx.arc(px, py, 1.5 + 1.1 * depth, 0, 6.2832); ctx.fill();
+      } else {
+        ctx.fillStyle = "rgba(70,130,210," + (0.05 + 0.13 * depth) + ")";
+        ctx.beginPath(); ctx.arc(px, py, 1.3, 0, 6.2832); ctx.fill();
+      }
+    }
+    // hazard markers with pulse rings
+    ctx.textAlign = "left";
+    for (var m = 0; m < MARKERS.length; m++) {
+      var mk = MARKERS[m], mp = project(mk.lat, mk.lon, rot);
+      if (mp.z < 0.12) continue;
+      var qx = cx + mp.x * R, qy = cy - mp.y * R;
+      var phase = (t / 1500 + m * 0.37) % 1;
+      for (var ring = 0; ring < 2; ring++) {
+        var ph = (phase + ring * 0.5) % 1;
+        ctx.strokeStyle = mk.color; ctx.globalAlpha = (1 - ph) * 0.75 * mp.z;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(qx, qy, 5 + ph * 26, 0, 6.2832); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = mk.color;
+      ctx.beginPath(); ctx.arc(qx, qy, 4.6, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(qx, qy, 1.9, 0, 6.2832); ctx.fill();
+      ctx.font = "700 12.5px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillStyle = "rgba(235,246,255,0.92)";
+      ctx.textAlign = mk.align || "left";
+      ctx.fillText(mk.label, qx + (mk.dx || 10), qy + (mk.dy || 4));
+    }
+    // rim light
+    ctx.strokeStyle = "rgba(130,200,255,0.5)"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.stroke();
+  }
+  var globes = [
+    { cv: document.getElementById("globeTitle"), slide: 0 },
+    { cv: document.getElementById("globeLive"), slide: 4 }
+  ];
+  // crisp rendering on high-DPI screens
+  globes.forEach(function (gb) {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var cssSize = gb.cv.width;
+    gb.cv.width = cssSize * dpr; gb.cv.height = cssSize * dpr;
+    gb.cv.style.width = cssSize + "px"; gb.cv.style.height = cssSize + "px";
+  });
+
+  /* ============ counters ============ */
+  function runCounters(slideEl) {
+    var nums = slideEl.querySelectorAll("[data-count]");
+    nums.forEach(function (el) {
+      if (el.dataset.done) return;
+      el.dataset.done = "1";
+      var target = parseFloat(el.dataset.count), suf = el.dataset.suffix || "";
+      var start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var k = Math.min(1, (ts - start) / 1200);
+        var eased = 1 - Math.pow(1 - k, 3);
+        el.textContent = Math.round(target * eased) + suf;
+        if (k < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  /* ============ chat typewriter (slide 6) ============ */
+  var chatStarted = false;
+  function startChat() {
+    if (chatStarted) return;
+    chatStarted = true;
+    var qEl = document.getElementById("chatQ");
+    var aEl = document.getElementById("chatA");
+    var chips = document.getElementById("chatChips");
+    var question = "Agni, is any forest burning right now?";
+    var i = 0;
+    qEl.innerHTML = '<span id="qText"></span><span class="caret"></span>';
+    var qText = document.getElementById("qText");
+    function type() {
+      if (i <= question.length) {
+        qText.textContent = question.slice(0, i);
+        i++;
+        setTimeout(type, 42);
+      } else {
+        var caret = qEl.querySelector(".caret");
+        if (caret) caret.remove();
+        setTimeout(function () {
+          aEl.style.transition = "opacity .6s ease, transform .6s ease";
+          aEl.style.opacity = "1";
+          setTimeout(function () {
+            chips.style.transition = "opacity .6s ease";
+            chips.style.opacity = "1";
+          }, 650);
+        }, 420);
+      }
+    }
+    setTimeout(type, 500);
+  }
+
+  /* ============ navigation ============ */
+  var slides = Array.prototype.slice.call(document.querySelectorAll("[data-slide]"));
+  var current = 0;
+  var progressBar = document.getElementById("progressBar");
+  var counter = document.getElementById("counter");
+  function goTo(n) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === current && slides[current].classList.contains("active")) return;
+    slides.forEach(function (s, i) {
+      s.classList.toggle("active", i === n);
+      s.classList.toggle("before", i < n);
+    });
+    current = n;
+    progressBar.style.width = ((n + 1) / slides.length * 100) + "%";
+    counter.textContent = (n + 1) + " / " + slides.length;
+    runCounters(slides[n]);
+    if (n === 5) startChat();
+  }
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+  document.getElementById("btnNext").addEventListener("click", next);
+  document.getElementById("btnPrev").addEventListener("click", prev);
+  document.getElementById("zoneNext").addEventListener("click", next);
+  document.getElementById("zonePrev").addEventListener("click", prev);
+  document.getElementById("btnFull").addEventListener("click", function () {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prev(); }
+    else if (e.key === "Home") goTo(0);
+    else if (e.key === "End") goTo(slides.length - 1);
+  });
+  var touchX = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (dx < -48) next(); else if (dx > 48) prev();
+    touchX = null;
+  }, { passive: true });
+
+  /* ============ main animation loop ============ */
+  function frame(t) {
+    drawStars(t);
+    for (var i = 0; i < globes.length; i++) {
+      if (globes[i].slide === current) drawGlobe(globes[i].cv, t);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  goTo(0);
+})();
+</script>
+</body>
+</html>
