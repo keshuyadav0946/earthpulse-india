@@ -1,0 +1,19 @@
+name: Rename Flood
+on:
+  workflow_dispatch:
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rename Flood file to flood/index.html
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p flood
+          git mv india-flood-disaster-website.html flood/index.html
+          git add -A
+          git commit -m "Restore flood/index.html"
+          git push
