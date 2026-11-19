@@ -1,0 +1,52 @@
+name: EarthPulse Auto-Update
+
+# Fully automatic live-data refresh for the five EarthPulse India sites.
+# Runs on GitHub's own servers — no human involvement. Each run fetches the
+# freshest official data (NASA FIRMS, IMD, CWC, Open-Meteo), patches only
+# the live-data layer inside each site's index.html, and commits the result;
+# GitHub Pages then redeploys by itself. A site whose source fails or does
+# not validate is left completely unchanged (honestly dated).
+
+on:
+  schedule:
+    - cron: '23 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: earthpulse-auto-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PDF reader (for IMD / CWC bulletins)
+        run: pip install pypdf
+
+      - name: Refresh all live data
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: python3 automation/update_all.py all
+
+      - name: Commit and publish if anything changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "EarthPulse Auto-Update"
+            git config user.email "actions@github.com"
+            git add -A
+            git commit -m "Auto-refresh live data — $(TZ=Asia/Kolkata date '+%d %b %Y, %I:%M %p IST')"
+            git push
+          else
+            echo "No changes — nothing to publish."
+          fi
