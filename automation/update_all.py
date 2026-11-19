@@ -694,9 +694,10 @@ def update_cyclone():
     if not b:
         log(site, 'bulletin parse failed — skipped')
         return False
-    if b['no'] and old_live_m and f"Bulletin No. {b['no']}" in old_live_m.group(1) and b.get('final') is False:
-        log(site, f"bulletin {b['no']} already published — no change")
-        return False
+    # Always re-render from the latest bulletin: the html == current check at
+    # the end of this function is the real no-change guard. (An earlier
+    # "already published" early-return here once froze parser fixes out of the
+    # live page until the next bulletin number arrived.)
     t = cyclone_templates(b)
     is_storm = b['stage'] not in ('Depression', 'Deep Depression', 'Well Marked Low Pressure Area', 'Low Pressure Area')
     calm = b['final'] and not is_storm
