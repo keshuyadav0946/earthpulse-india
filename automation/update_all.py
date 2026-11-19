@@ -549,8 +549,11 @@ def parse_imd_bulletin(text):
     if mm:
         b['move_dir'] = mm.group(1)
         b['move_speed'] = int(mm.group(2))
-    # Crossing / landfall forecast sentence
+    # Crossing / landfall forecast sentence (wording varies: "likely to cross"
+    # or "likely to move ... and cross")
     cm = re.search(r'likely to cross (.+?)\.\s', text, re.S)
+    if not cm:
+        cm = re.search(r'and cross (.+?)\.\s', text, re.S)
     b['cross_sentence'] = clean_ws(cm.group(1)) if cm else ''
     xm = re.search(r'between (.+?) and (.+?),?\s+by (.+?) of (\d{1,2})\s*(?:st|nd|rd|th) (\w+),?\s*(\d{4})', b['cross_sentence'])
     if xm:
@@ -560,6 +563,8 @@ def parse_imd_bulletin(text):
         b['cross_day'] = int(xm.group(4))
         b['cross_month'] = xm.group(5)
         b['cross_year'] = int(xm.group(6))
+        for k in ('cross_a', 'cross_b'):
+            b[k] = re.sub(r',\s*close to .*$', '', b[k]).strip()
     wm2 = re.search(r'maximum sustained wind speed of ([\d-]+) kmph gusting to (\d+) kmph', b['cross_sentence'])
     if wm2:
         b['cross_winds'] = wm2.group(1)
@@ -1138,6 +1143,10 @@ def update_cyclone():
     html = re.sub(r'Laal ghumav = sakriya toofaan — [^<]*', legend_txt, html, count=1)
     html = re.sub(r'Laal ghumav = sakriya toofaan \([^<]*', legend_txt, html, count=1)
     html = re.sub(r'RSMC snapshot [^<]*?re-scan har 5 min', f"RSMC snapshot {DS} · Bulletin No. {NO} · {TS} IST · re-scan har 5 min", html, count=1)
+    ih = b.get('issue_hhmm') or '0000'
+    snap_lbl = (f"{b['date'].strftime('%d %b %Y').upper()} · BULLETIN No. {NO} · {ih[:2]}:{ih[2:]} IST · "
+                + (f"{b['name'].upper()} LIVE" if b.get('name') else 'NO CYCLONE'))
+    html = re.sub(r'(WATCH SNAPSHOT</span><span>)[^<]*', lambda mo: mo.group(1) + snap_lbl, html, count=1)
     html = re.sub(r'(id="cyGlobeCalm">)(.*?)(</div>)', lambda mo: mo.group(1) + calm_inner + mo.group(3), html, count=1, flags=re.S)
     html = re.sub(r'(id="cyGlobeCap">)([^<]*)(</span>)', lambda mo: mo.group(1) + extra['@globe_cap']['default'] + mo.group(3), html, count=1)
     html = re.sub(r'(id="cyGlobeCardP2"[^>]*>)(.*?)(</p>)', lambda mo: mo.group(1) + extra['@globe_card_p2']['default'] + mo.group(3), html, count=1, flags=re.S)
