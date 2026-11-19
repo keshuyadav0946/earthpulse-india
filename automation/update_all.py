@@ -664,7 +664,7 @@ def update_cyclone():
     except Exception as e:
         log(site, f'IMD cyclone page fetch failed: {e} — skipped')
         return False
-    m = re.search(r'backend/assets/cyclone_pdf/(\d+)__National_Bulletin_No_(\d+)-(\d{2})([A-Za-z]{3})(\d{4})_(\d{4})IST_docx\.pdf', page)
+    m = re.search(r'backend/assets/cyclone_pdf/(\d+)__National_Bulletin_No_(\d+)-(\d{2})([A-Za-z]{3})(\d{4})_(\d{4})IST(?:_docx)?\.pdf', page)
     path, html = load_page(site)
     sm, s6 = find_b64_script(html, 'var LIVE=')
     if sm is None:
