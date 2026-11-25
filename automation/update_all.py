@@ -1240,8 +1240,12 @@ def update_cyclone():
     html = re.sub(r'Laal ghumav = sakriya toofaan \([^<]*', legend_txt, html, count=1)
     html = re.sub(r'RSMC snapshot [^<]*?re-scan har 5 min', f"RSMC snapshot {DS} · Bulletin No. {NO} · {TS} IST · re-scan har 5 min", html, count=1)
     ih = b.get('issue_hhmm') or '0000'
+    if calm:
+        snap_state = f"{b['name'].upper()} KHATAM" if b.get('name') else 'NO CYCLONE'
+    else:
+        snap_state = f"{b['name'].upper()} LIVE" if b.get('name') else 'NO CYCLONE'
     snap_lbl = (f"{b['date'].strftime('%d %b %Y').upper()} · BULLETIN No. {NO} · {ih[:2]}:{ih[2:]} IST · "
-                + (f"{b['name'].upper()} LIVE" if b.get('name') else 'NO CYCLONE'))
+                + snap_state)
     html = re.sub(r'(WATCH SNAPSHOT</span><span>)[^<]*', lambda mo: mo.group(1) + snap_lbl, html, count=1)
     html = re.sub(r'(id="cyGlobeCalm">)(.*?)(</div>)', lambda mo: mo.group(1) + calm_inner + mo.group(3), html, count=1, flags=re.S)
     html = re.sub(r'(id="cyGlobeCap">)([^<]*)(</span>)', lambda mo: mo.group(1) + extra['@globe_cap']['default'] + mo.group(3), html, count=1)
