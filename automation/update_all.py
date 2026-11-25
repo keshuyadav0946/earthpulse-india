@@ -523,28 +523,64 @@ def parse_imd_bulletin(text):
         if sm0:
             subj = sm0.group(1) + ']'
     subj = clean_ws(subj)
-    sm = re.search(r'(Extremely Severe Cyclonic Storm|Very Severe Cyclonic Storm|Severe Cyclonic Storm|Super Cyclonic Storm|Cyclonic Storm|Deep Depression|Depression)\s*[“"]([^”"]+)[”"]', subj)
-    if sm:
-        b['stage'] = sm.group(1)
-        b['name'] = sm.group(2).strip().title()
+    # Current stage. A remnant subject names the OLD storm in brackets —
+    # 'Deep Depression (Remnant of Severe Cyclonic Storm "Akvan") weakened
+    # into a Depression' — so the bracketed stage must never win: a stated
+    # "weakened into <stage>" is the current stage; else the leading stage
+    # of a remnant subject; else the plain '<Stage> "<Name>"' form.
+    b['name'] = None
+    nm = re.search(r'[“"]([^”"]+)[”"]', subj)
+    if nm:
+        b['name'] = nm.group(1).strip().title()
+    wk = re.search(r'weakened into an?\s+(Well[- ]Marked Low Pressure Area|Low Pressure Area|Deep Depression|Depression|Cyclonic Storm|Severe Cyclonic Storm|Very Severe Cyclonic Storm)', subj, re.I)
+    lead = re.match(r'(Deep Depression|Depression)\s*\(Remnant of', subj, re.I)
+    if wk:
+        b['stage'] = re.sub(r'\s+', ' ', wk.group(1).replace('-', ' ')).strip().title()
+    elif lead:
+        b['stage'] = lead.group(1).title()
     else:
-        sm2 = re.search(r'(Deep Depression|Depression|Well[- ]Marked Low Pressure Area|Low Pressure Area)', subj, re.I)
-        if not sm2:
-            return None
-        b['stage'] = sm2.group(1).title()
-        b['name'] = None
+        sm = re.search(r'(Extremely Severe Cyclonic Storm|Very Severe Cyclonic Storm|Severe Cyclonic Storm|Super Cyclonic Storm|Cyclonic Storm|Deep Depression|Depression)\s*[“"]([^”"]+)[”"]', subj)
+        if sm:
+            b['stage'] = sm.group(1)
+            b['name'] = sm.group(2).strip().title()
+        else:
+            sm2 = re.search(r'(Deep Depression|Depression|Well[- ]Marked Low Pressure Area|Low Pressure Area)', subj, re.I)
+            if not sm2:
+                return None
+            b['stage'] = sm2.group(1).title()
+            b['name'] = None
     b['warning'] = ''
     for bm in re.finditer(r'\[(.+?)\]', subj):
         if 'Warning' in bm.group(1) or 'Alert' in bm.group(1) or 'Message' in bm.group(1):
             b['warning'] = clean_ws(bm.group(1))
-    # Body: centred position
-    pm = re.search(r'lay centered at (\d{4}) hours IST of today, the \d+\s*(?:st|nd|rd|th) \w+, \d{4}.*?near Latitude ([\d.]+)°N and Longitude ([\d.]+)°E,?\s*(about .+?)\.\s', text)
-    if not pm:
-        return None
-    b['centre_hhmm'] = pm.group(1)
-    b['lat'] = float(pm.group(2))
-    b['lon'] = float(pm.group(3))
-    b['distances'] = clean_ws(pm.group(4))
+    # Body: centred position. IMD phrases this several ways, and the old
+    # single rigid pattern silently rejected real bulletins (Akvan 35 and
+    # 37-42): "of yesterday" instead of "of today" (35), "lay centred over
+    # <area> near Latitude ..., at 0830 hours IST ..." (38), lowercase
+    # "latitude" (41), and final bulletins with no centre at all (42).
+    # Try the known phrasings in order; a missing centre is fatal only for
+    # a non-final bulletin (gate at the end of this function).
+    b['centre_hhmm'] = None
+    b['lat'] = b['lon'] = None
+    b['distances'] = ''
+    pm = re.search(r'lay cent(?:er|re)d at (\d{4}) hours IST of (?:today|yesterday), the \d+\s*(?:st|nd|rd|th) \w+, \d{4}.*?(?:near\s+|\(\s*)Latitude ([\d.]+)°N and Longitude ([\d.]+)°E\)?,?\s*(about .+?)\.\s', text)
+    if pm:
+        b['centre_hhmm'] = pm.group(1)
+        b['lat'], b['lon'] = float(pm.group(2)), float(pm.group(3))
+        b['distances'] = clean_ws(pm.group(4))
+    if b['lat'] is None:
+        pm = re.search(r'lay cent(?:er|re)d over .+?near Latitude ([\d.]+)°N and Longitude ([\d.]+)°E,?\s*(?:at (\d{4}) hours IST of (?:today|yesterday), the \d+\s*(?:st|nd|rd|th) \w+, \d{4},?\s*)?(about .+?)\.\s', text)
+        if pm:
+            b['lat'], b['lon'] = float(pm.group(1)), float(pm.group(2))
+            b['centre_hhmm'] = pm.group(3)
+            b['distances'] = clean_ws(pm.group(4))
+    if b['lat'] is None:
+        pm = re.search(r'(?:near\s+|\(\s*)latitude ([\d.]+)\s*°?\s*N and longitude ([\d.]+)\s*°?\s*E', text, re.I)
+        if pm:
+            b['lat'], b['lon'] = float(pm.group(1)), float(pm.group(2))
+            dm = re.search(r'about .+?\.\s', text[pm.end():])
+            if dm:
+                b['distances'] = clean_ws(dm.group(0)[:-1])
     mm = re.search(r'moved ([\w-]+?)wards? with the speed of (\d+) kmph during past 0?6 hours', text)
     if mm:
         b['move_dir'] = mm.group(1)
@@ -587,11 +623,19 @@ def parse_imd_bulletin(text):
     # Rainfall headline
     rm = re.search(r'(Extremely heavy rainfall|Very heavy rainfall|Heavy rainfall)[^\n.]*', text)
     b['rain_line'] = clean_ws(rm.group(0)) if rm else ''
-    # Dissipation / final bulletin signals
+    # Dissipation / final bulletin signals. Bulletin 42 says "This is last
+    # update in association with this system" — IMD writes "last update"
+    # as well as "last bulletin", so both wordings count.
     low = text.lower()
     b['final'] = ('last bulletin' in low or 'no further bulletin' in low or
+                  'last update in association with this system' in low or
                   'weakened into a well-marked low pressure area' in low or
                   'weakened into a well marked low pressure area' in low)
+    if b['lat'] is None and not b['final']:
+        # An active system must have a position; without one it cannot be
+        # rendered honestly. A final bulletin may legitimately have no
+        # centre (the remnant has dissipated) — that is the calm case.
+        return None
     return b
 
 
@@ -599,7 +643,7 @@ def cyclone_templates(b):
     """Build all replacement texts from parsed bulletin b."""
     dstr = fmt_date(b['date'])
     tstr = hhmm_to_12h(b['issue_hhmm']) if b['issue_hhmm'] else ''
-    cstr = hhmm_to_12h(b['centre_hhmm'])
+    cstr = hhmm_to_12h(b['centre_hhmm']) if b.get('centre_hhmm') else ''
     stage = b['stage']
     name = b['name']
     disp = f"{stage} ‘{name}’" if name else stage
@@ -624,8 +668,11 @@ def cyclone_templates(b):
     if b.get('surge'):
         lo, hi = b['surge']
         surge_txt = f"Storm surge lagbhag {lo}" + (f"–{hi}" if hi else "") + " m tak ka anumaan hai."
+    centre_txt = (f"lay centered at {cstr} IST near {b['lat']}°N, {b['lon']}°E — {b['distances']}"
+                  if b['lat'] is not None else
+                  'system kamzor hokar khatam ho chuka hai (ab koi defined centre nahi hai)')
     note = (f"IMD National Bulletin No. {b['no']} ({dstr}, {tstr} IST): {disp_plain} "
-            f"lay centered at {cstr} IST near {b['lat']}°N, {b['lon']}°E — {b['distances']}. "
+            f"{centre_txt}. "
             + (f"It is likely to cross {cross}. " if cross else '')
             + (surge_txt + ' ' if surge_txt else '')
             + f"(Bulletin ka dated snapshot hai — taaza sthiti ke liye IMD ka naya bulletin dekho.)")
@@ -662,6 +709,29 @@ def cyclone_templates(b):
     }
 
 
+CYCLONE_ARCHIVE = 'https://mausam.imd.gov.in/responsive/cyclone_bulletin_archive.php?id=2'
+BULLETIN_LINK_RE = re.compile(r'backend/assets/cyclone_pdf/(\d+)__National_Bulletin_No_(\d+)-(\d{2})([A-Za-z]{3})(\d{4})_(\d{4})IST\d*(?:_docx)?\.pdf')
+
+
+def newest_bulletin_match(page_html):
+    """Newest National Bulletin link on an IMD page. The old code used
+    re.search — the FIRST link in the HTML, which is not necessarily the
+    newest bulletin — and its pattern missed the '...IST1.pdf' filename
+    variant IMD used for Bulletin 37. "Newest" here means the greatest
+    filename date + time, then the greatest bulletin number."""
+    best = None
+    best_key = None
+    for mm in BULLETIN_LINK_RE.finditer(page_html):
+        try:
+            month_idx = MONTHS.index(mm.group(4).title())
+        except ValueError:
+            continue
+        key = (int(mm.group(5)), month_idx, int(mm.group(3)), int(mm.group(6)), int(mm.group(2)))
+        if best_key is None or key > best_key:
+            best, best_key = mm, key
+    return best
+
+
 def update_cyclone():
     site = 'cyclone'
     try:
@@ -669,7 +739,21 @@ def update_cyclone():
     except Exception as e:
         log(site, f'IMD cyclone page fetch failed: {e} — skipped')
         return False
-    m = re.search(r'backend/assets/cyclone_pdf/(\d+)__National_Bulletin_No_(\d+)-(\d{2})([A-Za-z]{3})(\d{4})_(\d{4})IST(?:_docx)?\.pdf', page)
+    m = newest_bulletin_match(page)
+    imd_says_none = False
+    if not m and re.search(r'cyclone_pdf/No_Cyclone\d*\.pdf', page):
+        # IMD has replaced the bulletin link with its "No Cyclone" notice —
+        # IMD itself declares that no cyclone exists. The calm page still
+        # needs the last real bulletin's number and date, which IMD keeps
+        # on its bulletin archive page; use the newest bulletin there, and
+        # only if it parses as a final/dissipated one (checked below).
+        imd_says_none = True
+        try:
+            archive = fetch(CYCLONE_ARCHIVE, timeout=45).decode('utf-8', errors='replace')
+            m = newest_bulletin_match(archive)
+        except Exception as e:
+            log(site, f'IMD bulletin archive fetch failed: {e} — skipped')
+            return False
     path, html = load_page(site)
     sm, s6 = find_b64_script(html, 'var LIVE=')
     if sm is None:
@@ -701,6 +785,17 @@ def update_cyclone():
     t = cyclone_templates(b)
     is_storm = b['stage'] not in ('Depression', 'Deep Depression', 'Well Marked Low Pressure Area', 'Low Pressure Area')
     calm = b['final'] and not is_storm
+    if imd_says_none:
+        if not b['final']:
+            log(site, 'IMD says no cyclone but newest archived bulletin is not a final one — skipped')
+            return False
+        # IMD's own "No Cyclone" notice is out and the newest archived
+        # bulletin is the final one: the system is over, whatever stage
+        # that last bulletin still named.
+        calm = True
+    if b['lat'] is None and not calm:
+        log(site, 'bulletin has no centre and is not a final one — skipped')
+        return False
     # --- LIVE object ---
     if calm:
         live = {'active': False, 'system': None, 'depression': None,
